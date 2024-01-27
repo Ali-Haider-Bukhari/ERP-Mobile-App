@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ActivityIndicator, Text, View, Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import styles from './Styles';
 
 const Logo = require("../../assets/logo.png");
@@ -45,6 +46,7 @@ function Splash() {
       <View style={{height:'20px'}}>
         {flag?<ActivityIndicator style={styles.spinner} size="large" color="#6495ED" />:<Text style={styles.text}>{"      "} </Text>}
       </View>
+      <StatusBar style="auto" />
     </View>
   );
 }

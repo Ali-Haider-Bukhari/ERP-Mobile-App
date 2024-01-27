@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import {  Text, View } from 'react-native';
 import { useEffect,useState } from 'react';
 import Splash from './screens/Splash/Splash';
@@ -14,11 +13,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Splash">
         <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={Login} options={{ headerShown: true ,headerBackground:'green'}}/>
-      </Stack.Navigator>
-   
-        
-        <StatusBar style="auto" />
-      
+      </Stack.Navigator>      
     </NavigationContainer>
   ); 
 }
