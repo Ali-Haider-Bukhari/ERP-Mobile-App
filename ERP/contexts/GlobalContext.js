@@ -1,12 +1,12 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 const MyContext = createContext();
 
-export const MyProvider = ({ children }) => {
-  const [myState,setMyState] = useState();
+export const GlobalProvider = ({ children }) => {
+  const [myState, setMyState] = useState();  // example state
 
   const value = {
     myState,setMyState
-  }
+  };
 
   return (
     <MyContext.Provider value={value}>
@@ -15,6 +15,6 @@ export const MyProvider = ({ children }) => {
   );
 };
 
-export const globalContext = () => {
+export const useGlobalContext = () => {
   return useContext(MyContext);
 };
