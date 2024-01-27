@@ -5,7 +5,7 @@ import styles from './Styles';
 
 const Logo = require("../../assets/logo.png");
 
-function Splash() {
+function Splash({navigation}) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateYAnim = useRef(new Animated.Value(0)).current;
   const [flag,setFlag] = useState(false)
@@ -27,6 +27,9 @@ function Splash() {
         useNativeDriver: true,
       }),
     ]).start();
+    setTimeout(() => {
+      navigation.navigate('Login')
+  }, 10000); 
   }, [fadeAnim, translateYAnim]);
  
 
