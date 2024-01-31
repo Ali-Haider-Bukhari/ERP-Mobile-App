@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Text, View, Image, TextInput, Button } from 'react-native';
-// import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
 const Logo = require("../../assets/logo.png");
-// import PasswordResetScreen from '../PasswordReset/forget';
-// import { NavigationContainer } from '@react-navigation/native';
+
 
 function Login() {
   const [inputText1, setInputText1] = useState("");
