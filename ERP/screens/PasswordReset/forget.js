@@ -7,28 +7,30 @@ const Logo = require("../../assets/logo.png");
 const PasswordResetScreen = () => {
   const [email, setEmail] = useState('');
 
+  
   const handleResetPassword = async () => {
-    console.log(Python_Url , email , "get in send funct")
-    // try {
-    //   const response = await fetch(`http://192.168.1.101:5000/forgetverify`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json', // Specify the content type
-    //     },
-    //     body: JSON.stringify({ email }), // Convert the data to JSON format
-    //   });
-  
-    //   if (response.ok) {
-    //     // Alert.alert('Password Reset Email Sent', 'Check your email for further instructions.');
-    //   } else {
-    //     // Alert.alert('Error', 'User not found or failed to send email.');
-    //   }
-    // } catch (error) {
-    //   console.error('Error:', error);
-    //   // Alert.alert('Error', 'Failed to connect to the server.');
-    // }
+ 
+      var url = `${Python_Url}/forgetverify`
+
+   
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Assuming the Flask API returns a JSON object with a 'status' property
+        console.log(data.status);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
-  
 
   return (
     <View style={styles.container}>

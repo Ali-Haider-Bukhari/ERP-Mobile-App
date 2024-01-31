@@ -1,8 +1,3 @@
-# import threading
-# import time
-# import sched
-
-# from datetime import datetime
 from pdf2image import convert_from_path
 import os
 from dotenv import load_dotenv 
@@ -34,11 +29,11 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from models.User import User
-# import imaplib
-# import email
-import re
-import requests
-import smtplib
+# import imaplib 
+# import email 
+import re 
+import requests  
+import smtplib 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
@@ -60,8 +55,6 @@ config_file_path = os.path.join(current_directory, '../Config/global.json')
 # Step 1: Read the JSON file
 with open(config_file_path, 'r') as file:
     config_data = json.load(file)  # Step 2: Parse the JSON data
-
-
 
 DB_URL = config_data['url']
 
@@ -205,8 +198,8 @@ def signup():
 
 def send_verification_email(email, firstname, lastname , phone , role , fax ,expiration_time_str ):
     
-    sender_email = config_data['email2']
-    password = config_data['password2']
+    sender_email = config_data['email']
+    password = config_data['password']
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "EMA Provider Portal Verification"
@@ -440,7 +433,7 @@ def login():
 # #     except Exception as e:
 # #         print('Error downloading file:', e)
 # #         abort(500, 'Error downloading file')
-
+ 
 
 
 # # Search Patients 
@@ -544,10 +537,9 @@ def login():
 
 # Forget Password
 
-
 @app.route('/forgetverify', methods=['POST'])
 def forget_verify():
-    try:
+    try: 
         email = request.json.get('email')
         print(email , "recive in python")
         user = User.objects(email=email).first()
@@ -557,8 +549,8 @@ def forget_verify():
         Password = ''.join(random.choices(string.digits, k=5))
         
         
-        sender_email = config_data['email2']
-        password = config_data['password2']
+        sender_email = config_data['email']
+        password = config_data['password']
 
         message = MIMEMultipart("alternative")
         message["Subject"] = "UMS Portal Verification"
@@ -690,8 +682,4 @@ def email_check(email):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='localhost', port=5000)
-  
-
-
-
+    app.run(debug=False, host='192.168.0.107', port=5000)

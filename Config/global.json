@@ -1,10 +1,6 @@
 {
-    "frontend_local_url":"http://localhost:4200",
-    "frontend_dev_url":"https://emgdev.doctornow.io",
-    "frontend_prelive_url":"https://emgprelive.doctornow.io",
-    "email2":"bcsm-f20-141@superior.edu.pk",
-    "password2":"student123*",
-    "CC":"ksaeed@emapugetsound.com",
+    "email":"bcsm-f20-141@superior.edu.pk",
+    "password":"student123*",
     "url":"mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/UMS",
     "app_mode":"prelive"
 }
