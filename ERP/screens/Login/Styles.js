@@ -14,9 +14,10 @@ const styles = StyleSheet.create({
     display:'flex',
     flexDirection:'column',
     alignItems: 'center',
-    justifyContent: 'start',
+    justifyContent: 'center',
     width:'90%',
-    height:'80%',
+    minHeight:'70%',
+    height:'auto',
     borderRadius:10,
 
 
@@ -26,6 +27,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     // Shadow properties for Android
     elevation: 20,
+  },
+  innerContainer:{
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center'
   },
   logo:{
     width:100,
