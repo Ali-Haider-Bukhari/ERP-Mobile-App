@@ -1,17 +1,18 @@
 import {  Text, View,Image } from 'react-native';
 // import { useEffect,useState } from 'react';
 import Splash from './screens/Splash/Splash';
-import Login from './screens/Login/Login'
+import Login from './screens/Login/Login';
 import PasswordReset from "./screens/PasswordReset/forget";
+import HomeScreen from "./screens/Home/Home";
+
 import {NavigationContainer} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GlobalProvider } from './contexts/GlobalContext';
 
 
-
 export default function App() {
 
-  const Stack = createStackNavigator();
+  const Stack = createStackNavigator(); 
 
   return (
     <GlobalProvider>
@@ -34,6 +35,7 @@ export default function App() {
                                                                     headerStyle: { backgroundColor: 'rgba(117, 0, 88,255)' },
                                                                     headerLeft: () => null,}}/>
        
+       <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false}}/>
        <Stack.Screen name="PasswordReset" component={PasswordReset} />
           </Stack.Navigator>      
         </NavigationContainer>

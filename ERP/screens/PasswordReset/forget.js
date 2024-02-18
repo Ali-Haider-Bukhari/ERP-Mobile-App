@@ -1,10 +1,9 @@
-"use client"
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 import {Python_Url} from "../../utils/constants";
 const Logo = require("../../assets/logo.png");
 
-const PasswordResetScreen = () => {
+function PasswordResetScreen () {
   const [email, setEmail] = useState('');
 
   

@@ -24,6 +24,7 @@ function Login() {
   };
 
   const handleButtonPress = (text) => {
+    navigation.navigate("HomeScreen")
     // Handle button press logic
   };
 

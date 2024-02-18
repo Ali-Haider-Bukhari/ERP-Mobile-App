@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { Animated, ActivityIndicator, Text, View, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import styles from './Styles';
 
 const Logo = require("../../assets/logo.png");
 
-function Splash({navigation}) {
+function Splash() {
+  const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateYAnim = useRef(new Animated.Value(0)).current;
   const [flag,setFlag] = useState(false)
