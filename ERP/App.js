@@ -3,7 +3,7 @@ import {  Text, View,Image } from 'react-native';
 import Splash from './screens/Splash/Splash';
 import Login from './screens/Login/Login';
 import PasswordReset from "./screens/PasswordReset/forget";
-import HomeScreen from "./screens/Home/Home";
+import DrawerScreen from "./screens/Drawer/Drawer";
 
 import {NavigationContainer} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -35,8 +35,8 @@ export default function App() {
                                                                     headerStyle: { backgroundColor: 'rgba(117, 0, 88,255)' },
                                                                     headerLeft: () => null,}}/>
        
-       <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false}}/>
-       <Stack.Screen name="PasswordReset" component={PasswordReset} />
+          <Stack.Screen name="Drawer" component={DrawerScreen} options={{ headerShown: false}}/>
+          <Stack.Screen name="PasswordReset" component={PasswordReset} />
           </Stack.Navigator>      
         </NavigationContainer>
 

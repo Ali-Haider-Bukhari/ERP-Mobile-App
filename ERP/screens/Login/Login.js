@@ -24,7 +24,7 @@ function Login() {
   };
 
   const handleButtonPress = (text) => {
-    navigation.navigate("HomeScreen")
+    navigation.navigate("Drawer")
     // Handle button press logic
   };
 
