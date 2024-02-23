@@ -96,10 +96,10 @@ export default function DrawerScreen() {
   const CustomHeader = ({ navigation })  => (
     <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
       {/* <TouchableOpacity onPress={() => navigation.toggleDrawer()}> */}
-        <Ionicons name="menu" size={30} color="white" onPress={() => navigation.toggleDrawer()} />
+        <Ionicons style={{marginTop:15}} name="menu" size={30} color="white" onPress={() => navigation.toggleDrawer()} />
       {/* </TouchableOpacity> */}
-      <Image source={Logo} style={{ width: 60, height: 60, borderRadius: 15,marginLeft:50 }}/>
-      <Text style={{ fontSize: 20,color:'white' }}>Saepn Pvt.Ltd</Text>
+      <Image source={Logo} style={{ width: 50, height: 50, borderRadius: 15,marginLeft:40,marginTop:15 }}/>
+      <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>Saepn Pvt.Ltd</Text>
       {/* <View></View>  */}
     </View>
   );
