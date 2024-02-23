@@ -13,6 +13,7 @@ import ProfileScreen from '../Profile/Profile';
 import AttandanceScreen from '../Attandance/Attandance';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import Login from '../Login/Login';
+const Logo = require("../../assets/logo.png");
 
 
 
@@ -41,10 +42,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-  const BASE_PATH =
-    'https://raw.githubusercontent.com/AboutReact/sampleresource/master/';
-  const proileImage = 'react_logo.png';
 
   return ( 
     <SafeAreaView style={{flex: 1}}>
@@ -95,11 +92,24 @@ const styles = StyleSheet.create({
 export default function DrawerScreen() {
   const Drawer = createDrawerNavigator();
   const navigation = useNavigation();
+
+  const CustomHeader = ({ navigation })  => (
+    <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
+      {/* <TouchableOpacity onPress={() => navigation.toggleDrawer()}> */}
+        <Ionicons name="menu" size={30} color="white" onPress={() => navigation.toggleDrawer()} />
+      {/* </TouchableOpacity> */}
+      <Image source={Logo} style={{ width: 60, height: 60, borderRadius: 15,marginLeft:50 }}/>
+      <Text style={{ fontSize: 20,color:'white' }}>Saepn Pvt.Ltd</Text>
+      {/* <View></View>  */}
+    </View>
+  );
   return (
    <>
       <Drawer.Navigator 
+        
         initialRouteName="Dashboard" 
         drawerContent={props => <CustomSidebarMenu {...props} />}
+        screenOptions={{  header:({ navigation }) => <CustomHeader navigation={navigation} />  }}
         >
         <Drawer.Screen 
         name="Dashboard"
