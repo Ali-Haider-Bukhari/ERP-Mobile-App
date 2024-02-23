@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   sideMenuProfileIcon: {
     // resizeMode: 'center',
     marginTop:40,
-    width: '35%',
+    width: '30%',
     height: '50%',
     borderRadius: 100 / 2,
     alignSelf: 'center', 
