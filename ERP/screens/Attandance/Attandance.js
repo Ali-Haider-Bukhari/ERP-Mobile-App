@@ -73,7 +73,7 @@ export default function AttandanceScreen() {
             <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:11,position:'relative',bottom:4}}>{"Credit Hrs: "+data.creditHrs}</Text>
             </View>
             <View style={{height:'50%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-            <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:225}}><Text>{"Attandance: "+data.attandancePercentage+"%"}</Text></View>
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:'85%'}}><Text>{"Attandance: "+data.attandancePercentage+"%"}</Text></View>
             <ProgressBarAndroid
               styleAttr="Horizontal"
               indeterminate={false}
