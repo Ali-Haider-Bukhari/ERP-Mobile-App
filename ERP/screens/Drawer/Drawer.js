@@ -4,7 +4,6 @@ import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList,
   DrawerItem, } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
-const picture = require(`../../assets/SirTalha.jpeg`);
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -13,6 +12,7 @@ import ProfileScreen from '../Profile/Profile';
 import AttandanceScreen from '../Attandance/Attandance';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import Login from '../Login/Login';
+const picture = require(`../../assets/SirTalha.jpeg`);
 const Logo = require("../../assets/logo.png");
 
 
