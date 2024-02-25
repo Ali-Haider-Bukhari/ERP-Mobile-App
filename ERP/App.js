@@ -18,7 +18,7 @@ export default function App() {
     <GlobalProvider>
 
         <NavigationContainer>   
-          <Stack.Navigator initialRouteName="Drawer">
+          <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false}} />
             <Stack.Screen  name="Login" component={Login} options={{ headerShown: true,
                                                                     headerTitleStyle: { color: 'white' },
