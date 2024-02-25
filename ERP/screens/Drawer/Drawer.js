@@ -11,6 +11,7 @@ import DashboardScreen from '../Dashboard/Dashboard';
 import ProfileScreen from '../Profile/Profile';
 import AttandanceScreen from '../Attandance/Attandance';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+// import Ionicons from 'react-native-vector-icons/Ionicons'
 import Login from '../Login/Login';
 const picture = require(`../../assets/SirTalha.jpeg`);
 const Logo = require("../../assets/logo.png");
@@ -135,6 +136,16 @@ export default function DrawerScreen() {
             <MaterialIcon name={focused?"pages":"pages"} size={size} color={color} />
           )
         }} />
+
+        <Drawer.Screen 
+        name="Conversation" 
+        component={AttandanceScreen}
+        options={{
+          drawerIcon: ({ focused, color, size }) => (
+            <Ionicons name={'chatbubbles-outline'} size={size} color={color} />
+          )
+        }} />
+        
         {/* <Drawer.Screen 
         name="Logout" 
         component={()=>{navigation.navigate('Login')}}
