@@ -138,22 +138,31 @@ export default function DrawerScreen() {
         }} />
 
         <Drawer.Screen 
-        name="Conversation" 
+        name="Conversations" 
         component={AttandanceScreen}
         options={{
           drawerIcon: ({ focused, color, size }) => (
             <Ionicons name={'chatbubbles-outline'} size={size} color={color} />
           )
         }} />
+
+        <Drawer.Screen 
+        name="Results & Exams" 
+        component={AttandanceScreen}
+        options={{
+          drawerIcon: ({ focused, color, size }) => (
+            <MaterialIcon name={'assessment'} size={size} color={color} />
+          )
+        }} />
         
-        {/* <Drawer.Screen 
+        <Drawer.Screen 
         name="Logout" 
         component={()=>{navigation.navigate('Login')}}
         options={{
           drawerIcon: ({ focused, color, size }) => (
             <MaterialIcon name={focused?"exit-to-app":"exit-to-app"} size={size} color={color} />
           )
-        }} /> */}
+        }} />
       </Drawer.Navigator>
    </> 
   )
