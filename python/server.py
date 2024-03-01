@@ -1,9 +1,9 @@
-from pdf2image import convert_from_path
+# from pdf2image import convert_from_path
+# import pytesseract as pytesseract
+# from PIL import Image  
 import os
 from dotenv import load_dotenv 
 
-import pytesseract as pytesseract
-from PIL import Image  
 import re
 from flask import render_template
 import urllib.parse
@@ -28,7 +28,7 @@ import json
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from models.User import User
+from models.User import User, UserRoleEnum
 # import imaplib 
 # import email 
 import re 
@@ -63,6 +63,66 @@ DB_URL = config_data['url']
 
 connect( host= DB_URL)
 
+##########################################################################################
+
+@app.route('/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    username = data.get('username')
+    role = UserRoleEnum[data.get('role')]  # Assuming the role is provided as a string
+
+    # Optional field
+    roll_number = data.get('roll_number', "")
+
+    if not email or not password or not username or not role:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Check if the user already exists
+    if User.objects(email=email).first():
+        return jsonify({"error": "User with this email already exists"}), 400
+
+    try:
+        user = User.register(email, password, username, role, roll_number)
+        return jsonify({"message": "User registered successfully", "user": user.to_json()}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+##################################################################################################
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"error": "Missing email or password"}), 400
+
+    token = User.login_user(email,password)
+
+    if token is None:
+        return jsonify({"error": "Invalid email or password"}), 401
+    else:
+        return jsonify({"token": token}), 200
+        
+###############################################################################################
+    
+@app.route('/verify-token', methods=['POST'])
+def verify_token():
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return jsonify({"error": "Token is missing"}), 401
+
+    value = verify_token(token)
+    if value == None:
+        return jsonify({"error": "Token has expired"}), 401
+    else:
+        return jsonify({"message": "Token is valid", "user": value.to_json()}), 200
+    
+###########################################################################################################
 
 
 
@@ -682,4 +742,4 @@ def email_check(email):
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='192.168.0.107', port=5000)
+    app.run(debug=False, host='162.12.210.24', port=5000)
