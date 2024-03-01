@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, EmailField, DateTimeField ,EnumField
+from mongoengine import Document, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField,EmailField,EnumField
 from enum import Enum
 
 class UserRoleEnum(Enum):
@@ -7,9 +7,9 @@ class UserRoleEnum(Enum):
     ADMIN   = "ADMIN"
 
 class User(Document):
-    name = StringField(required=True)
-    email = EmailField(required=True)
+    email = EmailField(required=True, unique=True)
     password = StringField(required=True)
+    username = StringField(required=True, unique=True)
+    roll_number = StringField(required=False)  # In case of teacher it will be "" empty
     role = EnumField(UserRoleEnum, required=True)
-
-    meta = {'collection': 'user', 'strict': False}
+    meta = {'collection': 'users', 'strict': True}
