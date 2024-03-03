@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
-import { Text, View, Image, TextInput, Button } from 'react-native';
+import React, { useState,useContext } from 'react';
+import { Text, View, Image, TextInput, Button} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
+import { AuthContext } from '../../contexts/AuthContext';
 const Logo = require("../../assets/logo.png");
 
 
 function Login() {
-  const [inputText1, setInputText1] = useState("");
-  const [inputText2, setInputText2] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const {login} = useContext(AuthContext);
 
   const navigation = useNavigation(); // Access navigation object
 
   const handleInputChangeUser = (text) => {
-    setInputText1(text);
+    setEmail(text);
   };
 
   const handleInputChangePass = (text) => {
-    setInputText2(text);
+    setPassword(text);
   };
 
   const handleResetPassword = () => {
@@ -24,8 +26,8 @@ function Login() {
   };
 
   const handleButtonPress = (text) => {
-    navigation.navigate("Drawer")
-    // Handle button press logic
+    const dataObj = {email,password}
+    login(dataObj)
   };
 
   return (
@@ -41,13 +43,13 @@ function Login() {
                 style={styles.input1}
                 placeholder="User ID"
                 onChangeText={handleInputChangeUser}
-                value={inputText1}
+                value={email}
               />
               <TextInput
                 style={styles.input2}
                 placeholder="Password"
                 onChangeText={handleInputChangePass}
-                value={inputText2}
+                value={password}
               />
               <View style={styles.button}>
                 <Button color={"rgba(117, 0, 88,255)"} title="Log in" onPress={handleButtonPress}></Button>

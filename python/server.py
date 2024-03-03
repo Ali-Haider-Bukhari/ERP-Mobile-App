@@ -62,7 +62,7 @@ DB_URL = config_data['url']
 # Configure the MongoDB connection
 
 connect( host= DB_URL)
-
+    
 ##########################################################################################
 
 @app.route('/register', methods=['POST'])
@@ -96,6 +96,7 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+    print(email,password)
 
     if not email or not password:
         return jsonify({"error": "Missing email or password"}), 400
@@ -378,35 +379,35 @@ def update_role(_id, role):
 #  Login 
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
+# @app.route('/login', methods=['POST'])
+# def login():
+#     data = request.get_json()
+#     email = data.get('email')
+#     password = data.get('password')
 
-    if not email or not password:
-        return jsonify({'message': 'Missing email or password'}), 400
+#     if not email or not password:
+#         return jsonify({'message': 'Missing email or password'}), 400
 
-    try:
-        user = User.objects.get(email=email)
-        print(user)
-    except User.DoesNotExist:
-        return jsonify({'message': 'User not found'}), 500
+#     try:
+#         user = User.objects.get(email=email)
+#         print(user)
+#     except User.DoesNotExist:
+#         return jsonify({'message': 'User not found'}), 500
 
-    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        user_data = {
-            'id': str(user.id),
-            'email': user.email,
-            'firstname': user.firstname,
-            'lastname': user.lastname,  
-            'role':user.role,
-            'fax':user.fax
+#     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+#         user_data = {
+#             'id': str(user.id),
+#             'email': user.email,
+#             'firstname': user.firstname,
+#             'lastname': user.lastname,  
+#             'role':user.role,
+#             'fax':user.fax
             
-        } 
+#         } 
         
-        return jsonify({'status': 200, 'obj': user_data}), 200
-    else:
-        return jsonify({'message': 'Incorrect password'}), 400
+#         return jsonify({'status': 200, 'obj': user_data}), 200
+#     else:
+#         return jsonify({'message': 'Incorrect password'}), 400
 
 
 
@@ -742,4 +743,4 @@ def email_check(email):
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='162.12.210.24', port=5000)
+    app.run(debug=False, host=config_data['host'], port=5000)

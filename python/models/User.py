@@ -17,6 +17,8 @@ class User(Document):
     role = EnumField(UserRoleEnum, required=True)
     meta = {'collection': 'users', 'strict': True}
 
+    JWT_SECRET = 'FYP-BCSM-001'
+
     @staticmethod
     def generate_token(user_id):
             payload = {
@@ -24,7 +26,8 @@ class User(Document):
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expiration time
             }
             token = jwt.encode(payload, User.JWT_SECRET, algorithm='HS256')
-            return token.decode('utf-8')
+            return token
+             # return token.decode('utf-8')
 
     @staticmethod
     def login_user(email, password):
