@@ -1,11 +1,38 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState,useEffect } from 'react';
 import {ToastAndroid } from 'react-native'
-import {Python_Url} from "../utils/constants";
+import {Python_Url, getToken,storeToken,removeToken,verifyTokenRequest} from "../utils/constants";
+import { useNavigation } from '@react-navigation/native';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const navigation = useNavigation();
   const [user, setUser] = useState(null);
+
+  useEffect(() => {  // FOR REFRESH CASE
+    getToken()
+    .then((token) => {
+      // Use the token value here
+      verifyTokenRequest(token)
+      .then(({ data, error }) => {
+        if (error) {
+          ToastAndroid.show(error,ToastAndroid.LONG)
+          navigation.navigate("Login")
+        } else {
+          console.log('Response:', data);
+          setUser(user)
+          // Handle the response data here
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error.message);
+      });
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+
+  }, [])
 
   const login = async (userData) => {
     const url = `${Python_Url}/login`
@@ -23,10 +50,24 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         // Successful login
-        setUser(userData);
         ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
-        navigation.navigate("Drawer")
-        // You can handle storing the token or other user data here
+        console.log(userData,"USER OBJ");
+        storeToken(data.token); // STORING TOKEN IN LOCAL STORAGE
+        verifyTokenRequest(data.token)
+        .then(({ data, error }) => {
+          if (error) {
+            ToastAndroid.show(error,ToastAndroid.LONG)
+            navigation.navigate("Login")
+          } else {
+            console.log('chk Response:', data);
+            setUser(data)
+            // Handle the response data here
+            navigation.navigate("Drawer")
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error.message);
+        });
       } else {
         // Login failed
         ToastAndroid.show(data.error,ToastAndroid.SHORT)
@@ -35,11 +76,13 @@ export const AuthProvider = ({ children }) => {
       // Handle network errors
       ToastAndroid.show("Network Request Error",ToastAndroid.SHORT)
     }
+ 
   };
 
   const logout = () => {
-    // Perform logout logic (e.g., clear stored user data and token)
+    removeToken()
     setUser(null);
+    navigation.navigate("Login")
   };
 
   return (

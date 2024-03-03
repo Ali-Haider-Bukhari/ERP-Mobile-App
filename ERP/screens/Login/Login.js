@@ -1,15 +1,15 @@
-import React, { useState,useContext } from 'react';
+import React, { useState,useContext,useEffect } from 'react';
 import { Text, View, Image, TextInput, Button} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
 import { AuthContext } from '../../contexts/AuthContext';
 const Logo = require("../../assets/logo.png");
-
+ 
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const {login} = useContext(AuthContext);
+  const {login,user} = useContext(AuthContext);
 
   const navigation = useNavigation(); // Access navigation object
 
@@ -29,6 +29,7 @@ function Login() {
     const dataObj = {email,password}
     login(dataObj)
   };
+
 
   return (
    

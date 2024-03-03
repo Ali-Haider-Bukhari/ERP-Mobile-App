@@ -114,12 +114,13 @@ def login():
 def verify_token():
     token = request.headers.get('Authorization')
 
+    print(token,"token")
     if not token:
-        return jsonify({"error": "Token is missing"}), 401
+        return jsonify({"message": "Token is missing"}), 401
 
-    value = verify_token(token)
+    value = User.verify_token(token)
     if value == None:
-        return jsonify({"error": "Token has expired"}), 401
+        return jsonify({"message": "Token has expired"}), 401
     else:
         return jsonify({"message": "Token is valid", "user": value.to_json()}), 200
     

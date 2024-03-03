@@ -15,6 +15,7 @@ import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import Login from '../Login/Login';
 const picture = require(`../../assets/SirTalha.jpeg`);
 const Logo = require("../../assets/logo.png");
+import { AuthContext } from '../../contexts/AuthContext';
 
 
 
@@ -22,6 +23,7 @@ const Logo = require("../../assets/logo.png");
 
 
 const CustomSidebarMenu = (props) => {
+  
   
 const styles = StyleSheet.create({
   sideMenuProfileIcon: {
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
 };
  
 export default function DrawerScreen() {
+  const {logout} = React.useContext(AuthContext)
   const Drawer = createDrawerNavigator();
   const navigation = useNavigation();
 
@@ -157,7 +160,9 @@ export default function DrawerScreen() {
         
         <Drawer.Screen 
         name="Logout" 
-        component={()=>{navigation.navigate('Login')}}
+        component={()=>{
+          logout();
+        }}
         options={{
           drawerIcon: ({ focused, color, size }) => (
             <MaterialIcon name={focused?"exit-to-app":"exit-to-app"} size={size} color={color} />

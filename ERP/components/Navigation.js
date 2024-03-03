@@ -10,7 +10,7 @@ export default function Navigation(){
     const Stack = createStackNavigator(); 
 
     return(    
-    <NavigationContainer>   
+    // <NavigationContainer>   
           <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false}} />
             <Stack.Screen  name="Login" component={Login} options={{ headerShown: true,
@@ -31,6 +31,6 @@ export default function Navigation(){
           <Stack.Screen name="Drawer" component={DrawerScreen} options={{ headerShown: false}}/>
           <Stack.Screen name="PasswordReset" component={PasswordReset} />
           </Stack.Navigator>      
-        </NavigationContainer>
+        // </NavigationContainer>
     )
 }
