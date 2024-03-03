@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData) => {
     const url = `${Python_Url}/login`
-    console.log(userData,"USERDATA",url)
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -20,27 +20,21 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log(data,"RESPONSE")
+
       if (response.ok) {
         // Successful login
-        Alert.alert('Success', 'Login successful');
+        setUser(userData);
+        ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
+        navigation.navigate("Drawer")
         // You can handle storing the token or other user data here
       } else {
         // Login failed
-        Alert.alert('Error', data.error || 'Login failed');
+        ToastAndroid.show(data.error,ToastAndroid.SHORT)
       }
     } catch (error) {
       // Handle network errors
-      console.error('Error:', error);
-      Alert.alert('Error', 'An error occurred, please try again later');
+      ToastAndroid.show("Network Request Error",ToastAndroid.SHORT)
     }
-
-    /////////////////////////
-    ToastAndroid.show("Authentication Failed",ToastAndroid.SHORT)
-    navigation.navigate("Drawer")
-    // Perform authentication logic (e.g., API call)
-    // If successful, store user data and authentication token
-    setUser(userData);
   };
 
   const logout = () => {
