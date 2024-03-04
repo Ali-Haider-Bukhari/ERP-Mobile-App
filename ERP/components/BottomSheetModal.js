@@ -8,6 +8,7 @@ import {
 
 export default function BottomSheetModalComponent({onClose}){
     const bottomSheetModalRef = useRef(bottomSheetModalRef?.current?.present());
+
     const snapPoints = useMemo(() => ['25%', '50%'], []);
     
     useEffect(() => {
@@ -16,7 +17,7 @@ export default function BottomSheetModalComponent({onClose}){
 
     const handleSheetChanges = useCallback((index) => {
       console.log('handleSheetChanges', index);
-      if(index == -1)
+      if(index == -1 || index == 0)
       onClose(false)
     }, []);
   

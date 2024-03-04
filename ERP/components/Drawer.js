@@ -171,7 +171,7 @@ export default function DrawerScreen() {
           )
         }} />
       </Drawer.Navigator>
-      {bottomSheetModalFlag?<BottomSheetModalComponent onClose={(value)=>setBottomSheetModalFlag(value)}/>:null}
+      {bottomSheetModalFlag?<BottomSheetModalComponent onClose={(value)=>setBottomSheetModalFlag(value)} />:null}
    </> 
   )
 }
