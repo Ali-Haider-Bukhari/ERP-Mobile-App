@@ -26,6 +26,10 @@ export const AuthProvider = ({ children }) => {
             setUser(data)
             ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
+          }else if(token!=null&&data == null){ // TOKEN EXPIRY CASE
+            ToastAndroid.show("Session Expired",ToastAndroid.SHORT)
+            removeToken()
+            navigation.navigate("Login")
           }
           // Handle the response data here
         }

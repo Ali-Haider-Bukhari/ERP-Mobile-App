@@ -1,4 +1,4 @@
-import  React from 'react';
+import  React,{useState} from 'react';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
 import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList,
@@ -16,14 +16,9 @@ import Login from '../screens/Login/Login';
 const picture = require(`../assets/SirTalha.jpeg`);
 const Logo = require("../assets/logo.png");
 import { AuthContext } from '../contexts/AuthContext';
-
-
-
-
-
+import BottomSheetModalComponent from './BottomSheetModal';
 
 const CustomSidebarMenu = (props) => {
-  
   
 const styles = StyleSheet.create({
   sideMenuProfileIcon: {
@@ -96,7 +91,7 @@ export default function DrawerScreen() {
   const {logout} = React.useContext(AuthContext)
   const Drawer = createDrawerNavigator();
   const navigation = useNavigation();
-
+  const [bottomSheetModalFlag,setBottomSheetModalFlag] = useState(false)
   
   
 
@@ -111,7 +106,7 @@ export default function DrawerScreen() {
           <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>Saepn Pvt.Ltd</Text>
         </View>
        
-        <MaterialIcon style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
+        <MaterialIcon onPress={()=>{setBottomSheetModalFlag(true)}} style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
       </View>
       
     </View>
@@ -176,6 +171,7 @@ export default function DrawerScreen() {
           )
         }} />
       </Drawer.Navigator>
+      {bottomSheetModalFlag?<BottomSheetModalComponent onClose={(value)=>setBottomSheetModalFlag(value)}/>:null}
    </> 
   )
 }

@@ -32,8 +32,10 @@ function Splash() {
     ]).start();
     setTimeout(() => {
       getToken().then((token) => {
-        if(token==null)
+        if(token==null){
+        console.log(token,"TOKEN")
         navigation.navigate('Login')
+      }
       }).catch((error) => {
         console.error('Error:', error.message);
       });
