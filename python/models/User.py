@@ -7,6 +7,7 @@ import bcrypt
 class UserRoleEnum(Enum):
     TEACHER = "TEACHER"
     STUDENT = "STUDENT"
+    BOT = "BOT"
     ADMIN   = "ADMIN"
 
 class User(Document):
