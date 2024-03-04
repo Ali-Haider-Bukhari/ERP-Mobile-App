@@ -1,4 +1,4 @@
-import * as React from 'react';
+import  React from 'react';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
 import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList,
@@ -7,15 +7,15 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import DashboardScreen from '../Dashboard/Dashboard';
-import ProfileScreen from '../Profile/Profile';
-import AttandanceScreen from '../Attandance/Attandance';
+import DashboardScreen from '../screens/Dashboard/Dashboard';
+import ProfileScreen from '../screens/Profile/Profile';
+import AttandanceScreen from '../screens/Attandance/Attandance';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 // import Ionicons from 'react-native-vector-icons/Ionicons'
-import Login from '../Login/Login';
-const picture = require(`../../assets/SirTalha.jpeg`);
-const Logo = require("../../assets/logo.png");
-import { AuthContext } from '../../contexts/AuthContext';
+import Login from '../screens/Login/Login';
+const picture = require(`../assets/SirTalha.jpeg`);
+const Logo = require("../assets/logo.png");
+import { AuthContext } from '../contexts/AuthContext';
 
 
 
@@ -97,14 +97,23 @@ export default function DrawerScreen() {
   const Drawer = createDrawerNavigator();
   const navigation = useNavigation();
 
+  
+  
+
   const CustomHeader = ({ navigation })  => (
     <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
       {/* <TouchableOpacity onPress={() => navigation.toggleDrawer()}> */}
         <Ionicons style={{marginTop:15}} name="menu" size={30} color="white" onPress={() => navigation.toggleDrawer()} />
       {/* </TouchableOpacity> */}
-      <Image source={Logo} style={{ width: 50, height: 50, borderRadius: 15,marginLeft:40,marginTop:15 }}/>
-      <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>Saepn Pvt.Ltd</Text>
-      {/* <View></View>  */}
+      <View style={{width:'95%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+        <View style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+          <Image source={Logo} style={{ width: 50, height: 50, borderRadius: 15,marginLeft:40,marginTop:15 }}/>
+          <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>Saepn Pvt.Ltd</Text>
+        </View>
+       
+        <MaterialIcon style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
+      </View>
+      
     </View>
   );
   return (
@@ -159,10 +168,8 @@ export default function DrawerScreen() {
         }} />
         
         <Drawer.Screen 
+        children={()=>{logout();}}
         name="Logout" 
-        component={()=>{
-          logout();
-        }}
         options={{
           drawerIcon: ({ focused, color, size }) => (
             <MaterialIcon name={focused?"exit-to-app":"exit-to-app"} size={size} color={color} />

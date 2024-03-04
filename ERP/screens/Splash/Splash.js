@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Animated, ActivityIndicator, Text, View, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import styles from './Styles';
+import { getToken } from '../../utils/constants';
 
 const Logo = require("../../assets/logo.png");
 
@@ -30,7 +31,12 @@ function Splash() {
       }),
     ]).start();
     setTimeout(() => {
-      navigation.navigate('Login')
+      getToken().then((token) => {
+        if(token==null)
+        navigation.navigate('Login')
+      }).catch((error) => {
+        console.error('Error:', error.message);
+      });
   }, 10000); 
   }, [fadeAnim, translateYAnim]);
  

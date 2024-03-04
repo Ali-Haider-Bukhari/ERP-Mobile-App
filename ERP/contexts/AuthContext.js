@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
 
+  
+
   useEffect(() => {  // FOR REFRESH CASE
     getToken()
     .then((token) => {
@@ -20,7 +22,11 @@ export const AuthProvider = ({ children }) => {
           navigation.navigate("Login")
         } else {
           console.log('Response:', data);
-          setUser(user)
+          if(data!=null){
+            setUser(data)
+            ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
+            navigation.navigate("Drawer")
+          }
           // Handle the response data here
         }
       })
@@ -50,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         // Successful login
-        ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
+        
         console.log(userData,"USER OBJ");
         storeToken(data.token); // STORING TOKEN IN LOCAL STORAGE
         verifyTokenRequest(data.token)
@@ -61,8 +67,9 @@ export const AuthProvider = ({ children }) => {
           } else {
             console.log('chk Response:', data);
             setUser(data)
-            // Handle the response data here
+            ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
+            // Handle the response data here
           }
         })
         .catch((error) => {

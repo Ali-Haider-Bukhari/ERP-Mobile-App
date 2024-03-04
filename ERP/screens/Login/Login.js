@@ -9,7 +9,7 @@ const Logo = require("../../assets/logo.png");
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const {login,user} = useContext(AuthContext);
+  const {login} = useContext(AuthContext);
 
   const navigation = useNavigation(); // Access navigation object
 
