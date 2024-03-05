@@ -98,7 +98,7 @@ export default function DrawerScreen() {
   const CustomHeader = ({ navigation })  => (
     <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
       {/* <TouchableOpacity onPress={() => navigation.toggleDrawer()}> */}
-        <Ionicons style={{marginTop:15}} name="menu" size={30} color="white" onPress={() => navigation.toggleDrawer()} />
+        <Ionicons style={{marginTop:15}} name="menu" size={30} color="white" onPress={() => {navigation.toggleDrawer(); setBottomSheetModalFlag(false)}} />
       {/* </TouchableOpacity> */}
       <View style={{width:'95%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
         <View style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
