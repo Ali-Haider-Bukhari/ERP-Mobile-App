@@ -3,14 +3,13 @@ export function AlertComponent({title,message,onCancel,turnOnOkay,onOkay}){
     Alert.alert(
         title,
         message,
-        [
-            !turnOnOkay?
+        turnOnOkay==false?[
           {
             text: 'Cancel',
             onPress: () => onCancel(),//Alert.alert('Cancel Pressed'),
             style: 'cancel',
-          }:
-          {
+          }
+        ]:[   {
             text: 'Cancel',
             onPress: () => onCancel(),//Alert.alert('Cancel Pressed'),
             style: 'cancel',
@@ -19,14 +18,6 @@ export function AlertComponent({title,message,onCancel,turnOnOkay,onOkay}){
             text: 'Okay',
             onPress: () => onOkay(),//Alert.alert('Cancel Pressed'),
             style: 'cancel',
-          }
-        ],
-        // {
-        //   cancelable: true,
-        //   onDismiss: () =>
-        //     Alert.alert(
-        //       'This alert was dismissed by tapping outside of the alert dialog.',
-        //     ),
-        // },
+          }],
     )
 }
