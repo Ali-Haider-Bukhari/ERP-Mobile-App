@@ -6,7 +6,7 @@ export default function BottomSheetModalComponent({ onClose }) {
   const bottomSheetModalRef = useRef(null);
   const [activeTab, setActiveTab] = useState('NOTIFICATION');
 
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPoints = useMemo(() => [ '50%'], []);
 
   useEffect(() => {
     bottomSheetModalRef.current?.present();
@@ -14,7 +14,7 @@ export default function BottomSheetModalComponent({ onClose }) {
 
   const handleSheetChanges = useCallback((index) => {
     console.log('handleSheetChanges', index);
-    if (index === -1 || index === 0) onClose(false);
+    if (index === -1) onClose(false);
   }, [onClose]);
 
   const renderList = (data) => {
@@ -51,7 +51,7 @@ export default function BottomSheetModalComponent({ onClose }) {
     <BottomSheetModalProvider>
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
       >

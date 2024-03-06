@@ -106,7 +106,7 @@ export default function DrawerScreen() {
           <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>{headerTitle}</Text>
         </View>
        
-        <MaterialIcon onPress={()=>{setBottomSheetModalFlag(true)}} style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
+        <MaterialIcon onPress={()=>{setBottomSheetModalFlag(!bottomSheetModalFlag)}} style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
       </View>
       
     </View>
