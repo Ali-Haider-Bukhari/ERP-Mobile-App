@@ -1,6 +1,4 @@
-# from pdf2image import convert_from_path
-# import pytesseract as pytesseract
-# from PIL import Image  
+from flask_socketio import SocketIO
 import os
 from dotenv import load_dotenv 
 
@@ -10,11 +8,10 @@ import urllib.parse
 
 import random
 import string
-# from flask_cors import CORS, cross_origin
+
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-# from pymongo import MongoClient
-# import requests
+
 import bcrypt
 from datetime import datetime
 import json
@@ -29,8 +26,8 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from models.User import User, UserRoleEnum
-# import imaplib 
-# import email 
+from models.Message import Message
+
 import re 
 import requests  
 import smtplib 
@@ -42,7 +39,7 @@ from bson import ObjectId
 
 app = Flask(__name__)
 
-
+socketio = SocketIO(app)
 CORS(app)  # Enable CORS for all routes
 
 
@@ -64,6 +61,98 @@ DB_URL = config_data['url']
 connect( host= DB_URL)
     
 ##########################################################################################
+
+
+
+
+# Socket Io Message Recieved 
+
+@socketio.on('message')
+def handle_message(data):
+    print(data ,"messages")
+    sender_id = ObjectId(data['sender_id']['$oid'])
+    
+    receiver_id = ObjectId(data['receiver_id'])
+
+    print(sender_id , receiver_id , "both -ids")
+
+    new_message = Message(
+        sender_id=sender_id,
+        receiver_id=receiver_id,
+        message_content=data['message_content'],
+        timestamp=datetime.now(),
+        is_bot_message=False
+    )
+   
+    new_message.save()
+
+    # Emit the message to all connected clients
+   
+    socketio.emit('message', data)
+
+
+@socketio.on('fetch_messages')
+def fetch_messages(data):
+    print(data ,  "data in python api")
+    sender_id = data['sender_id']
+    receiver_id = data['receiver_id']
+
+   
+    Data_Messages =   Message.fetch_messages(sender_id , receiver_id)
+     # Serialize messages to a list of dictionaries
+    serialized_messages = [
+        {
+            'sender_id': str(message.sender_id.id),
+            'receiver_id': str(message.receiver_id.id),
+            'message_content': message.message_content,
+            'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'is_bot_message': message.is_bot_message
+        }
+        for message in Data_Messages
+    ]
+    print(serialized_messages , "fetch Messages")
+  
+    socketio.emit('fetched_messages', serialized_messages )    
+
+
+
+  # messages = Message.objects(sender_id=sender_id, receiver_id=receiver_id).order_by('-timestamp')
+   
+    # serialized_messages = [{'sender_id': str(message.sender_id), 'receiver_id': str(message.receiver_id), 'message_content': message.message_content, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')} for message in messages]
+    # Emit messages to the client who requested them
+
+# def fetch_messages(id1, id2):
+#     messages = Message.objects.filter(
+#         (
+#             (Q(sender_id=id1) & Q(receiver_id=id2)) |  # sender_id = id1 and receiver_id = id2
+#             (Q(sender_id=id2) & Q(receiver_id=id1))    # sender_id = id2 and receiver_id = id1
+#         )
+#     )
+#     return messages
+
+
+
+######################## Fetch Chats ################################
+    
+@app.route('/Users', methods=['GET'])
+def get_users():
+    users = User.objects().all()
+    print(users)
+    user_list = [
+        {   
+            '_id': str(user.id),
+            'username': user.username,
+            'email': user.email,
+            'roll_number': user.roll_number,
+            'role': str(user.role),  # Convert UserRoleEnum to string
+        }
+        for user in users
+    ]
+    return jsonify(user_list)
+
+
+
+
 
 @app.route('/register', methods=['POST'])
 def register_user():
@@ -149,28 +238,6 @@ def verify_token():
 #         return jsonify({"error": str(e)}), 500
 
 
-
-#  Fetch Users
-
-
-# @app.route('/Users', methods=['GET'])
-# def get_users():
-#     users = User.objects().all()
-#     print(users)
-#     user_list = [
-#         {   
-#             '_id':str(user.id),
-#             'firstname': user.firstname,
-#             'lastname': user.lastname,
-#             'email': user.email,
-#             'phone': user.phone,
-#             'role': user.role,
-#             # 'startdate': user.startdate,
-#             'lastlogin': user.lastlogin,
-#         }
-#         for user in users
-#     ]
-#     return jsonify(user_list)
 
 
 #  Fetch Patients
@@ -744,4 +811,6 @@ def email_check(email):
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host=config_data['host'], port=5000)
+    socketio.run(app, debug=True, host=config_data['host'], port=5000)
+    # app.run(debug=False, host=config_data['host'], port=5000)
+    # socketio.run(app)
