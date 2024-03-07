@@ -44,11 +44,12 @@ const ChatScreen = ({ teacher , goback , user ,   handleSendMessage , inputText 
              {messages.map((message, index) => (
             <View key={index} style={[
               styles.messageContainer,
-              { alignSelf: message.sender_id == user._id.$oid ? 'flex-start' : 'flex-end' }
+              { alignSelf: message.sender_id == user._id.$oid ? 'flex-end' : 'flex-start' }
             ]}>
+              
               <Text style={[
                 styles.messageText,
-                { backgroundColor: message.sender_id ==  user._id.$oid ? '#DCF8C6' : '#E5E5EA' }
+                { backgroundColor: message.sender_id ==  user._id.$oid ? '#E5E5EA' : '#DCF8C6' }
               ]}>
                 {message.message_content}
                

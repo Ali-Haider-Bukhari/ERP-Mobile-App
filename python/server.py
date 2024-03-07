@@ -1,7 +1,7 @@
 from flask_socketio import SocketIO
 import os
 from dotenv import load_dotenv 
-
+from mongoengine.errors import ValidationError
 import re
 from flask import render_template
 import urllib.parse
@@ -28,6 +28,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from models.User import User, UserRoleEnum
 from models.Course import Course
+from models.Message import Message
 # import imaplib 
 # import email 
 import re 
@@ -70,7 +71,11 @@ def keep_authenticate():
     if token is not None and token != "null":
         value = User.verify_token(token)
         if value == None:
+            print({"message": "Token has expired"})
             return jsonify({"message": "Token has expired"}), 401
+    elif token is None:
+        print({"message": "Token must be passed"})
+        return jsonify({"message": "Token must be passed"}), 401
     
 
 

@@ -1,16 +1,19 @@
 import React, { useEffect, useState ,  useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator  } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, ToastAndroid  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import io from 'socket.io-client';
 import axios from 'axios';
 import styles from "./Styles";
 import {AuthContext} from "../../contexts/AuthContext";
-import { Python_Url } from '../../utils/constants';
+import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import ChatScreen from './ChatSection'; // Import the ChatScreen component
+import { AlertComponent } from '../../components/Alert';
+import { useNavigation } from '@react-navigation/native';
 const ChatsImage = require("../../assets/chat.jpg");
 
 const ConversationsScreen = () => {
   const [selectedChat, setSelectedChat] = useState(null);
+  const navigation = useNavigation()
  
   const {user} =  useContext(AuthContext);
 
@@ -134,17 +137,45 @@ const ChatListScreen = ({ handleChatPress, user }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUsers();
+    getToken().then(token=>{
+      fetchUsers(token);
+
+    })
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (token) => {
     try {
-      const response = await axios.get(`${Python_Url}/Users`, {
-        params: { searchQuery } // Pass search query as a parameter
+      const response = await fetch(`${Python_Url}/Users?searchQuery=${searchQuery}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
       });
-
-      setUsers(response.data);
+    
+      const data = await response.json();
+      if (response.ok) {
+      console.log(data, "response");
+      setUsers(data);
       setLoading(false);
+        
+      }else{
+        if(data.message == "Token has expired"){
+          AlertComponent({
+            title:'Message',
+            message:'Session Expired!!',
+            turnOnOkay:false,
+            onOkay:()=>{},
+            onCancel:()=>{
+              ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+              removeToken()
+              navigation.navigate("Login")
+            }},)
+        }
+        console.log(data)
+      }
+    
+      
     } catch (error) {
       console.error('Error fetching users:', error);
       setLoading(false);
