@@ -2,6 +2,7 @@ import React, { createContext, useState,useEffect } from 'react';
 import {ToastAndroid } from 'react-native'
 import {Python_Url, getToken,storeToken,removeToken,verifyTokenRequest} from "../utils/constants";
 import { useNavigation } from '@react-navigation/native';
+import { Alert, AlertComponent } from '../components/Alert';
 
 export const AuthContext = createContext();
 
@@ -23,14 +24,22 @@ export const AuthProvider = ({ children }) => {
         } else {
           console.log('Response:', data);
           if(data!=null){
-            const userObj =  JSON.parse(data);
-            setUser(userObj)
+            setUser(JSON.parse(data))
             ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
           }else if(token!=null&&data == null){ // TOKEN EXPIRY CASE
-            ToastAndroid.show("Session Expired",ToastAndroid.SHORT)
-            removeToken()
-            navigation.navigate("Login")
+            AlertComponent({
+              title:'Message',
+              message:'Session Expired!!',
+              turnOnOkay:false,
+              onOkay:()=>{},
+              onCancel:()=>{
+                ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+                removeToken()
+                navigation.navigate("Login")
+              }},)
+            
+            
           }
           // Handle the response data here
         }
@@ -53,6 +62,7 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: null,
         },
         body: JSON.stringify(userData),
       });
@@ -70,9 +80,8 @@ export const AuthProvider = ({ children }) => {
             ToastAndroid.show(error,ToastAndroid.LONG)
             navigation.navigate("Login")
           } else {
-            console.log('chk Response:', data );
-            const userObj =  JSON.parse(data);
-            setUser(userObj)
+            console.log('chk Response:', data);
+            setUser(JSON.parse(data))
             ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
             // Handle the response data here
@@ -83,7 +92,8 @@ export const AuthProvider = ({ children }) => {
         });
       } else {
         // Login failed
-        ToastAndroid.show(data.error,ToastAndroid.SHORT)
+        console.log(data)
+        ToastAndroid.show(data.message,ToastAndroid.SHORT)
       }
     } catch (error) {
       // Handle network errors

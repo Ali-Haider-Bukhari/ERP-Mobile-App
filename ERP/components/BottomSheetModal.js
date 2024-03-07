@@ -6,7 +6,7 @@ export default function BottomSheetModalComponent({ onClose }) {
   const bottomSheetModalRef = useRef(null);
   const [activeTab, setActiveTab] = useState('NOTIFICATION');
 
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPoints = useMemo(() => [ '50%'], []);
 
   useEffect(() => {
     bottomSheetModalRef.current?.present();
@@ -14,7 +14,7 @@ export default function BottomSheetModalComponent({ onClose }) {
 
   const handleSheetChanges = useCallback((index) => {
     console.log('handleSheetChanges', index);
-    if (index === -1 || index === 0) onClose(false);
+    if (index === -1) onClose(false);
   }, [onClose]);
 
   const renderList = (data) => {
@@ -22,7 +22,7 @@ export default function BottomSheetModalComponent({ onClose }) {
       <ScrollView style={{ flex: 1, width: '100%' }}>
         {data.map((item, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-            <Image source={item.image} style={{ width: 60, height: 60, marginRight: 10 }} />
+            <Image source={item.image} style={{ width: 50, height: 50, marginRight: 10 }} />
             <View><Text style={{color:"#1e88e5",fontWeight:'bold'}}>{item.text}</Text>
             <Text style={{color:'#9f9f9f'}}>2024-02-16 05:01:59</Text></View>
           </View>
@@ -51,7 +51,7 @@ export default function BottomSheetModalComponent({ onClose }) {
     <BottomSheetModalProvider>
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
       >

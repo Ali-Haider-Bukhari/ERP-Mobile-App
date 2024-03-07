@@ -4,7 +4,7 @@ import Navigation from './components/Navigation.js';
 import { AuthProvider } from './contexts/AuthContext.js';
 import ConversationsScreen from './screens/Conversations/Conversations.js';
 
-export default function App() {
+export default function App(){
   return (
     <GlobalProvider>
       <NavigationContainer>   

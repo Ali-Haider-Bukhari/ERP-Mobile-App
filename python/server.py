@@ -62,7 +62,14 @@ connect( host= DB_URL)
     
 ##########################################################################################
 
-
+@app.before_request
+def keep_authenticate():
+    token = request.headers.get('Authorization')
+    if token is not None and token != "null":
+        value = User.verify_token(token)
+        if value == None:
+            return jsonify({"message": "Token has expired"}), 401
+    
 
 
 # Socket Io Message Recieved 
@@ -166,11 +173,11 @@ def register_user():
     roll_number = data.get('roll_number', "")
 
     if not email or not password or not username or not role:
-        return jsonify({"error": "Missing required fields"}), 400
+        return jsonify({"message": "Missing required fields"}), 400
 
     # Check if the user already exists
     if User.objects(email=email).first():
-        return jsonify({"error": "User with this email already exists"}), 400
+        return jsonify({"message": "User with this email already exists"}), 400
 
     try:
         user = User.register(email, password, username, role, roll_number)
@@ -188,12 +195,12 @@ def login():
     print(email,password)
 
     if not email or not password:
-        return jsonify({"error": "Missing email or password"}), 400
+        return jsonify({"message": "Missing email or password"}), 400
 
     token = User.login_user(email,password)
 
     if token is None:
-        return jsonify({"error": "Invalid email or password"}), 401
+        return jsonify({"message": "Invalid email or password"}), 401
     else:
         return jsonify({"token": token}), 200
         
