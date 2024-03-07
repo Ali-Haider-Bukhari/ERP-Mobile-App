@@ -51,6 +51,7 @@ function Login() {
                 placeholder="Password"
                 onChangeText={handleInputChangePass}
                 value={password}
+                secureTextEntry={true}
               />
               <View style={styles.button}>
                 <Button color={"rgba(117, 0, 88,255)"} title="Log in" onPress={handleButtonPress}></Button>
