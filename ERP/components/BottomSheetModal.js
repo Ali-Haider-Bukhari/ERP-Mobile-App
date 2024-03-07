@@ -19,17 +19,15 @@ export default function BottomSheetModalComponent({ onClose }) {
 
   const renderList = (data) => {
     return (
-     <View style={{overflow:'scroll',height:'100%',width:'100%'}}>
-       <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
+      <ScrollView style={{ flex: 1, width: '100%' }}>
         {data.map((item, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-            <Image source={item.image} style={{ width: 60, height: 60, marginRight: 10 }} />
+            <Image source={item.image} style={{ width: 50, height: 50, marginRight: 10 }} />
             <View><Text style={{color:"#1e88e5",fontWeight:'bold'}}>{item.text}</Text>
             <Text style={{color:'#9f9f9f'}}>2024-02-16 05:01:59</Text></View>
           </View>
         ))}
       </ScrollView>
-     </View>
     );
   };
 
@@ -39,7 +37,6 @@ export default function BottomSheetModalComponent({ onClose }) {
     { image: require('../assets/Notifications/gif1.gif'), text: 'ERP & LMS Guidelines' },
     { image: require('../assets/Notifications/gif2.gif'), text: 'Rankings' },
     { image: require('../assets/Notifications/gif3.gif'), text: 'Students Forms' },
-    { image: require('../assets/Notifications/gif4.gif'), text: 'Superior Gallery' },
     // Add more notification items as needed
   ];
 

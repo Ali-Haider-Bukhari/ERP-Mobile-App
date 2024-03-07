@@ -1,18 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
-import { useContext,useEffect } from 'react';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
-import { AuthContext } from '../../contexts/AuthContext';
 const Logo = require("../../assets/logo.png");
 const picture = require(`../../assets/SirTalha.jpeg`);
 
 export default function DashboardScreen() {
     const navigation = useNavigation();
-    const {user} = useContext(AuthContext)
-
-    useEffect(() => {
-     console.log(user._id)
-    }, [])
-    
     return (
      <>
      <View style={{width:'100%',height:'100%',backgroundColor:'rgba(238,242,253,255)'}}>

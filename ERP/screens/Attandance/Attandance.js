@@ -49,11 +49,7 @@ export default function AttandanceScreen() {
                 shadowRadius: 16.00,
                 elevation: 24,
 
-                overflow:'scroll',
-              
-               
-      
-      
+
       backgroundColor:'white',display:'flex',alignSelf:'center'
       ,width:'85%'
       ,height:'91%'
