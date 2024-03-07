@@ -2,6 +2,7 @@ import { GlobalProvider } from './contexts/GlobalContext';
 import {NavigationContainer} from '@react-navigation/native';
 import Navigation from './components/Navigation.js';
 import { AuthProvider } from './contexts/AuthContext.js';
+import ConversationsScreen from './screens/Conversations/Conversations.js';
 
 export default function App(){
   return (
@@ -10,6 +11,7 @@ export default function App(){
         <AuthProvider>
            <Navigation/>
         </AuthProvider>
+
       </NavigationContainer>   
     </GlobalProvider>
   ); 
