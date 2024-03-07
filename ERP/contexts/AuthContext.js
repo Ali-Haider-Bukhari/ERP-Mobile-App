@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         } else {
           console.log('Response:', data);
           if(data!=null){
-            setUser(data)
+            setUser(JSON.parse(data))
             ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
           }else if(token!=null&&data == null){ // TOKEN EXPIRY CASE
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
             navigation.navigate("Login")
           } else {
             console.log('chk Response:', data);
-            setUser(data)
+            setUser(JSON.parse(data))
             ToastAndroid.show("Authentication Successful!",ToastAndroid.SHORT)
             navigation.navigate("Drawer")
             // Handle the response data here
