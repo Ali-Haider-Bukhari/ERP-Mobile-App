@@ -13,6 +13,7 @@ import string
 # from flask_cors import CORS, cross_origin
 from flask_cors import CORS
 from flask import Flask, request, jsonify
+from mongoengine.errors import ValidationError
 # from pymongo import MongoClient
 # import requests
 import bcrypt
@@ -29,6 +30,7 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from models.User import User, UserRoleEnum
+from models.Course import Course
 # import imaplib 
 # import email 
 import re 
@@ -134,8 +136,35 @@ def verify_token():
     
 ###########################################################################################################
 
+@app.route('/courses', methods=['POST'])
+def create_course():
+    data = request.json
+    try:
+        course = Course.insert_course(data['teacher_id'], data['course_name'], data['student_ids'])
+        return jsonify({'message': 'Course created successfully', 'course_id': str(course.id)}), 201
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
 
+# Route to fetch courses by student ID
+@app.route('/courses/<student_id>', methods=['GET'])
+def get_courses_by_student_id(student_id):
+    try:
+        courses = Course.fetch_courses_by_student_id(student_id)
+        course_list = [{'course_id': str(course.id), 'course_name': course.course_name} for course in courses]
+        print(course_list)
+        return jsonify(course_list)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
 
+# Route to append a new student to an existing course
+@app.route('/courses/<course_id>/students', methods=['PUT'])
+def add_student_to_course(course_id):
+    data = request.json
+    try:
+        course = Course.append_student_to_course(course_id, data['student_id'])
+        return jsonify({'message': 'Student added to course successfully', 'course_id': str(course.id)}), 200
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 

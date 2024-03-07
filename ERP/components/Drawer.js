@@ -18,6 +18,7 @@ const picture = require(`../assets/SirTalha.jpeg`);
 const Logo = require("../assets/logo.png");
 import { AuthContext } from '../contexts/AuthContext';
 import BottomSheetModalComponent from './BottomSheetModal';
+import ResultsExamsScreen from '../screens/ResultsExams/ResultsExams';
 
 const CustomSidebarMenu = (props) => {
   
@@ -160,7 +161,7 @@ export default function DrawerScreen() {
         <Drawer.Screen 
         name="Results & Exams" 
         listeners={()=>{setHeaderTitle("Results & Exams")}}
-        component={AttandanceScreen}
+        component={ResultsExamsScreen}
         options={{
           drawerIcon: ({ focused, color, size }) => (
             <MaterialIcon name={'assessment'} size={size} color={color} />

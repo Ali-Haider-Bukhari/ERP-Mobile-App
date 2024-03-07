@@ -1,12 +1,63 @@
-import React,{useEffect} from 'react';
-import { View,ScrollView, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
+import React,{useContext, useEffect,useState} from 'react';
+import { View,ScrollView, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image, ToastAndroid} from 'react-native';
 import { useGlobalContext } from '../../contexts/GlobalContext';
+import { AuthContext } from '../../contexts/AuthContext';
+import { Python_Url, getToken, removeToken } from '../../utils/constants';
+import { AlertComponent } from '../../components/Alert';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ResultsExamsScreen() {
-const {setHeaderTitle} = useGlobalContext()
+const navigation = useNavigation();
+const {user} = useContext(AuthContext)
+const {courses,setCourses} = useGlobalContext()
+
+    async function getCourses(token){
+        
+    try {
+        const url = `${Python_Url}/courses/${user._id.$oid}`
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: token,
+          }
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          // Handle successful response
+          console.log('Response data:', data);
+          setCourses(data)
+        } else {
+          // Handle error response
+          if(data.message == "Token has expired"){
+            AlertComponent({
+                title:'Message',
+                message:'Session Expired!!',
+                turnOnOkay:false,
+                onOkay:()=>{},
+                onCancel:()=>{
+                  ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+                  removeToken()
+                  navigation.navigate("Login")
+                }},)
+          }
+          console.error('Error:', data);
+        }
+      } catch (error) {
+        // Handle network or other errors
+        console.error('Error:', error);
+      }
+}
 useEffect(() => {
-    setHeaderTitle("Results & Exams")
-}, [])
+  if(user.role == "STUDENT"){
+    getToken()
+        .then((token) => {getCourses(token)})
+    
+  }
+}, [user])
+
   const [subjects , setSubjects] = useState([
     {
       subjectName:"Technopreneurship",
