@@ -25,9 +25,9 @@ const ChatScreen = ({ teacher , goback , user ,   handleSendMessage , inputText 
           setMessages(fetchedMessages);
         });
     
-        return () => {
-          socket.off('fetched_messages');
-        };
+        // return () => {
+        //   socket.off('fetched_messages');
+        // };
       }, [socket, teacher]);
    
     
@@ -52,7 +52,7 @@ const ChatScreen = ({ teacher , goback , user ,   handleSendMessage , inputText 
                 styles.messageText,
                 { backgroundColor: message.sender_id ==  user._id.$oid ? '#DCF8C6' : '#E5E5EA' }
               ]}>
-                {message.message_content+message.sender_id}
+                {message.message_content}
                
               </Text>
             </View>
