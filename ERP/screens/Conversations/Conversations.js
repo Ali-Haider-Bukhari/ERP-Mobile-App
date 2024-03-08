@@ -36,12 +36,9 @@ const ConversationsScreen = () => {
     if (!socket) return;
 
     socket.on('message', (message) => {
+      console.log([...messages, message],"check")
       setMessages([...messages, message]);
     });
-
-
-
-
 
     return () => {
       socket.off('message');
@@ -59,7 +56,7 @@ const handleSendMessage = () => {
 console.log(user._id , user._id.$oid , "both _ids")
 
     const data = {
-      sender_id: user._id,
+      sender_id: user._id.$oid,
       receiver_id: selectedChat ? selectedChat._id : '',
       message_content: inputText
     };

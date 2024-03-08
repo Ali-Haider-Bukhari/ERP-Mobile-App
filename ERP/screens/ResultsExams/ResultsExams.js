@@ -58,39 +58,6 @@ useEffect(() => {
   }
 }, [user])
 
-  const [subjects , setSubjects] = useState([
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    
-  ])
   return (
     <>
      
@@ -118,7 +85,7 @@ useEffect(() => {
       
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       
-      {subjects.map((data,index)=>(
+      {courses.map((data,index)=>(
         <View key={index} style={{marginTop:40,display:'flex',alignSelf:'center',width:'88%',height:130,border:1,borderWidth:1,borderColor:'rgba(226,226,226,255)'}}>
 
             <View style={{height:'50%',backgroundColor:'rgb(0, 174, 255)'}}>

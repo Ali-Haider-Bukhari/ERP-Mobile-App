@@ -1,34 +1,34 @@
-from mongoengine import Document, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField
+from bson import ObjectId
+from mongoengine import Document,DecimalField, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField
 from models.User import User
 from mongoengine.errors import ValidationError 
 
 class Course(Document):
     teacher_id = ReferenceField(User, required=True)
     course_name = StringField(required=True)
-    credit_hour = FloatField(required=True)
+    credit_hour = DecimalField(required=True, precision=2)
     students = ListField(ReferenceField(User))
+
     meta = {'collection': 'courses', 'strict': True}
 
     def clean(self):
-        # Check if the user associated with teacher_id has role "TEACHER"
-        if self.teacher_id.role != "TEACHER":
-            raise ValidationError("The user associated with teacher_id must have role 'Teacher'")
-        
-    def insert_course(teacher_id, course_name,credit_hour, student_ids):
-        # Create a new Course instance
-        course = Course(teacher_id=teacher_id, course_name=course_name,credit_hour=credit_hour)
-
-        # Add students to the course
-        for student_id in student_ids:
-            student = User.objects(id=student_id).first()
-            if student:
-                course.students.append(student)
-            else:
-                raise ValidationError(f"Student with ID {student_id} not found.")
-
-        # Save the course to the database
-        course.save()
-        return course
+        teacher = User.objects.get(id=ObjectId(self.teacher_id['id']))
+        if "TEACHER" not in str(teacher['role']):
+            raise ValidationError("The user associated with teacher_id must have role 'TEACHER'")   
+   
+    @classmethod
+    def insert_course(cls, teacher_id_str, course_name, credit_hour, student_ids=[]):
+        try:
+            # Convert teacher_id_str to a reference
+            teacher = User.objects.get(id=ObjectId(teacher_id_str))
+            # Convert student_ids to references
+            students = User.objects.filter(id__in=[ObjectId(sid) for sid in student_ids])
+            new_course = cls(teacher_id=teacher['id'], course_name=course_name, credit_hour=credit_hour, students=students)
+            new_course.save()
+            return new_course
+        except Exception as e:
+            print("An error occurred:", e)
+            return None
 
         
     def fetch_courses_by_student_id(student_id):
