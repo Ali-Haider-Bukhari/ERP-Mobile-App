@@ -125,8 +125,9 @@ def fetch_messages(data):
         for message in Data_Messages
     ]
     print(serialized_messages , "fetch Messages")
+    sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
   
-    socketio.emit('fetched_messages', serialized_messages )    
+    socketio.emit('fetched_messages', sorted_messages )    
 
 
 
@@ -229,7 +230,7 @@ def verify_token():
     
 ###########################################################################################################
 
-@app.route('/courses', methods=['POST'])
+@app.route('/insert_courses', methods=['POST'])
 def create_course():
     data = request.json
     try:

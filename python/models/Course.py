@@ -5,7 +5,7 @@ from mongoengine.errors import ValidationError
 class Course(Document):
     teacher_id = ReferenceField(User, required=True)
     course_name = StringField(required=True)
-    credit_hour = IntField(required=True)
+    credit_hour = FloatField(required=True)
     students = ListField(ReferenceField(User))
     meta = {'collection': 'courses', 'strict': True}
 
@@ -14,9 +14,9 @@ class Course(Document):
         if self.teacher_id.role != "TEACHER":
             raise ValidationError("The user associated with teacher_id must have role 'Teacher'")
         
-    def insert_course(teacher_id, course_name, student_ids):
+    def insert_course(teacher_id, course_name,credit_hour, student_ids):
         # Create a new Course instance
-        course = Course(teacher_id=teacher_id, course_name=course_name)
+        course = Course(teacher_id=teacher_id, course_name=course_name,credit_hour=credit_hour)
 
         # Add students to the course
         for student_id in student_ids:
