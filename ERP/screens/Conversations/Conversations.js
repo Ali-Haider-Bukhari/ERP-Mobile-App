@@ -22,10 +22,12 @@ import {
 } from "../../utils/constants";
 import ChatScreen from "./ChatSection"; // Import the ChatScreen component
 import { AlertComponent } from "../../components/Alert";
+import { useNavigation } from "@react-navigation/native";
 const ChatsImage = require("../../assets/chat.jpg");
 
 const ConversationsScreen = () => {
   const [selectedChat, setSelectedChat] = useState(null);
+  const navigation = useNavigation()
 
   const { user } = useContext(AuthContext);
 
