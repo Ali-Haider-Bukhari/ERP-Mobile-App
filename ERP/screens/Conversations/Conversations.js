@@ -56,6 +56,7 @@ const ConversationsScreen = () => {
 
   useEffect(() => {
     if (!socket) return;
+    
 
     socket.on('message', (message) => {
       console.log([...messages, message],"check")
@@ -93,6 +94,7 @@ const ConversationsScreen = () => {
     // Emit request to fetch messages for the given chat_id
 
     const data = { sender_id: user._id.$oid, receiver_id: receiver_id };
+    console.log(data,"DATA FETCH SEND")
 
     socket.emit("fetch_messages", data);
 
@@ -248,7 +250,8 @@ const ChatListScreen = ({ handleChatPress, user, chatbotobj }) => {
             </View>
           ) : (
             filteredUsers.map((chat, index) => (
-              <TouchableOpacity
+
+              user.role != chat.role.split("UserRoleEnum")[1]?<TouchableOpacity
                 key={index}
                 onPress={() => handleChatPress(chat)}
               >
@@ -260,7 +263,7 @@ const ChatListScreen = ({ handleChatPress, user, chatbotobj }) => {
                   </View>
                   <Text style={styles.messageTime}>5:06 AM</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity>:null
             ))
           )}
         </ScrollView>

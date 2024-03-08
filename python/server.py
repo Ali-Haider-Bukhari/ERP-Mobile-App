@@ -32,7 +32,7 @@ from models.Message import Message
 # import imaplib 
 # import email 
 import re 
-# import requests  
+import requests  
 import smtplib 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -100,10 +100,10 @@ def handle_message(data):
    
 
     new_message.save()
-    print(data,new_message,"check")
-    # Emit the message to all connected clients
+    
+    # /Emit the message to all connected clients
    
-    socketio.emit('message', data)
+    socketio.emit('message',data )
 
 
 @socketio.on('fetch_messages')
