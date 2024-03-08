@@ -84,7 +84,7 @@ def keep_authenticate():
 @socketio.on('message')
 def handle_message(data):
     print(data ,"messages")
-    sender_id = ObjectId(data['sender_id']['$oid'])
+    sender_id = ObjectId(data['sender_id'])
     
     receiver_id = ObjectId(data['receiver_id'])
 
@@ -98,8 +98,9 @@ def handle_message(data):
         is_bot_message=False
     )
    
-    new_message.save()
 
+    new_message.save()
+    print(data,new_message,"check")
     # Emit the message to all connected clients
    
     socketio.emit('message', data)
@@ -128,7 +129,6 @@ def fetch_messages(data):
     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
   
     socketio.emit('fetched_messages', sorted_messages )    
-
 
 
   # messages = Message.objects(sender_id=sender_id, receiver_id=receiver_id).order_by('-timestamp')
@@ -232,19 +232,31 @@ def verify_token():
 
 @app.route('/insert_courses', methods=['POST'])
 def create_course():
-    data = request.json
     try:
-        course = Course.insert_course(data['teacher_id'], data['course_name'], data['student_ids'])
-        return jsonify({'message': 'Course created successfully', 'course_id': str(course.id)}), 201
-    except ValidationError as e:
-        return jsonify({'error': str(e)}), 400
+        data = request.json
+        teacher_id_str = data.get('teacher_id_str')
+        course_name = data.get('course_name')
+        credit_hour = data.get('credit_hour')
+        student_ids = data.get('student_ids', [])  # Optional, default to empty list
+
+        # print(teacher_id_str,course_name,credit_hour,student_ids)
+        # Insert the course using the insert_course method
+        new_course = Course.insert_course(teacher_id_str, course_name, credit_hour, student_ids)
+        
+        if new_course:
+            return jsonify({'message': 'Course created successfully', 'course_id': str(new_course.id)}), 201
+        else:
+            return jsonify({'message': 'Failed to create course'}), 400
+
+    except Exception as e:
+        return jsonify({'message': f'Error: {str(e)}'}), 500
 
 # Route to fetch courses by student ID
 @app.route('/courses/<student_id>', methods=['GET'])
 def get_courses_by_student_id(student_id):
     try:
         courses = Course.fetch_courses_by_student_id(student_id)
-        course_list = [{'course_id': str(course.id), 'course_name': course.course_name} for course in courses]
+        course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour} for course in courses]
         print(course_list)
         return jsonify(course_list)
     except ValidationError as e:

@@ -57,7 +57,8 @@ const ConversationsScreen = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("message", (message) => {
+    socket.on('message', (message) => {
+      console.log([...messages, message],"check")
       setMessages([...messages, message]);
     });
 
@@ -70,11 +71,11 @@ const ConversationsScreen = () => {
     try {
       // console.log(user._id , user._id.$oid , "both _ids")
 
-      const data = {
-        sender_id: user._id,
-        receiver_id: selectedChat ? selectedChat._id : "",
-        message_content: inputText,
-      };
+    const data = {
+      sender_id: user._id.$oid,
+      receiver_id: selectedChat ? selectedChat._id : '',
+      message_content: inputText
+    };
 
       socket.emit("message", data);
       setInputText("");
