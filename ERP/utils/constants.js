@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const DB_URL = `mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/UMS`
-export const Python_Url = 'http://162.12.210.24:5000'
-
+export const Python_Url = 'http://192.168.1.108:5000'
+export const Chat_Bot_ID="649209fa0b11c3bf0eda9310"
 export const storeToken = async (token) => {
     try {
       await AsyncStorage.setItem('token', token);
