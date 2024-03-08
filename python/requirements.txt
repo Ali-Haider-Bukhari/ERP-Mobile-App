@@ -6,3 +6,4 @@ mongoengine
 pyjwt
 bcrypt
 flask_socketio
+openai

@@ -130,22 +130,23 @@ def fetch_messages(data):
   
     socketio.emit('fetched_messages', sorted_messages )    
 
+#####################################################################
+    
+def ChatGPT(role,content):
+    data = {
+        "model":"gpt-3.5-turbo",
+        "messages":[{"role":role,"content":content}]
+        # "temperature":0.7
+    }
 
-  # messages = Message.objects(sender_id=sender_id, receiver_id=receiver_id).order_by('-timestamp')
-   
-    # serialized_messages = [{'sender_id': str(message.sender_id), 'receiver_id': str(message.receiver_id), 'message_content': message.message_content, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')} for message in messages]
-    # Emit messages to the client who requested them
-
-# def fetch_messages(id1, id2):
-#     messages = Message.objects.filter(
-#         (
-#             (Q(sender_id=id1) & Q(receiver_id=id2)) |  # sender_id = id1 and receiver_id = id2
-#             (Q(sender_id=id2) & Q(receiver_id=id1))    # sender_id = id2 and receiver_id = id1
-#         )
-#     )
-#     return messages
-
-
+    response = requests.post("https://api.openai.com/v1/chat/completions",
+    json=data,
+    headers={
+        "Content-Type":"application/json",
+        "Authorization": f"Bearer {'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'}"
+             })
+    response_json = json.loads(response.text)
+    return response_json['choices'][0]['message']['content']
 
 ######################## Fetch Chats ################################
     
@@ -865,6 +866,13 @@ def email_check(email):
 
 
 if __name__ == '__main__':
+    
+    # print("works")
+    # content = 'c++ calculator with classes'
+    # resp = ChatGPT(role='user',content=content)
+    # print(resp)
+    
     socketio.run(app, debug=True, host=config_data['host'], port=5000)
+
     # app.run(debug=False, host=config_data['host'], port=5000)
     # socketio.run(app)
