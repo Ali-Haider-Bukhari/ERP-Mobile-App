@@ -84,12 +84,12 @@ def keep_authenticate():
 
 @socketio.on('message')
 def handle_message(data):
-    print(data ,"messages")
+    # print(data ,"messages")
     sender_id = ObjectId(data['sender_id'])
     
     receiver_id = ObjectId(data['receiver_id'])
 
-    print(sender_id , receiver_id , "both -ids")
+    # print(sender_id , receiver_id , "both -ids")
 
     new_message = Message(
         sender_id=sender_id,
@@ -105,11 +105,40 @@ def handle_message(data):
     # /Emit the message to all connected clients
    
     socketio.emit('message',data )
+      # Emit last message and new message count to the sender and receiver
+    emit_last_message_and_new_message_count(sender_id, receiver_id)
+
+def emit_last_message_and_new_message_count(sender_id, receiver_id):
+    # Get the last message for the sender and receiver
+    last_message_sender = Message.objects(sender_id=sender_id, receiver_id=receiver_id).order_by('-timestamp').first()
+    last_message_receiver = Message.objects(sender_id=receiver_id, receiver_id=sender_id).order_by('-timestamp').first()
+
+    # Get the count of new messages for the sender and receiver
+    new_messages_sender = Message.objects(sender_id=receiver_id, receiver_id=sender_id, seen=False).count()
+    new_messages_receiver = Message.objects(sender_id=sender_id, receiver_id=receiver_id, seen=False).count()
+
+    # Emit events to the sender and receiver with the last message and new message count
+    socketio.emit('last_message_and_new_message_count', {
+        'sender_id': str(sender_id),
+        'receiver_id': str(receiver_id),
+        'last_message_sender': last_message_sender.to_json() if last_message_sender else None,
+        'last_message_receiver': last_message_receiver.to_json() if last_message_receiver else None,
+        'new_messages_sender': new_messages_sender,
+        'new_messages_receiver': new_messages_receiver
+    }, room=str(sender_id))
+    socketio.emit('last_message_and_new_message_count', {
+        'sender_id': str(sender_id),
+        'receiver_id': str(receiver_id),
+        'last_message_sender': last_message_sender.to_json() if last_message_sender else None,
+        'last_message_receiver': last_message_receiver.to_json() if last_message_receiver else None,
+        'new_messages_sender': new_messages_sender,
+        'new_messages_receiver': new_messages_receiver
+    }, room=str(receiver_id))
 
 
 @socketio.on('fetch_messages')
 def fetch_messages(data):
-    print(data ,  "data in python api")
+    # print(data ,  "data in python api")
     sender_id = data['sender_id']
     receiver_id = data['receiver_id']
 
@@ -126,35 +155,47 @@ def fetch_messages(data):
         }
         for message in Data_Messages
     ]
-    print(serialized_messages , "fetch Messages")
+    # print(serialized_messages , "fetch Messages")
     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
   
     socketio.emit('fetched_messages', sorted_messages )    
 
-#####################################################################
-    
-def ChatGPT(role,content):
-    data = {
-        "model":"gpt-3.5-turbo",
-        "messages":[{"role":role,"content":content}]
-        # "temperature":0.7
-    }
 
-    response = requests.post("https://api.openai.com/v1/chat/completions",
-    json=data,
-    headers={
-        "Content-Type":"application/json",
-        "Authorization": f"Bearer {'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'}"
-             })
-    response_json = json.loads(response.text)
-    return response_json['choices'][0]['message']['content']
+###################### Pagination for fetching more messages ################
+    
+
+
+# @socketio.on('fetch_more_messages')
+# def fetch_more_messages(data):
+#     sender_id = data['sender_id']
+#     receiver_id = data['receiver_id']
+#     offset = data.get('offset', 0)  # Offset for pagination
+    
+#     # Fetch next 16 messages with an offset
+#     Data_Messages = Message.fetch_messages(sender_id, receiver_id, limit=16, offset=offset)
+
+#     serialized_messages = [
+#         {
+#             'sender_id': str(message.sender_id.id),
+#             'receiver_id': str(message.receiver_id.id),
+#             'message_content': message.message_content,
+#             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+#             'is_bot_message': message.is_bot_message
+#         }
+#         for message in Data_Messages
+#     ]
+#     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
+  
+#     socketio.emit('fetched_more_messages', sorted_messages)
+
+
 
 ######################## Fetch Chats ################################
     
 @app.route('/Users', methods=['GET'])
 def get_users():
     users = User.objects().all()
-    print(users)
+    # print(users)
     user_list = [
         {   
             '_id': str(user.id),
@@ -166,6 +207,190 @@ def get_users():
         for user in users
     ]
     return jsonify(user_list)
+
+@app.route('/FetchBot', methods=['GET'])
+def fetch_bot():
+    bot_id = request.args.get('_id')  # Get _id from query parameters
+    if bot_id:
+        bot = User.objects(id=bot_id).first()
+        if bot:
+            bot_data = {   
+                '_id': str(bot.id),
+                'username': bot.username,
+                'email': bot.email,
+                'roll_number': bot.roll_number,
+                'role': str(bot.role),  # Convert UserRoleEnum to string
+            }
+            return jsonify(bot_data)
+        else:
+            return jsonify({'error': 'Bot not found'}), 404
+    else:
+        return jsonify({'error': 'No bot ID provided'}), 400
+
+
+
+
+
+
+################ Save user and Bot Messages #####################
+
+
+
+
+@app.route("/SaveBotMessages", methods=['POST'])
+def Save_bot():
+    try:
+ 
+        data = request.get_json()
+        # print(data , "data backend")
+        sender_id = data.get('sender_id')
+        receiver_id = data.get('receiver_id')
+        message_content = data.get('message_content')
+        bot_message_content = data.get('bot_message_content')
+     
+        
+
+        # Create the user object
+        botData = Message(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message_content=message_content,
+            bot_message_content=bot_message_content,
+              timestamp=datetime.now(),
+               
+        )
+        # print(botData , "data backend")
+
+        # Save the user object to the database
+        botData.save()
+
+        return jsonify({'status': 200, "obj": botData.to_json()})
+
+    except Exception as e:
+        # Handle the exception and return an error response
+        return jsonify({'status': 400, 'error': str(e)})
+
+
+
+@app.route('/SaveBotResponse', methods=['POST'])
+def save_bot_response():
+    try:
+        data = request.get_json()
+        
+        message_id = data.get('messageId')
+        bot_response = data.get('botResponse')
+        sender_id = data.get('sender_id')
+        receiver_id = data.get('receiver_id')
+        # print(receiver_id , "recieve")
+        # Check if mereceiver_idssage ID and bot response are not empty
+        if not message_id or not bot_response:
+            return jsonify({'status': 400, 'error': 'Invalid data provided'})
+
+
+      
+        # Create a new Message object with bot response and other required fields
+        new_message = Message(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message_content="",
+            bot_message_content=bot_response,
+            timestamp=datetime.now(),
+            is_bot_message=True
+        )
+        
+        # Save the new message to the database
+        new_message.save()
+         
+        return jsonify({'status': 200, 'message': 'Save success'})
+
+    except Exception as e:
+        return jsonify({'status': 400, 'error': str(e)})
+
+# Example bot responses
+bot_responses = [
+    "Hello! How can I help you?",
+    "What can I assist you with today?",
+    "Feel free to ask me anything!",
+    "I'm here to help. What do you need?",
+    "How can I assist you today?"
+]
+
+@app.route('/GetBotResponse', methods=['POST'])
+def get_bot_response():
+    # This endpoint simply returns a random bot response from the list
+    bot_message_content = random.choice(bot_responses)
+    return jsonify({'bot_message_content': bot_message_content})
+
+
+
+@app.route('/AI_Reply', methods=['POST'])
+def ChatGPT():
+    try:
+        dataObj = request.get_json()
+        content = dataObj.get('content')
+        role = dataObj.get('role')
+        # print(dataObj, content, role, "get json input")
+
+        data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [{"role": role, "content": content}]
+            # "temperature": 0.7
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+          
+   
+        }
+
+        response = requests.post("https://api.openai.com/v1/chat/completions",
+                                 json=data,
+                                 headers=headers)
+
+        response_json = response.json()
+        print(response_json  , "AI reply")
+        return response_json
+    except Exception as e:
+        return {'error': str(e)}
+
+
+
+
+
+@app.route('/FetchMessages', methods=['POST'])
+def fetch_messages():
+    try:
+        data = request.get_json()
+        sender_id = data.get('sender_id')
+        receiver_id = data.get('receiver_id')
+        print(receiver_id , "recieve")
+        # Fetch messages from the database based on the provided message IDs
+        messages = Message.fetch_messages(sender_id , receiver_id)
+          # Serialize messages to a list of dictionaries
+        serialized_messages = [
+            {
+                'sender_id': str(message.sender_id.id),
+                'receiver_id': str(message.receiver_id.id),
+                'message_content': message.message_content,
+                 'bot_message_content': message.bot_message_content,
+                'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_bot_message': message.is_bot_message
+            }
+            for message in messages
+        ]
+      
+        sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
+        print(len(sorted_messages) , "fetch length")
+        return jsonify({'status': 200, 'messages': sorted_messages})
+
+    except Exception as e:
+        return jsonify({'status': 400, 'error': str(e)})
+
+
+
+
+
+
 
 
 

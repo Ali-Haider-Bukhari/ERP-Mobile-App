@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator , Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from "./Styles";
 const ChatsImage = require("../../assets/chat.jpg");
+
+
+
 const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setInputText, messages, setMessages, socket }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [unseenMessagesCount, setUnseenMessagesCount] = useState({});
+  const scrollViewRef = useRef();
 
   useEffect(() => {
     if (!socket) return;
@@ -12,9 +17,13 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     const chatId = teacher?._id;
     socket.emit('fetch_messages', { chatId });
 
-    socket.on('fetched_messages', (fetchedMessages) => {
+    socket.on('fetched_messages', (fetchedMessages, unseenCount) => {
       setMessages(fetchedMessages);
-      setIsLoading(false); // Set loading to false when messages are fetched
+      setUnseenMessagesCount(prevCount => ({
+        ...prevCount,
+        [chatId]: unseenCount // Update unseen messages count for the chat
+      }));
+      setIsLoading(false);
     });
 
     return () => {
@@ -22,17 +31,35 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     };
   }, [socket, teacher]);
 
+// Scroll when new messages comes////
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true }); // Scroll to the end when messages update
+    }
+  }, [messages]);
+
+
+
   return (
     <View style={styles.container}>
+
+{/* chat header */}
+
 <View style={styles.header}>
 
   <View style={{flexDirection: 'row'}} >
   <TouchableOpacity style={styles.iconButton} onPress={() => goback(null)}>
     <Ionicons name="chevron-back-outline" size={30} color="black" />
   </TouchableOpacity>
-  <Image source={ChatsImage} style={styles.userImage} />
+
+      <Image source={ChatsImage} style={styles.userImage} />
+   
+
   <View>
-  <Text style={styles.headerText}>{teacher.username}</Text>
+  <Text style={styles.headerText}>
+    {teacher.username}
+    </Text>
   <Text style={styles.headersubtext}>User Typing....</Text>
   </View>
  
@@ -51,8 +78,16 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
 
 </View>
 
+{/* my messages Section */}
 
-      <ScrollView style={styles.messagesContainer}>
+
+      <ScrollView 
+      ref={scrollViewRef}
+      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+      
+      style={styles.messagesContainer}
+    
+      >
         {isLoading ? (
           <ActivityIndicator size="large" color="#0000ff" /> // Show loading indicator while fetching messages
         ) : (
@@ -77,7 +112,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
           ))
         )}
       </ScrollView>
-
+{/* send message section */}
       <View style={styles.inputContainer}>
   <View style={styles.inputWrapper}>
     <TextInput
