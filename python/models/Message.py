@@ -8,13 +8,8 @@ class Message(Document):
     message_content = StringField(required=True)
     timestamp = DateTimeField(required=True)
     is_bot_message = BooleanField(default=False)
+
     meta = {'collection': 'messages', 'strict': True}
-
-
-
-
-
-
 
     def fetch_messages(id1, id2):
         messages = Message.objects.filter(

@@ -29,6 +29,7 @@ from email.mime.multipart import MIMEMultipart
 from models.User import User, UserRoleEnum
 from models.Course import Course
 from models.Message import Message
+from models.Result import Result
 # import imaplib 
 # import email 
 import re 
@@ -257,7 +258,7 @@ def create_course():
 def get_courses_by_student_id(student_id):
     try:
         courses = Course.fetch_courses_by_student_id(student_id)
-        course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour} for course in courses]
+        course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour,'teacher_id':str(course.teacher_id.id)} for course in courses]
         print(course_list)
         return jsonify(course_list)
     except ValidationError as e:
@@ -272,6 +273,24 @@ def add_student_to_course(course_id):
         return jsonify({'message': 'Student added to course successfully', 'course_id': str(course.id)}), 200
     except ValidationError as e:
         return jsonify({'error': str(e)}), 400
+    
+@app.route('/fetch-results', methods=['POST'])
+def fetch_results():
+    try:
+        # Get parameters from the JSON request
+        data = request.json
+        student_id_str = data.get('student_id')
+        teacher_id_str = data.get('teacher_id')
+        course_id_str = data.get('course_id')
+
+        print(student_id_str,teacher_id_str,course_id_str,"check")
+        # Call the fetchResults method from your Result model
+        results = Result.fetchResults(student_id_str, teacher_id_str, course_id_str)
+        
+        # Convert results to JSON and return
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 

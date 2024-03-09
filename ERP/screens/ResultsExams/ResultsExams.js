@@ -27,7 +27,7 @@ const {courses,setCourses} = useGlobalContext()
     
         if (response.ok) {
           // Handle successful response
-          console.log('Response data:', data);
+          console.log('Response data:', data[0].teacher_id);
           setCourses(data)
         } else {
           // Handle error response
@@ -90,20 +90,20 @@ useEffect(() => {
 
             <View style={{height:'50%',backgroundColor:'rgb(0, 174, 255)'}}>
               <View style={{backgroundColor:'rgba(222,149,0,255)',alignSelf:'flex-end',padding:2,width:80,borderRadius:2,height:21,display:'flex',flexDirection:'row',justifyContent:'center'}}>
-                <Text style={{color:'white',fontWeight:'bold',fontSize:12}}>{data.season}</Text>
+                <Text style={{color:'white',fontWeight:'bold',fontSize:12}}>{"Spring 2024"}</Text>
               </View>
-            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:16,position:'relative',bottom:4}}>{data.subjectName}</Text>
-            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:11,position:'relative',bottom:4}}>{"Credit Hrs: "+data.creditHrs}</Text>
+            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:16,position:'relative',bottom:4}}>{data.course_name}</Text>
+            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:11,position:'relative',bottom:4}}>{"Credit Hrs: "+data.credit_hour}</Text>
             </View>
             <View style={{height:'50%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-            <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:'85%'}}><Text>{"Attandance: "+data.attandancePercentage+"%"}</Text></View>
-            <ProgressBarAndroid
+            {/* <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:'85%'}}><Text>{"Attandance: "+data.teacher_id+"%"}</Text></View> */}
+            {/* <ProgressBarAndroid
               styleAttr="Horizontal"
               indeterminate={false}
               color={"rgba(12,184,70,255)"}
               style={{width:'85%',position:'relative',bottom:5}}
               progress={0.5}
-            />
+            /> */}
             </View>
 
         </View>
