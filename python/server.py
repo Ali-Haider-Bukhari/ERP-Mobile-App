@@ -1091,6 +1091,13 @@ def email_check(email):
 
 
 if __name__ == '__main__':
+    
+    # print("works")
+    # content = 'c++ calculator with classes'
+    # resp = ChatGPT(role='user',content=content)
+    # print(resp)
+    
     socketio.run(app, debug=True, host=config_data['host'], port=5000)
+
     # app.run(debug=False, host=config_data['host'], port=5000)
     # socketio.run(app)
