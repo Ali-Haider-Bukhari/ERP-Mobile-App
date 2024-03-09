@@ -150,7 +150,7 @@ export default function DrawerScreen() {
 
         <Drawer.Screen 
         name="Conversations" 
-        listeners={()=>{setHeaderTitle("Conservations")}}
+        listeners={()=>{setHeaderTitle("Conversations")}}
         component={ConversationsScreen}
         options={{
           drawerIcon: ({ focused, color, size }) => (

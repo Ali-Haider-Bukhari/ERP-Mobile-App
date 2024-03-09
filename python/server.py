@@ -29,7 +29,7 @@ from email.mime.multipart import MIMEMultipart
 from models.User import User, UserRoleEnum
 from models.Course import Course
 from models.Message import Message
-from models.Result import Result
+from models.Result import ObjectofAssessment, Result
 # import imaplib 
 # import email 
 import re 
@@ -744,7 +744,55 @@ def update_role(_id, role):
         print(e)
         return jsonify({"status": 500, "msg": "Internal Server Error"})
 #  Login 
+@app.route('/create_result', methods=['POST'])
+def create_result():
+    data = request.json
+    student_id = ObjectId(data['student_id'])
+    teacher_id = ObjectId(data['teacher_id'])
+    course_id = ObjectId(data['course_id'])
+    quiz = data['quiz']
+    assignment = data['assignment']
+    mid_term = data['mid_term']
+    final_term = data['final_term']
+    academic_year = data['academic_year']
+    
+    result = Result.create_result(student_id, teacher_id, course_id, quiz, assignment, mid_term, final_term, academic_year)
+    return jsonify({'message': 'Result created successfully', 'result_id': str(result.id)}), 200
 
+@app.route('/read_result', methods=['GET'])
+def read_result():
+    course_id = request.args.get('course_id')
+    student_id = request.args.get('student_id')
+    
+    result = Result.read_result(course_id, student_id)
+    if result:
+        # Convert result to JSON
+        # Assuming you have a method to convert Result object to JSON
+        return jsonify(result.to_json()), 200
+    else:
+        return jsonify({'message': 'Result not found'}), 404
+
+@app.route('/append_quiz', methods=['PUT'])
+def append_quiz():
+    data = request.json
+    result_id = ObjectId(data['result_id'])
+    quiz = data['quiz']
+    
+    result = Result.objects.get(id=result_id)
+    result.append_quiz(quiz)
+    
+    return jsonify({'message': 'Quiz appended successfully'}), 200
+
+@app.route('/append_assignment', methods=['PUT'])
+def append_assignment():
+    data = request.json
+    result_id = ObjectId(data['result_id'])
+    assignment = data['assignment']
+    
+    result = Result.objects.get(id=result_id)
+    result.append_assignment(assignment)
+    
+    return jsonify({'message': 'Assignment appended successfully'}), 200
 
 # @app.route('/login', methods=['POST'])
 # def login():

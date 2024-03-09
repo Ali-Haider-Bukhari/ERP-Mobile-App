@@ -115,6 +115,7 @@ const handleBotPress = async (bot) => {
 
   try {
     let token = await getToken();
+    console.log("GOT IT ",token)
     const response = await fetch(`${Python_Url}/FetchMessages`, {
         method: 'POST',
         headers: {

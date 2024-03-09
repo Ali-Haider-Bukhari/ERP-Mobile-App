@@ -1,5 +1,6 @@
 from mongoengine import Document, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField,EmailField,EnumField
 from enum import Enum
+from mongoengine.errors import ValidationError 
 import jwt
 import datetime
 import bcrypt
@@ -10,13 +11,28 @@ class UserRoleEnum(Enum):
     BOT = "BOT"
     ADMIN   = "ADMIN"
 
+class UserProgramEnum(Enum):
+    BSCS = "BSCS"
+    BSSE = "BSSE"
+    BSIT = "BSIT"
+    BSDS = "BSDS"
+
 class User(Document):
+    image = StringField(required=False,default="logo.png")
     email = EmailField(required=True, unique=True)
     password = StringField(required=True)
     username = StringField(required=True, unique=True)
-    roll_number = StringField(required=False)  # In case of teacher it will be "" empty
+    roll_number = StringField(required=True,default="")  # In case of teacher it will be "" empty
     role = EnumField(UserRoleEnum, required=True)
+    program = EnumField(UserProgramEnum,required=True)
     meta = {'collection': 'users', 'strict': True}
+ 
+    def clean(self): # Validations
+            
+        if "STUDENT" in str(self.role) and self.roll_number == "":
+            raise ValidationError("user with role STUDENT must have his roll_number")
+        if "TEACHER" in str(self.role) and len(self.roll_number) > 0:
+            raise ValidationError("user with roll TEACHER cannot hace roll_number")
 
     JWT_SECRET = 'FYP-BCSM-001'
 
