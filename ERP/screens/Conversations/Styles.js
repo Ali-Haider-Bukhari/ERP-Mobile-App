@@ -1,6 +1,44 @@
 import { StyleSheet } from 'react-native';
 
 const ChatScreenStyles = StyleSheet.create({
+
+
+
+
+  botcontainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 10, // Rounded border
+    backgroundColor: '#f0f0f0', // Background color
+    marginHorizontal: 10,
+    marginBottom: 10,
+    marginTop:6
+ 
+  },
+  image: {
+    width: 50,
+    height: 50,
+    borderRadius: 40, // Rounded image
+  },
+  chatDetails: {
+    marginLeft: 10,
+  },
+  botName: {
+    fontSize: 15,
+    marginLeft:10,
+    fontWeight: 'bold',
+  },
+  message: {
+    fontSize: 10,
+    marginLeft:10
+
+    // marginTop: 5,
+  },
+
+
+
+
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
@@ -167,6 +205,11 @@ searchInput: {
   fontSize: 16,
   color: '#333',
 },
+chattext:{
+marginLeft:20,
+marginBottom:3,
+color :'#0000ff'
+},
 loadingIndicator: {
   marginTop: 20,
 },
@@ -183,8 +226,10 @@ chatCard: {
   flexDirection: 'row',
   alignItems: 'center',
   padding: 10,
-  borderBottomWidth: 1,
-  borderBottomColor: '#ccc',
+  marginLeft:10,
+  marginRight:10,
+  // borderBottomWidth: 1,
+  // borderBottomColor: '#ccc',
 },
 teacherImage: {
   width: 50,
