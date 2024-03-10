@@ -2,9 +2,18 @@ import React,{useEffect,useState} from 'react';
 import { useNavigation,useRoute } from '@react-navigation/native';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image,ScrollView} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 export default function ProfileScreen() {
     const navigation = useNavigation(); 
     const [editMode,setEditMode] = useState(false)
+
+    const handleEditProfile=()=>{
+      if(editMode==false){
+        setEditMode(true)
+      }else{
+        setEditMode(false)
+      }
+    }
 
 
     return (
@@ -28,11 +37,22 @@ export default function ProfileScreen() {
            <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>6th</Text>
            <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>Current Semester</Text>
            
-           <View style={{ borderRadius: 100,width:40,height:40,backgroundColor:'#7cb342',display:'flex',justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:20,marginTop:150}}>{editMode==false?<MaterialIcons name='edit' size={30} color={'white'}/>:<IoniIcon name='checkmark-sharp' size={30} color={'white'}/>}</View>
+           <View  style={{ borderRadius: 100,width:40,height:40,backgroundColor:'#7cb342',display:'flex',justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:20,marginTop:150}}>{editMode==false?<MaterialIcons onPress={handleEditProfile} name='edit' size={30} color={'white'}/>:<Ionicons onPress={handleEditProfile}  name='checkmark-sharp' size={30} color={'white'}/>}</View>
           </View>
-          <View style={{backgroundColor:'white',width:'85%',height:'60%',alignSelf:'center'}}>
-            
+          {/* WHITE CONTAINER */}
+          <View style={{backgroundColor:'white',width:'85%',height:700,alignSelf:'center'}}>
+            <View style={{alignSelf:'center',marginTop:10,padding:'3%',borderBottomWidth:1,borderBottomColor:'grey',display:'flex',flexDirection:'row',justifyContent:'center',alignContent:'center',width:'80%'}}><Text>About</Text></View>
+          
+            <View style={{marginTop:50,marginLeft:35}}>
+            <Text>Information</Text>
+            </View>
+
+            <View>
+              
+            </View>
+          
           </View>
+          
           
         
         </View>
