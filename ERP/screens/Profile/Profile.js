@@ -1,7 +1,9 @@
 import React,{useEffect,useState} from 'react';
 import { useNavigation,useRoute } from '@react-navigation/native';
-import { View, Text,TextInput, Button ,StyleSheet ,SafeAreaView, Image,ScrollView} from 'react-native';
+import { View, Text,TextInput, Button ,StyleSheet ,SafeAreaView, Image,ScrollView,DatePickerAndroid} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesomeIcons from 'react-native-vector-icons/FontAwesome';
+import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
 export default function ProfileScreen() {
     const navigation = useNavigation(); 
@@ -59,7 +61,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <FontAwesomeIcons name={'user'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}
@@ -70,7 +72,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <MaterialIcons name={'contacts'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}
@@ -81,7 +83,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <AntDesignIcons name={'idcard'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}
@@ -92,7 +94,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <MaterialIcons name={'bloodtype'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}
@@ -103,7 +105,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <MaterialIcons name={'home'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}
@@ -114,7 +116,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
-              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <FontAwesomeIcons name={'birthday-cake'} size={30} color={'#2196f3'}/>
               <TextInput
               style={{marginLeft:10,marginBottom:5}}
               editable={true}

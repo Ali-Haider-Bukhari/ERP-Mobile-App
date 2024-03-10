@@ -36,7 +36,7 @@ class User(Document):
     blood_group = StringField(required=False)
     address = StringField(required=False)
     semester=StringField(required=False)
-    date_of_birth=DateField(required=False)
+    date_of_birth=StringField(required=False)
     meta = {'collection': 'users', 'strict': True}
  
     def clean(self): # Validations
