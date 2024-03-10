@@ -10,7 +10,7 @@ import random
 import string
 
 from flask_cors import CORS
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 # from pymongo import MongoClient
 # import requests
 import bcrypt
@@ -41,6 +41,7 @@ from werkzeug.utils import secure_filename
 from bson import ObjectId
 
 
+
 app = Flask(__name__)
 
 socketio = SocketIO(app)
@@ -67,16 +68,18 @@ connect( host= DB_URL)
 ##########################################################################################
 
 @app.before_request
-def keep_authenticate():
+def keep_authenticated():
+    allowed_endpoints = ['serve_image','login']
     token = request.headers.get('Authorization')
-    if token is not None and token != "null":
-        value = User.verify_token(token)
-        if value == None:
-            print({"message": "Token has expired"})
-            return jsonify({"message": "Token has expired"}), 401
-    elif token is None:
-        print({"message": "Token must be passed"})
-        return jsonify({"message": "Token must be passed"}), 401
+    if request.endpoint not in allowed_endpoints:
+        if token is not None:
+            value = User.verify_token(token)
+            if value == None:
+                print({"message": "Token has expired"})
+                return jsonify({"message": "Token has expired"}), 401
+        elif token is None:
+            print({"message": "Token must be passed"})
+            return jsonify({"message": "Token must be passed"}), 401
     
 
 
@@ -456,7 +459,29 @@ def verify_token():
         return jsonify({"message": "Token is valid", "user": value.to_json()}), 200
     
 ###########################################################################################################
-
+@app.route('/users/<user_id>', methods=['GET'])
+def fetch_user_by_id(user_id):
+    user = User.fetch_by_id(user_id)
+    if user:
+        return jsonify(user.to_json()), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+###########################################################################################################
+@app.route('/users/update/<user_id>', methods=['PUT'])
+def update_user_route(user_id):
+    update_data = request.json  # Assuming update data is sent in JSON format in the request body
+    user = User.fetch_by_id(user_id)
+    
+    if user:
+        try:
+            User.update_user(user, **update_data)
+            updated_user = User.fetch_by_id(user_id)  # Fetch the updated user
+            return jsonify({"message": "User updated successfully", "user": updated_user.to_json()}), 200
+        except ValidationError as e:
+            return jsonify({"message": str(e)}), 400
+    else:
+        return jsonify({"message": "User not found"}), 404
+###########################################################################################################
 @app.route('/insert_courses', methods=['POST'])
 def create_course():
     try:
@@ -793,6 +818,43 @@ def append_assignment():
     result.append_assignment(assignment)
     
     return jsonify({'message': 'Assignment appended successfully'}), 200
+
+@app.route('/uploadImage', methods=['POST'])
+def uploadImage():
+    if 'image' not in request.json:
+        return jsonify({'error': 'No image part in the request'}), 400
+    
+    image_data = request.json['image']
+    image_file_name = request.json['name']  # Assuming 'name' field contains the file name
+    image_path = os.path.join(config_data['IMAGE_FOLDER'], image_file_name)
+
+    if not os.path.exists(config_data['IMAGE_FOLDER']):
+        os.makedirs(config_data['IMAGE_FOLDER'])
+    
+    if os.path.exists(image_path):
+        os.remove(image_path)
+    
+    with open(image_path, 'wb') as f:
+        f.write(image_data.encode('utf-8'))
+    
+    return jsonify({'message': 'Image uploaded successfully'})
+
+@app.route('/fetch_image/<userid>', methods=['GET'])
+def serve_image(userid):
+    try:
+        print("works")
+        image_filename = f"{userid}.jpg"
+        image_path = os.path.join(config_data['IMAGE_FOLDER'], image_filename)
+        
+        print(image_filename)
+        if os.path.exists(image_path):
+            return send_file(image_path, mimetype='image/jpeg')
+        else:
+            default_image_path = os.path.join(config_data['IMAGE_FOLDER'], 'logo.png')
+            return send_file(default_image_path, mimetype='image/png')
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 # @app.route('/login', methods=['POST'])
 # def login():

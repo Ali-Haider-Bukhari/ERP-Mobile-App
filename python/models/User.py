@@ -1,3 +1,4 @@
+from bson import ObjectId
 from mongoengine import Document, StringField, DateField,ReferenceField, ListField, FloatField, IntField, DateTimeField,EmailField,EnumField
 from enum import Enum
 from mongoengine.errors import ValidationError 
@@ -47,6 +48,21 @@ class User(Document):
             raise ValidationError("user with roll TEACHER cannot hace roll_number")
 
     JWT_SECRET = 'FYP-BCSM-001'
+
+    @staticmethod
+    def fetch_by_id(user_id):
+            user = User.objects(id=ObjectId(user_id)).first()
+            return user
+    
+    @staticmethod
+    def update_user(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        try:
+            self.validate()
+        except ValidationError as e:
+            raise ValidationError(str(e))
+        self.save()
 
     @staticmethod
     def generate_token(user_id):

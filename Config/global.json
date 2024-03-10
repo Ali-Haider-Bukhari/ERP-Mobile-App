@@ -5,6 +5,7 @@
     "DB_URL":"mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/",
     "url":"mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/UMS",
     "app_mode":"prelive",
+    "IMAGE_FOLDER":"Images",
     "host":"162.12.210.24"
 }
   

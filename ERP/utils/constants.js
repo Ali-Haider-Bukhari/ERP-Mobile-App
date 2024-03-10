@@ -57,3 +57,59 @@ export async function verifyTokenRequest(token) {
   }
   };
   
+
+
+  export async function fetchByUserId(token,userid) {
+    const url = `${Python_Url}/users/${userid}`;
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+  
+      const responseData = await response.json();
+  
+      if (response.status === 200) {
+        return { data: responseData, message: "success" };
+      } else if (response.status === 401) {
+        return { data: null, message: responseData.message};
+      } else {
+        return { data: null, message: 'Request failed' };
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+      return { data: null, error: 'Request failed' };
+    }
+    };
+    
+
+    export async function update(token,userid,object) {
+      const url = `${Python_Url}/users/update/${userid}`;
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+          body:JSON.stringify(object)
+        });
+    
+        const responseData = await response.json();
+    
+        if (response.status === 200) {
+          return { data: responseData.user, message: "Edit Successful!" };
+        } else if (response.status === 401) {
+          return { data: null, message: responseData.message};
+        } else {
+          return { data: null, message: 'Request failed' };
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+        return { data: null, error: 'Request failed' };
+      }
+      };
+      

@@ -39,7 +39,7 @@ function Splash() {
       }).catch((error) => {
         console.error('Error:', error.message);
       });
-  }, 10000); 
+  }, 10000);   
   }, [fadeAnim, translateYAnim]);
  
 

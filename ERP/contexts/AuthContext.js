@@ -1,6 +1,6 @@
 import React, { createContext, useState,useEffect } from 'react';
 import {ToastAndroid } from 'react-native'
-import {Python_Url, getToken,storeToken,removeToken,verifyTokenRequest} from "../utils/constants";
+import {Python_Url, getToken,storeToken,removeToken,verifyTokenRequest,fetchByUserId,update} from "../utils/constants";
 import { useNavigation } from '@react-navigation/native';
 import { Alert, AlertComponent } from '../components/Alert';
 
@@ -103,13 +103,69 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    navigation.navigate("Login")
     removeToken()
     setUser(null);
-    navigation.navigate("Login")
   };
 
+  const fetchUser = (userid) => {
+    getToken().then((token)=>{
+      fetchByUserId(token,userid).then(({ data, error ,message }) => {
+        if (error) {
+          ToastAndroid.show(error,ToastAndroid.LONG)
+        }else if(token!=null&&data == null){
+          AlertComponent({
+            title:'Message',
+            message:'Session Expired!!',
+            turnOnOkay:false,
+            onOkay:()=>{},
+            onCancel:()=>{
+              ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+              removeToken()
+              navigation.navigate("Login")
+            }},)
+        }else{
+          if(message!="success")
+          ToastAndroid.show(message,ToastAndroid.LONG)
+          else{
+          ToastAndroid.show(message,ToastAndroid.LONG)
+          setUser(JSON.parse(data))}
+        } 
+      })
+    })
+  }
+
+  const updateUser = (userid,object)=>{
+    getToken().then((token)=>{
+      update(token,userid,object).then(({ data, error ,message }) => {
+        if (error) {
+          ToastAndroid.show(error,ToastAndroid.LONG)
+        }else if(message=="Token has expired"){
+          AlertComponent({
+            title:'Message',
+            message:'Session Expired!!',
+            turnOnOkay:false,
+            onOkay:()=>{},
+            onCancel:()=>{
+              ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+              removeToken()
+              navigation.navigate("Login")
+            }},)
+        }else{
+          if(message=="Edit Successful!"){
+          ToastAndroid.show(message,ToastAndroid.LONG)
+          setUser(JSON.parse(data))}
+          else{
+          ToastAndroid.show(message,ToastAndroid.LONG)
+          }
+        } 
+      })
+    })
+    
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout,fetchUser,updateUser }}>
       {children}
     </AuthContext.Provider>
   );
