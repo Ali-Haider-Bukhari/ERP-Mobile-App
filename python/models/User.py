@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField,EmailField,EnumField
+from mongoengine import Document, StringField, DateField,ReferenceField, ListField, FloatField, IntField, DateTimeField,EmailField,EnumField
 from enum import Enum
 from mongoengine.errors import ValidationError 
 import jwt
@@ -36,6 +36,7 @@ class User(Document):
     blood_group = StringField(required=False)
     address = StringField(required=False)
     semester=StringField(required=False)
+    date_of_birth=DateField(required=False)
     meta = {'collection': 'users', 'strict': True}
  
     def clean(self): # Validations

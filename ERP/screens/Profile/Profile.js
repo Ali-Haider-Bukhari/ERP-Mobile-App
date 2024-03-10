@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import { useNavigation,useRoute } from '@react-navigation/native';
-import { View, Text, Button ,StyleSheet ,SafeAreaView, Image,ScrollView} from 'react-native';
+import { View, Text,TextInput, Button ,StyleSheet ,SafeAreaView, Image,ScrollView} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 export default function ProfileScreen() {
@@ -44,12 +44,88 @@ export default function ProfileScreen() {
             <View style={{alignSelf:'center',marginTop:10,padding:'3%',borderBottomWidth:1,borderBottomColor:'grey',display:'flex',flexDirection:'row',justifyContent:'center',alignContent:'center',width:'80%'}}><Text>About</Text></View>
           
             <View style={{marginTop:50,marginLeft:35}}>
-            <Text>Information</Text>
+            <Text>User Information</Text>
+            </View>
+            
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="Email"
+              keyboardType="numeric"
+            />
             </View>
 
-            <View>
-              
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="Username"
+              keyboardType="numeric"
+            />
             </View>
+
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="Contact"
+              keyboardType="numeric"
+            />
+            </View>
+
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="CNIC"
+              keyboardType="numeric"
+            />
+            </View>
+
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="Blood Group"
+              keyboardType="numeric"
+            />
+            </View>
+
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              placeholder="Address"
+              keyboardType="numeric"
+            />
+            </View>
+
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:30,marginLeft:35,height:40,width:'80%',borderBottomWidth:1,borderBottomColor:'#2196f3'}}>
+              <MaterialIcons name={'email'} size={30} color={'#2196f3'}/>
+              <TextInput
+              style={{marginLeft:10,marginBottom:5}}
+              editable={true}
+              value={""}
+              // inputMode=''
+              placeholder="Date of birth"
+              keyboardType="numeric"
+            />
+            </View>
+
+
           
           </View>
           
