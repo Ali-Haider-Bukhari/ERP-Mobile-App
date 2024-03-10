@@ -17,6 +17,11 @@ class UserProgramEnum(Enum):
     BSIT = "BSIT"
     BSDS = "BSDS"
 
+class UserGender(Enum):
+    MALE = "MALE"
+    FEMALE="FEMALE"
+    OTHER ="OTHER"
+
 class User(Document):
     image = StringField(required=False,default="logo.png")
     email = EmailField(required=True, unique=True)
@@ -24,7 +29,13 @@ class User(Document):
     username = StringField(required=True, unique=True)
     roll_number = StringField(required=True,default="")  # In case of teacher it will be "" empty
     role = EnumField(UserRoleEnum, required=True)
+    contact = StringField(required=True)
     program = EnumField(UserProgramEnum,required=True)
+    gender = EnumField(UserGender,required=True)
+    cnic = StringField(required=False)
+    blood_group = StringField(required=False)
+    address = StringField(required=False)
+    semester=StringField(required=False)
     meta = {'collection': 'users', 'strict': True}
  
     def clean(self): # Validations

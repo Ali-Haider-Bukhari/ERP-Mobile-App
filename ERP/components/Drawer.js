@@ -114,9 +114,9 @@ export default function DrawerScreen() {
   );
   return (
    <>
-      <Drawer.Navigator 
+      <Drawer.Navigator
         
-        initialRouteName="Dashboard" 
+        initialRouteName="Profile" 
         drawerContent={props => <CustomSidebarMenu {...props} />}
         screenOptions={{  header:({ navigation }) => <CustomHeader navigation={navigation} />  }}
         >
