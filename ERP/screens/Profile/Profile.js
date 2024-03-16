@@ -132,15 +132,15 @@ export default function ProfileScreen() {
               <View style={{ borderRadius: 100,width:30,height:30,backgroundColor:'#7cb342',display:'flex',justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:30}}><MaterialIcons onPress={uploadImage} name='edit' size={25} color={'white'}/></View>
             </View>  
 
-           <Text style={{fontWeight:'bold',color:'white',fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>Ali Haider</Text>
-           <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>BCSM-F20-139</Text>
+           <Text style={{fontWeight:'bold',color:'white',fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>{user.username}</Text>
+           {user.role=="STUDENT"?<Text style={{color:'white',fontSize:11,alignSelf:'center'}}>{user.roll_number}</Text>:null}
            <Text style={{color:'white',fontSize:10,alignSelf:'center'}}>Faculty of Computer Science and Information Technology GCL</Text>
            <Text style={{fontWeight:'bold',color:'white',fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>Under Graduate</Text>
            <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>career</Text>
-           <Text style={{fontWeight:'bold',color:'white',fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>BS Computer Science</Text>
+           <Text style={{fontWeight:'bold',color:'white',fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>{user.program}</Text>
            <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>Program</Text>
-           <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>6th</Text>
-           <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>Current Semester</Text>
+           {user.role=="STUDENT"?(<><Text style={{color:'white',fontSize:11,alignSelf:'center'}}>6th</Text>
+           <Text style={{color:'white',fontSize:11,alignSelf:'center'}}>Current Semester</Text></>):null}
            
            <View  style={{ borderRadius: 100,width:40,height:40,backgroundColor:'#7cb342',display:'flex',justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:20,marginTop:150}}>{editMode==false?<MaterialIcons onPress={handleEditProfile} name='edit' size={30} color={'white'}/>:<Ionicons onPress={handleEditProfile}  name='checkmark-sharp' size={30} color={'white'}/>}</View>
           </View>
