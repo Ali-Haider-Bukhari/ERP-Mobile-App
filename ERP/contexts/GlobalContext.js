@@ -4,9 +4,11 @@ const MyContext = createContext();
 export const GlobalProvider = ({ children }) => {
   const [myState, setMyState] = useState();  // example state
   const [courses,setCourses] = useState([])
+  const [selectedCourse,setSelectedCourse] = useState(null)
   const value = {
     myState,setMyState,
-    courses,setCourses
+    courses,setCourses,
+    selectedCourse,setSelectedCourse
   };
 
   return (

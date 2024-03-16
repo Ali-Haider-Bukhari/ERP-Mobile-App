@@ -1,15 +1,17 @@
 import React,{useContext, useEffect,useState} from 'react';
-import { View,ScrollView, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image, ToastAndroid} from 'react-native';
+import { View,ScrollView,TouchableOpacity, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image, ToastAndroid} from 'react-native';
 import { useGlobalContext } from '../../contexts/GlobalContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import { AlertComponent } from '../../components/Alert';
 import { useNavigation } from '@react-navigation/native';
+import StudentGradingScreen from './StudentGradingScreen';
 
 export default function ResultsExamsScreen() {
 const navigation = useNavigation();
 const {user} = useContext(AuthContext)
-const {courses,setCourses} = useGlobalContext()
+const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
+
 
     async function getCourses(token){
         
@@ -52,16 +54,14 @@ const {courses,setCourses} = useGlobalContext()
 }
 useEffect(() => {
   if(user.role == "STUDENT"){
-    getToken()
-        .then((token) => {getCourses(token)})
-    
+    getToken().then((token) => {getCourses(token)})
   }
 }, [user])
 
   return (
     <>
      
-     <View 
+     {selectedCourse==null?<View 
      style={{
                   shadowColor: "#000",
                   shadowOffset: {
@@ -86,7 +86,8 @@ useEffect(() => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       
       {courses.map((data,index)=>(
-        <View key={index} style={{marginTop:40,display:'flex',alignSelf:'center',width:'88%',height:130,border:1,borderWidth:1,borderColor:'rgba(226,226,226,255)'}}>
+         <TouchableOpacity key={index} onPress={() => {setSelectedCourse(data)}}>
+        <View style={{marginTop:40,display:'flex',alignSelf:'center',width:'88%',height:130,border:1,borderWidth:1,borderColor:'rgba(226,226,226,255)'}}>
 
             <View style={{height:'50%',backgroundColor:'rgb(0, 174, 255)'}}>
               <View style={{backgroundColor:'rgba(222,149,0,255)',alignSelf:'flex-end',padding:2,width:80,borderRadius:2,height:21,display:'flex',flexDirection:'row',justifyContent:'center'}}>
@@ -107,13 +108,14 @@ useEffect(() => {
             </View>
 
         </View>
+        </TouchableOpacity>
       ))}
 
      
 
        </ScrollView>
 
-    </View>
+    </View>:user.role=="STUDENT"?<StudentGradingScreen course_id={selectedCourse.course_id} setSelected={(value)=>{setSelectedCourse(null)}}/>:user.role=="TEACHER"?null:null}
 
     
   

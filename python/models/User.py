@@ -24,6 +24,7 @@ class UserGender(Enum):
     OTHER ="OTHER"
 
 class User(Document):
+    image = StringField(required=False,default="logo.png")
     email = EmailField(required=True, unique=True)
     password = StringField(required=True)
     username = StringField(required=True, unique=True)

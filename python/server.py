@@ -525,19 +525,22 @@ def add_student_to_course(course_id):
         return jsonify({'error': str(e)}), 400
     
 @app.route('/fetch-results', methods=['POST'])
-def fetch_results():
+def get_result():
     try:
-        # Get parameters from the JSON request
         data = request.json
+        
+        # Parse data from JSON
         student_id_str = data.get('student_id')
-        teacher_id_str = data.get('teacher_id')
         course_id_str = data.get('course_id')
 
-        print(student_id_str,teacher_id_str,course_id_str,"check")
-        # Call the fetchResults method from your Result model
-        results = Result.fetchResults(student_id_str, teacher_id_str, course_id_str)
+        # Check if both parameters are provided
+        if not (student_id_str and course_id_str):
+            return jsonify({'error': 'Both student_id and course_id are required.'}), 400
         
-        # Convert results to JSON and return
+        # Call fetch_results method
+        results = Result.fetch_results(student_id_str, course_id_str)
+
+        # Return the fetched results
         return jsonify(results), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -768,34 +771,23 @@ def update_role(_id, role):
     except Exception as e:
         print(e)
         return jsonify({"status": 500, "msg": "Internal Server Error"})
-#  Login 
-@app.route('/create_result', methods=['POST'])
-def create_result():
-    data = request.json
-    student_id = ObjectId(data['student_id'])
-    teacher_id = ObjectId(data['teacher_id'])
-    course_id = ObjectId(data['course_id'])
-    quiz = data['quiz']
-    assignment = data['assignment']
-    mid_term = data['mid_term']
-    final_term = data['final_term']
-    academic_year = data['academic_year']
-    
-    result = Result.create_result(student_id, teacher_id, course_id, quiz, assignment, mid_term, final_term, academic_year)
-    return jsonify({'message': 'Result created successfully', 'result_id': str(result.id)}), 200
 
 @app.route('/read_result', methods=['GET'])
-def read_result():
-    course_id = request.args.get('course_id')
-    student_id = request.args.get('student_id')
-    
-    result = Result.read_result(course_id, student_id)
-    if result:
-        # Convert result to JSON
-        # Assuming you have a method to convert Result object to JSON
-        return jsonify(result.to_json()), 200
-    else:
-        return jsonify({'message': 'Result not found'}), 404
+def get_results():
+    try:
+        data = request.json
+     
+        student_id_str = data.get('student_id')
+        course_id_str = data.get('course_id')
+
+        if not (student_id_str and course_id_str):
+            return jsonify({'message': 'Both student_id and course_id are required.'}), 400
+     
+        results = Result.fetch_results(student_id_str, course_id_str)
+
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 @app.route('/append_quiz', methods=['PUT'])
 def append_quiz():
@@ -856,6 +848,45 @@ def serve_image(userid):
             return send_file(default_image_path, mimetype='image/png')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+####################################################################
+@app.route('/create_result', methods=['POST'])
+def create_result():
+    
+    data = request.json
+    student_id = ObjectId(data['student_id'])
+    course_id = ObjectId(data['course_id'])
+    quiz_data = data.get('quiz', [])
+    quiz = [ObjectofAssessment(**item) for item in quiz_data]
+    assignment_data = data.get('assignment', [])
+    assignment = [ObjectofAssessment(**item) for item in assignment_data]
+    mid_term = ObjectofAssessment(**data['mid_term'])
+    final_term = ObjectofAssessment(**data['final_term'])
+    academic_year = data['academic_year']
+
+    result = Result.create_result(student_id, course_id, quiz, assignment, mid_term, final_term, academic_year)
+
+    return jsonify(result.to_json())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # @app.route('/login', methods=['POST'])
