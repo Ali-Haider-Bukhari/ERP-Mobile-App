@@ -848,8 +848,10 @@ def serve_image(userid):
         
         print(image_filename)
         if os.path.exists(image_path):
+            print("YES EXIST")
             return send_file(image_path, mimetype='image/jpeg')
         else:
+            print("NOT EXIST")
             default_image_path = os.path.join(config_data['IMAGE_FOLDER'], 'logo.png')
             return send_file(default_image_path, mimetype='image/png')
     except Exception as e:
