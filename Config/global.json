@@ -6,6 +6,6 @@
     "url":"mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/UMS",
     "app_mode":"prelive",
     "IMAGE_FOLDER":"Images",
-    "host":"192.168.0.109"
+    "host":"192.168.1.109"
 }
   

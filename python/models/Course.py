@@ -31,6 +31,10 @@ class Course(Document):
             return None
 
         
+    def fetch_courses_by_teacher_id(teacher_id):
+        # Find all courses where the given student is enrolled
+        courses = Course.objects(teacher_id=teacher_id)
+        return courses
     def fetch_courses_by_student_id(student_id):
         # Find all courses where the given student is enrolled
         courses = Course.objects(students=student_id)

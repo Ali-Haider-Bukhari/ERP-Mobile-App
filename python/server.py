@@ -1,45 +1,25 @@
-from flask_socketio import SocketIO
-import os
-from dotenv import load_dotenv 
-from mongoengine.errors import ValidationError
-import re
-from flask import render_template
-import urllib.parse
 
-import random
-import string
-
-from flask_cors import CORS
-from flask import Flask, request, jsonify, send_file
-# from pymongo import MongoClient
-# import requests
+import requests  
+from datetime import datetime, timedelta
 import bcrypt
-from datetime import datetime
 import json
-from bson import ObjectId , json_util
-from mongoengine import connect, Q , DoesNotExist
-
+from bson import ObjectId ,json_util
+from flask import Flask, request, jsonify ,  send_file
+from flask_cors import CORS
+from flask_socketio import SocketIO
+from mongoengine import connect , ValidationError
+from models.User import User, UserRoleEnum
+from models.Course import Course
+from models.Attandance import Attendance
+from models.Message import Message
+from models.Result import ObjectofAssessment, Result
 import os
 import smtplib
 import ssl
-import json
-from datetime import datetime, timedelta
+import random
+import string
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from models.User import User, UserRoleEnum
-from models.Course import Course
-from models.Message import Message
-from models.Result import ObjectofAssessment, Result
-# import imaplib 
-# import email 
-import re 
-import requests  
-import smtplib 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from werkzeug.utils import secure_filename
-from bson import ObjectId
-
 
 
 app = Flask(__name__)
@@ -69,7 +49,7 @@ connect( host= DB_URL)
 
 @app.before_request
 def keep_authenticated():
-    allowed_endpoints = ['serve_image','login']
+    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password' ]
     token = request.headers.get('Authorization')
     if request.endpoint not in allowed_endpoints:
         if token is not None:
@@ -87,12 +67,12 @@ def keep_authenticated():
 
 @socketio.on('message')
 def handle_message(data):
-    # print(data ,"messages")
+   
     sender_id = ObjectId(data['sender_id'])
     
     receiver_id = ObjectId(data['receiver_id'])
+    # print(data , "data in messages")
 
-    # print(sender_id , receiver_id , "both -ids")
 
     new_message = Message(
         sender_id=sender_id,
@@ -104,39 +84,23 @@ def handle_message(data):
    
 
     new_message.save()
-    
+    userdata = User.objects(id=sender_id).first()
+    newobj = {
+         'sender': {
+              "_id" : str(sender_id),
+              "name" : userdata.username,
+            } ,
+            'receiver': {
+              "_id" : str(receiver_id),
+            } ,
+        'message_content' : data['message_content'],
+
+    }
+    # print(newobj)
     # /Emit the message to all connected clients
    
-    socketio.emit('message',data )
-      # Emit last message and new message count to the sender and receiver
-    emit_last_message_and_new_message_count(sender_id, receiver_id)
+    socketio.emit('message',newobj )
 
-def emit_last_message_and_new_message_count(sender_id, receiver_id):
-    # Get the last message for the sender and receiver
-    last_message_sender = Message.objects(sender_id=sender_id, receiver_id=receiver_id).order_by('-timestamp').first()
-    last_message_receiver = Message.objects(sender_id=receiver_id, receiver_id=sender_id).order_by('-timestamp').first()
-
-    # Get the count of new messages for the sender and receiver
-    new_messages_sender = Message.objects(sender_id=receiver_id, receiver_id=sender_id, seen=False).count()
-    new_messages_receiver = Message.objects(sender_id=sender_id, receiver_id=receiver_id, seen=False).count()
-
-    # Emit events to the sender and receiver with the last message and new message count
-    socketio.emit('last_message_and_new_message_count', {
-        'sender_id': str(sender_id),
-        'receiver_id': str(receiver_id),
-        'last_message_sender': last_message_sender.to_json() if last_message_sender else None,
-        'last_message_receiver': last_message_receiver.to_json() if last_message_receiver else None,
-        'new_messages_sender': new_messages_sender,
-        'new_messages_receiver': new_messages_receiver
-    }, room=str(sender_id))
-    socketio.emit('last_message_and_new_message_count', {
-        'sender_id': str(sender_id),
-        'receiver_id': str(receiver_id),
-        'last_message_sender': last_message_sender.to_json() if last_message_sender else None,
-        'last_message_receiver': last_message_receiver.to_json() if last_message_receiver else None,
-        'new_messages_sender': new_messages_sender,
-        'new_messages_receiver': new_messages_receiver
-    }, room=str(receiver_id))
 
 
 @socketio.on('fetch_messages')
@@ -150,15 +114,27 @@ def fetch_messages(data):
      # Serialize messages to a list of dictionaries
     serialized_messages = [
         {
-            'sender_id': str(message.sender_id.id),
-            'receiver_id': str(message.receiver_id.id),
+            'sender': {
+              "_id" : str(message.sender_id.id),
+                 "name" : str(message.sender_id.username),
+                    "email" : str(message.sender_id.email),
+                       "roll_number" : str(message.sender_id.roll_number),
+            
+            } ,
+            'receiver': {
+                 "_id" : str(message.receiver_id.id),
+                      "name" : str(message.receiver_id.username),
+                    "email" : str(message.receiver_id.email),
+                       "roll_number" : str(message.receiver_id.roll_number),
+                         },
             'message_content': message.message_content,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             'is_bot_message': message.is_bot_message
         }
         for message in Data_Messages
     ]
-    # print(serialized_messages , "fetch Messages")
+    for message in Data_Messages:
+       print(message.message_content , "fetch Messages")
     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
   
     socketio.emit('fetched_messages', sorted_messages )    
@@ -167,29 +143,6 @@ def fetch_messages(data):
 ###################### Pagination for fetching more messages ################
     
 
-
-# @socketio.on('fetch_more_messages')
-# def fetch_more_messages(data):
-#     sender_id = data['sender_id']
-#     receiver_id = data['receiver_id']
-#     offset = data.get('offset', 0)  # Offset for pagination
-    
-#     # Fetch next 16 messages with an offset
-#     Data_Messages = Message.fetch_messages(sender_id, receiver_id, limit=16, offset=offset)
-
-#     serialized_messages = [
-#         {
-#             'sender_id': str(message.sender_id.id),
-#             'receiver_id': str(message.receiver_id.id),
-#             'message_content': message.message_content,
-#             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-#             'is_bot_message': message.is_bot_message
-#         }
-#         for message in Data_Messages
-#     ]
-#     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
-  
-#     socketio.emit('fetched_more_messages', sorted_messages)
 
 
 
@@ -284,8 +237,7 @@ def save_bot_response():
         bot_response = data.get('botResponse')
         sender_id = data.get('sender_id')
         receiver_id = data.get('receiver_id')
-        # print(receiver_id , "recieve")
-        # Check if mereceiver_idssage ID and bot response are not empty
+       
         if not message_id or not bot_response:
             return jsonify({'status': 400, 'error': 'Invalid data provided'})
 
@@ -503,8 +455,19 @@ def create_course():
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
+# Route to fetch courses by Teacher ID
+@app.route('/courses_teacher/<teacher_id>', methods=['GET'])
+def get_courses_by_teacher_id(teacher_id):
+    try:
+        courses = Course.fetch_courses_by_teacher_id(teacher_id)
+        course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour,'teacher_id':str(course.teacher_id.id)} for course in courses]
+        print(course_list)
+        return jsonify(course_list)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
+    
 # Route to fetch courses by student ID
-@app.route('/courses/<student_id>', methods=['GET'])
+@app.route('/courses_student/<student_id>', methods=['GET'])
 def get_courses_by_student_id(student_id):
     try:
         courses = Course.fetch_courses_by_student_id(student_id)
@@ -512,7 +475,7 @@ def get_courses_by_student_id(student_id):
         print(course_list)
         return jsonify(course_list)
     except ValidationError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 400    
 
 # Route to append a new student to an existing course
 @app.route('/courses/<course_id>/students', methods=['PUT'])
@@ -524,6 +487,246 @@ def add_student_to_course(course_id):
     except ValidationError as e:
         return jsonify({'error': str(e)}), 400
     
+
+
+@app.route('/fetch_attendance', methods=['GET'])
+def fetch_attendance():
+    course_id = request.args.get('course_id')
+
+    if not course_id:
+        return jsonify({'error': 'Course ID is required'}), 400
+    
+    try:
+        attendances = Attendance.fetch_attendance_by_course_id_sorted(course_id)
+        print(attendances)
+        
+
+        return jsonify(attendances), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+@app.route('/fetch_attendancebyId', methods=['GET'])
+def fetch_attendancebyid():
+    _id = request.args.get('_id')
+    print(_id , "_id get")
+
+    if not _id:
+        return jsonify({'error': 'ID is required'}), 400
+    
+    try:
+        attendance =  Attendance.objects(id=_id).first()
+        print(attendance)
+        if not attendance:
+            return jsonify({'error': 'Attendance record not found'}), 404
+
+        serialized_students = []
+        for student_info in attendance.students:
+            student_id = student_info.student_id
+            attendance_status = student_info.attendance_status
+
+            serialized_students.append({
+                '_id': str(student_id.id) ,
+                'name': student_id.username,
+                'email': student_id.email,
+                'address': student_id.address,
+                'blood_group': student_id.blood_group,
+                'date_of_birth': student_id.date_of_birth,
+                'gender': student_id.gender,
+                'image': student_id.image,
+                'program': student_id.program,
+                'contact': student_id.contact,
+                'attendance_status': attendance_status
+            })
+
+        serialized_obj = {
+            '_id': str(attendance.id),
+            'course': {
+                'id': str(attendance.course_id.id),
+                'name': attendance.course_id.course_name
+            },
+            'date': str(attendance.date),
+            'students': serialized_students,
+            'confirm_status': attendance.confirm_status
+        }
+
+        return jsonify(serialized_obj), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/insert_empty_attendance', methods=['POST'])
+def insert_empty_attendance():
+    try:    
+        # Parse request data
+        course_id = request.args.get('course_id') 
+        date = request.args.get('date')
+          # Check if an attendance record already exists for the given date
+        existing_attendance = Attendance.objects(course_id=course_id, date=date).first()
+        if existing_attendance:
+            return jsonify({'error': 'Attendance for this date already exists'}), 400
+
+        # Call insert_empty method from Attendance model
+        empty_attendance = Attendance.insert_empty(course_id=course_id, date=date)
+      
+        # Extract the _id of the newly created document
+        attendance_id = str(empty_attendance.id)
+        
+        # Prepare the response JSON object
+        response_data = {
+            'attendance_id': attendance_id,
+            'message': 'Empty attendance record inserted successfully'
+        }
+        
+        # Return the response with status code 200
+        return jsonify(response_data), 200
+    
+    except Exception as e:
+        # Handle other exceptions
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+
+    # update attandence status
+
+
+@app.route('/update_student_attendance_status', methods=['POST'])
+def update_student_attendance_status():
+    try:
+        # Parse request data
+        attendance_id = request.args.get('attendance_id')
+        student_id = request.args.get('student_id')
+        new_attendance_status = request.args.get('attendance_status')
+
+        # Find the attendance record by its _id
+        attendance = Attendance.objects(id=attendance_id).first()
+
+        if not attendance:
+            return jsonify({'error': 'Attendance record not found'}), 404
+
+        # Find the student within the students list
+        student = next((student for student in attendance.students if str(student.student_id.id) == student_id), None)
+
+        if not student:
+            return jsonify({'error': 'Student not found in attendance record'}), 404
+
+        # Update the attendance status for the student
+        student.attendance_status = new_attendance_status
+        attendance.save()
+
+        return jsonify({'message': 'Student attendance status updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
+
+# ####################### Submit Attendance #########################
+    
+
+
+@app.route('/update_confirm_status', methods=['POST'])
+def submit_attendance():
+    try:
+        # Parse request data
+        data = request.json
+        attendance_id = data.get('attendance_id')
+        status = data.get('status')
+
+        # Find the attendance record by its _id
+        attendance = Attendance.objects(id=attendance_id).first()
+
+        if not attendance:
+            return jsonify({'error': 'Attendance record not found'}), 404
+
+        # Update the attendance status for the student
+        attendance.confirm_status = status
+        attendance.save()
+
+        return jsonify({'message': 'Student attendance status updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Forget Password
+@app.route('/forgetverify', methods=['POST'])
+def forget_verify():
+    try: 
+        # Retrieve email from request JSON
+        email = request.json.get('email')
+        print(email , "recive in python")
+        
+        # Find user by email in User collection
+        user = User.objects(email=email).first()
+        
+        # If user with provided email does not exist, return status 400
+        if not user:
+            return jsonify({'status': 400})
+
+        # Generate a random password
+        password = ''.join(random.choices(string.digits, k=5))
+        
+        # Retrieve email sender's credentials from config_data
+        sender_email = config_data['email']
+        sender_password = config_data['password']
+
+        # Create email message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "UMS Portal Verification"
+        message["From"] = sender_email
+        message["To"] = email
+        html = f"""
+        <p>Your Verification Code is:  {password}</p>
+        """
+
+        part = MIMEText(html, "html")
+        message.attach(part)
+
+        # Send the email
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, email, message.as_string())  
+
+        # Return status 200 and verification password
+        return jsonify({'status': 200, 'verification': password})
+    
+    except Exception as e:
+        print(e)
+        # If any exception occurs, return status 500
+        return jsonify({'status': 500})
+
+# Set password
+    
+
+# Route for setting a new password
+    
+
+@app.route('/setpassword', methods=['POST'])
+def set_password():
+    try:
+        # Extract email and new password from the request JSON
+        email = request.json.get('email')
+        new_password = request.json.get('password')
+
+        # Find the user by email in the User collection
+        user = User.objects(email=email).first()
+
+        # If user exists, update the password
+        if user:
+            print(email ,new_password , user.email , "get" )
+            # Hash the new password before updating
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            print(hashed_password, "hash")
+            user.password = str(hashed_password)  # Decode the hashed password
+            user.save()
+            return jsonify({'status': 'Password updated successfully'}),200
+
+        # If user does not exist, return an error response
+        return jsonify({'error': 'User not found with the provided email'}), 404
+
+    except Exception as e:
+        # Handle any exceptions and return an error response
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/fetch-results', methods=['POST'])
 def fetch_results():
     try:
@@ -541,197 +744,6 @@ def fetch_results():
         return jsonify(results), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-
-#  Delete all documents
-
-   
-
-# @app.route('/deleterecord', methods=['POST'])
-# def deleterecord():
-#     try:
-#         # Delete all records from the 'Patient' collection
-#         deleted_count = Users.objects().delete()
-
-#         # Return the number of deleted records as the response
-#         return jsonify({"deleted_count": deleted_count})
-
-#     except Exception as e:
-#         print(f"Error deleting records: {e}")
-#         return jsonify({"error": str(e)}), 500
-
-
-
-
-#  Fetch Patients
-
-
-# @app.route('/FetchPatients', methods=['POST'])
-# def fetch_patients():
-#     data = request.get_json()
-#     print(data)
-#     users = Users.objects()
-
-#     user_list = []
-
-#     if users:
-#         for user in users:
-#             provider = user.provider.lower()
-#             fax = user.fax
-            
-
-#             # Check if firstname, lastname, and phone match the provided data
-#             if (data['firstname'].lower() in provider  ) and ( data['lastname'].lower()  in provider ) and (data['fax'] in fax ):
-#                 user_dict = {
-#                     'patientname': user.patientname,
-#                     'fax': user.fax,
-#                     'faxhistory': user.faxhistory,
-#                     'dob': user.dob,
-#                     'dos': user.dos,
-#                     'provider': user.provider,
-#                     'age': user.age,
-#                     'physician': user.physician,
-#                     'emapuget': user.emapuget,
-#                     'emgstudy': user.emgstudy,
-#                     'summary': user.summary,
-#                     'impression': user.impression,
-#                     'recommendation': user.recommendation,
-#                     'dateofsigning': user.dateofsigning,
-#                     'report': user.report,
-#                     'filename': user.filename,
-#                     'status': user.status,
-#                 }
-#                 user_list.append(user_dict)
-
-#     return jsonify(user_list)
-
-
-
-
-
-
-
-#  Sign Up API
-
-@app.route('/signup',  methods=['POST'])
-def signup():
-    
-    email = request.json['email']
-    firstname = request.json['firstname']
-    lastname = request.json['lastname']
-    phone = request.json['phone']
-    role = request.json['role']
-    fax = request.json['fax']
-
-  
-
-    
-
-    # Generate verification token and expiration time
-    expiration_time = datetime.now() + timedelta(minutes=5)
-    expiration_time_str = expiration_time.strftime('%Y-%m-%d %H:%M:%S')
-
-    # Save user details to the database
-    user = {
-        'email': email,
-        'firstname': firstname,
-        'lastname': lastname,
-        'phone': phone,
-        'role': role,
-        'fax': fax,
-        'expirationTime': expiration_time_str,
-    }
-   
-
-    # Send verification email
-    send_verification_email(email, firstname, lastname , phone , role , fax ,expiration_time_str )
-
-    return jsonify({'status': 200})
-
-def send_verification_email(email, firstname, lastname , phone , role , fax ,expiration_time_str ):
-    
-    sender_email = config_data['email']
-    password = config_data['password']
-
-    message = MIMEMultipart("alternative")
-    message["Subject"] = "EMA Provider Portal Verification"
-    message["From"] = sender_email
-    message["To"] = email
-
-    verification_obj = {
-        'email': email,
-        'firstname': firstname,
-        'lastname': lastname,
-        'phone': phone,
-        'role': role,
-        'fax': fax,
-        "expiration_time":expiration_time_str
-       
-    }
-    verification_data = json.dumps(verification_obj)
-    verification_data_encoded = urllib.parse.quote(verification_data)
-    verification_link = f"{config_data['frontend_local_url']}/Verification?data={verification_data_encoded}"
-  
-
-    html = f"""
-    <p>Dear {firstname} {lastname},</p>
-    <p>Click <a href="{verification_link}">here</a> to create a password for your account.</p>
-    <p>{email}</p>
-    """
-
-    part = MIMEText(html, "html")
-    message.attach(part)
-
-    # Send the email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, email, message.as_string())
-
-
-#  Insert user
-
-@app.route("/InsertUser", methods=['POST'])
-def insert_user():
-    try:
-        data = request.json
-        firstname = data.get('firstname')
-        lastname = data.get('lastname')
-        email = data.get('email')
-        phone = data.get('phone')
-        password = data.get('password')
-        role = data.get('role')
-        fax = data.get('fax')
-
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-        # Get the current date
-        current_date = datetime.now()
-
-        # Create the user object
-        user = User(
-            firstname=firstname,
-            lastname=lastname,
-            email=email,
-            phone=phone,
-            password=hashed_password,
-            role=role,
-            fax=fax,
-            lastlogin=None,  # Initialize with None, as it will be set later
-            startdate=current_date.strftime('%B %d, %Y')
-        )
-
-        # Save the user object to the database
-        user.save()
-
-        return jsonify({'status': 200, "obj": user.to_json()})
-
-    except Exception as e:
-        # Handle the exception and return an error response
-        return jsonify({'status': 400, 'error': str(e)})
-
 
 
 #  Update role
@@ -856,6 +868,197 @@ def serve_image(userid):
             return send_file(default_image_path, mimetype='image/png')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+
+#  Delete all documents
+
+   
+
+# @app.route('/deleterecord', methods=['POST'])
+# def deleterecord():
+#     try:
+#         # Delete all records from the 'Patient' collection
+#         deleted_count = Users.objects().delete()
+
+#         # Return the number of deleted records as the response
+#         return jsonify({"deleted_count": deleted_count})
+
+#     except Exception as e:
+#         print(f"Error deleting records: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+
+
+
+#  Fetch Patients
+
+
+# @app.route('/FetchPatients', methods=['POST'])
+# def fetch_patients():
+#     data = request.get_json()
+#     print(data)
+#     users = Users.objects()
+
+#     user_list = []
+
+#     if users:
+#         for user in users:
+#             provider = user.provider.lower()
+#             fax = user.fax
+            
+
+#             # Check if firstname, lastname, and phone match the provided data
+#             if (data['firstname'].lower() in provider  ) and ( data['lastname'].lower()  in provider ) and (data['fax'] in fax ):
+#                 user_dict = {
+#                     'patientname': user.patientname,
+#                     'fax': user.fax,
+#                     'faxhistory': user.faxhistory,
+#                     'dob': user.dob,
+#                     'dos': user.dos,
+#                     'provider': user.provider,
+#                     'age': user.age,
+#                     'physician': user.physician,
+#                     'emapuget': user.emapuget,
+#                     'emgstudy': user.emgstudy,
+#                     'summary': user.summary,
+#                     'impression': user.impression,
+#                     'recommendation': user.recommendation,
+#                     'dateofsigning': user.dateofsigning,
+#                     'report': user.report,
+#                     'filename': user.filename,
+#                     'status': user.status,
+#                 }
+#                 user_list.append(user_dict)
+
+#     return jsonify(user_list)
+
+
+
+
+
+
+
+# #  Sign Up API
+
+# @app.route('/signup',  methods=['POST'])
+# def signup():
+    
+#     email = request.json['email']
+#     firstname = request.json['firstname']
+#     lastname = request.json['lastname']
+#     phone = request.json['phone']
+#     role = request.json['role']
+#     fax = request.json['fax']
+
+  
+
+    
+
+#     # Generate verification token and expiration time
+#     expiration_time = datetime.now() + timedelta(minutes=5)
+#     expiration_time_str = expiration_time.strftime('%Y-%m-%d %H:%M:%S')
+
+#     # Save user details to the database
+#     user = {
+#         'email': email,
+#         'firstname': firstname,
+#         'lastname': lastname,
+#         'phone': phone,
+#         'role': role,
+#         'fax': fax,
+#         'expirationTime': expiration_time_str,
+#     }
+   
+
+#     # Send verification email
+#     send_verification_email(email, firstname, lastname , phone , role , fax ,expiration_time_str )
+
+#     return jsonify({'status': 200})
+
+# def send_verification_email(email, firstname, lastname , phone , role , fax ,expiration_time_str ):
+    
+#     sender_email = config_data['email']
+#     password = config_data['password']
+
+#     message = MIMEMultipart("alternative")
+#     message["Subject"] = "EMA Provider Portal Verification"
+#     message["From"] = sender_email
+#     message["To"] = email
+
+#     verification_obj = {
+#         'email': email,
+#         'firstname': firstname,
+#         'lastname': lastname,
+#         'phone': phone,
+#         'role': role,
+#         'fax': fax,
+#         "expiration_time":expiration_time_str
+       
+#     }
+#     verification_data = json.dumps(verification_obj)
+#     verification_data_encoded = urllib.parse.quote(verification_data)
+#     verification_link = f"{config_data['frontend_local_url']}/Verification?data={verification_data_encoded}"
+  
+
+#     html = f"""
+#     <p>Dear {firstname} {lastname},</p>
+#     <p>Click <a href="{verification_link}">here</a> to create a password for your account.</p>
+#     <p>{email}</p>
+#     """
+
+#     part = MIMEText(html, "html")
+#     message.attach(part)
+
+#     # Send the email
+#     context = ssl.create_default_context()
+#     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+#         server.login(sender_email, password)
+#         server.sendmail(sender_email, email, message.as_string())
+
+
+# #  Insert user
+
+# @app.route("/InsertUser", methods=['POST'])
+# def insert_user():
+#     try:
+#         data = request.json
+#         firstname = data.get('firstname')
+#         lastname = data.get('lastname')
+#         email = data.get('email')
+#         phone = data.get('phone')
+#         password = data.get('password')
+#         role = data.get('role')
+#         fax = data.get('fax')
+
+#         # Hash the password
+#         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+#         # Get the current date
+#         current_date = datetime.now()
+
+#         # Create the user object
+#         user = User(
+#             firstname=firstname,
+#             lastname=lastname,
+#             email=email,
+#             phone=phone,
+#             password=hashed_password,
+#             role=role,
+#             fax=fax,
+#             lastlogin=None,  # Initialize with None, as it will be set later
+#             startdate=current_date.strftime('%B %d, %Y')
+#         )
+
+#         # Save the user object to the database
+#         user.save()
+
+#         return jsonify({'status': 200, "obj": user.to_json()})
+
+#     except Exception as e:
+#         # Handle the exception and return an error response
+#         return jsonify({'status': 400, 'error': str(e)})
+
 
 
 # @app.route('/login', methods=['POST'])
@@ -1075,149 +1278,109 @@ def serve_image(userid):
 
 
 
-# Forget Password
-
-@app.route('/forgetverify', methods=['POST'])
-def forget_verify():
-    try: 
-        email = request.json.get('email')
-        print(email , "recive in python")
-        user = User.objects(email=email).first()
-        if not user:
-            return jsonify({'status': 400})
-
-        Password = ''.join(random.choices(string.digits, k=5))
-        
-        
-        sender_email = config_data['email']
-        password = config_data['password']
-
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "UMS Portal Verification"
-        message["From"] = sender_email
-        message["To"] = email
-        html = f"""
-        <p>Your Verification Code is:  {Password}</p>
-        
-        
-        """
-
-        part = MIMEText(html, "html")
-        message.attach(part)
-
-        # Send the email
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, email, message.as_string())  
-        return jsonify({'status': 200, 'verification': password})
-    except Exception as e:
-        print(e)
-        return jsonify({'status': 500})
-
-# Set password
-
-
-@app.route('/UpdateUser', methods=['POST'])
-def update_user():
-    try:
-        data = request.get_json()
-
-        email = data.get('email', '')
-        new_password = data.get('pass', '')
-
-        # Hash the new password using bcrypt
-        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-
-        # Find the user by email and update the password
-        user = User.objects(email=email).first()
-        if user:
-            user.password = hashed_password.decode('utf-8')
-            user.save()
-            return jsonify({"status": 200, "message": "Password updated successfully"})
-        else:
-            return jsonify({"status": 404, "message": "User not found"})
-
-    except Exception as e:
-        print(e)
-        return jsonify({"status": 500, "message": "Internal Server Error"})
-
-
-#  delete Users
 
 
 
-@app.route('/deleteUsers/<string:_id>', methods=['POST'])
-def delete_User(_id):
-    try:
-        User_id = ObjectId(_id)
-        user = User.objects(id=User_id).first()
-        if not user:
-            return jsonify({'status': 400, 'msg': 'User not found'})
+# @app.route('/UpdateUser', methods=['POST'])
+# def update_user():
+#     try:
+#         data = request.get_json()
 
-        user.delete()
+#         email = data.get('email', '')
+#         new_password = data.get('pass', '')
 
-        return jsonify({'status': 200, 'msg': 'User deleted successfully'})
-    except Exception as e:
-        print(e)
-        return jsonify({'status': 500, 'msg': 'Internal Server Error'})
+#         # Hash the new password using bcrypt
+#         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+#         # Find the user by email and update the password
+#         user = User.objects(email=email).first()
+#         if user:
+#             user.password = hashed_password.decode('utf-8')
+#             user.save()
+#             return jsonify({"status": 200, "message": "Password updated successfully"})
+#         else:
+#             return jsonify({"status": 404, "message": "User not found"})
+
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"status": 500, "message": "Internal Server Error"})
 
 
-#  search Users
+# #  delete Users
 
-@app.route('/SearchUser', methods=['POST'])
-def search_user():
-    try:
-        data = request.json
-        searchquery = request.json.get('Value', {}).get('searchquery', '')
 
-        if searchquery == "all users":
-            print("search works")
-            # Fetch all patients and convert the QuerySet to a list of dictionaries
-            patient_list = list(User.objects.all().as_pymongo())
-            # print(len(patie))
-            return json_util.dumps(patient_list)
 
-        else:
-            print(searchquery)
-            if len(searchquery) == 0:
-                return json_util.dumps([])
+# @app.route('/deleteUsers/<string:_id>', methods=['POST'])
+# def delete_User(_id):
+#     try:
+#         User_id = ObjectId(_id)
+#         user = User.objects(id=User_id).first()
+#         if not user:
+#             return jsonify({'status': 400, 'msg': 'User not found'})
 
-            regexPattern = {'$regex':'^'+ searchquery, '$options': 'i'}
-            query = {
-                '$or': [
-                    {'firstname': regexPattern},
-                    {'lastname': regexPattern}
-                ]
-            }
+#         user.delete()
 
-            patient_list = list(User.objects(__raw__=query).as_pymongo())  # Add more conditions if needed
+#         return jsonify({'status': 200, 'msg': 'User deleted successfully'})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({'status': 500, 'msg': 'Internal Server Error'})
+
+
+# #  search Users
+
+# @app.route('/SearchUser', methods=['POST'])
+# def search_user():
+#     try:
+#         data = request.json
+#         searchquery = request.json.get('Value', {}).get('searchquery', '')
+
+#         if searchquery == "all users":
+#             print("search works")
+#             # Fetch all patients and convert the QuerySet to a list of dictionaries
+#             patient_list = list(User.objects.all().as_pymongo())
+#             # print(len(patie))
+#             return json_util.dumps(patient_list)
+
+#         else:
+#             print(searchquery)
+#             if len(searchquery) == 0:
+#                 return json_util.dumps([])
+
+#             regexPattern = {'$regex':'^'+ searchquery, '$options': 'i'}
+#             query = {
+#                 '$or': [
+#                     {'firstname': regexPattern},
+#                     {'lastname': regexPattern}
+#                 ]
+#             }
+
+#             patient_list = list(User.objects(__raw__=query).as_pymongo())  # Add more conditions if needed
             
-            if len(patient_list) > 0:
-                print('Matching user:' ,  len(patient_list))
-                return json_util.dumps(patient_list)
-            else:
-                print('No matching user found')
-                return json_util.dumps([])
+#             if len(patient_list) > 0:
+#                 print('Matching user:' ,  len(patient_list))
+#                 return json_util.dumps(patient_list)
+#             else:
+#                 print('No matching user found')
+#                 return json_util.dumps([])
 
-    except Exception as e:
-        print('Error searching patients:', e)
-        return jsonify({'message': 'Internal Server Error'}), 500
+#     except Exception as e:
+#         print('Error searching patients:', e)
+#         return jsonify({'message': 'Internal Server Error'}), 500
 
-# Check Email
+# # Check Email
 
-@app.route('/emailcheck/<string:email>', methods=['POST'])
-def email_check(email):
-    try:
-        check = User.objects(email=email).first()
+# @app.route('/emailcheck/<string:email>', methods=['POST'])
+# def email_check(email):
+#     try:
+#         check = User.objects(email=email).first()
 
-        if check:
-            return jsonify({'status': 200, 'msg': 'Email ID exists'})
-        else:
-            return jsonify({'status': 400, 'msg': 'Email ID does not exist'})
-    except Exception as e:
-        print(e)
-        return jsonify({'status': 500, 'msg': 'Internal Server Error'})
+#         if check:
+#             return jsonify({'status': 200, 'msg': 'Email ID exists'})
+#         else:
+#             return jsonify({'status': 400, 'msg': 'Email ID does not exist'})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({'status': 500, 'msg': 'Internal Server Error'})
     
 
 

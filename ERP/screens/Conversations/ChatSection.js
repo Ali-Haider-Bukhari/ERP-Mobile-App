@@ -3,12 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator 
 import { Ionicons } from '@expo/vector-icons';
 import styles from "./Styles";
 const ChatsImage = require("../../assets/chat.jpg");
+import { AlertComponent } from '../../components/Alert';
 
 
 
 const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setInputText, messages, setMessages, socket }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [unseenMessagesCount, setUnseenMessagesCount] = useState({});
+
   const scrollViewRef = useRef();
 
   useEffect(() => {
@@ -17,12 +18,9 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     const chatId = teacher?._id;
     socket.emit('fetch_messages', { chatId });
 
-    socket.on('fetched_messages', (fetchedMessages, unseenCount) => {
+    socket.on('fetched_messages', (fetchedMessages) => {
       setMessages(fetchedMessages);
-      setUnseenMessagesCount(prevCount => ({
-        ...prevCount,
-        [chatId]: unseenCount // Update unseen messages count for the chat
-      }));
+    
       setIsLoading(false);
     });
 
@@ -31,6 +29,8 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     };
   }, [socket, teacher]);
 
+
+  // console.log(messages , "messages")
 // Scroll when new messages comes////
 
   useEffect(() => {
@@ -67,21 +67,73 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
  
 
 
-  <View style={styles.iconContainer}>
-    <TouchableOpacity style={styles.iconButton}>
-      <Ionicons name="videocam-outline" size={24} color="black" />
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.iconButton}>
-      <Ionicons name="call-outline" size={24} color="black" />
-    </TouchableOpacity>
-  </View>
 
 </View>
 
-{/* my messages Section */}
+
+{/* My Messages Section */}
+<ScrollView
+      ref={scrollViewRef}
+      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+      style={{ flex: 1, paddingHorizontal: 10 }}
+    >
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        messages.map((message, index) => (
+          <View key={index} style={{ alignItems: message.sender._id === user._id.$oid ? 'flex-end' : 'flex-start' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 5 }}>
+              
+              {/* for right side  sender */}
+              
+              {message.sender._id === user._id.$oid && (
+                <Text style={{ fontSize: 10, marginRight: 5, color: '#888' }}>{message.sender.name}</Text>
+              )}
+             
+              {message.sender._id === user._id.$oid && (
+                <Image source={ChatsImage} style={{ width: 20, height: 20, borderRadius: 10 }} />
+              )}
 
 
-      <ScrollView 
+              {/* for left side reciever */}
+               {message.sender._id !== user._id.$oid && (
+                <Image source={ChatsImage} style={{ width: 20, height: 20, borderRadius: 10 , marginTop: 6 }} />
+              )}
+                 {message.sender._id !== user._id.$oid && (
+                <Text style={{ fontSize: 10, marginLeft: 6, color: '#888' }}>{message.sender.name}</Text>
+              )}
+            </View>
+            <View style={{
+              maxWidth: '80%',
+              padding: 10,
+              marginRight: message.sender._id === user._id.$oid ? 0 : 50,
+              backgroundColor: message.sender._id === user._id.$oid ? '#007AFF' : '#E5E5EA',
+              borderRadius: 20,
+              borderTopRightRadius: message.sender._id === user._id.$oid ? 0 : 20,
+              borderTopLeftRadius: message.sender._id === user._id.$oid ? 20 : 0,
+              borderBottomRightRadius: 20,
+              borderBottomLeftRadius: 20,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}>
+              <Text style={{ fontSize: 13, color: message.sender._id === user._id.$oid ? '#FFF' : '#000' }}>
+                {message.message_content}
+              </Text>
+            </View>
+          </View>
+        ))
+      )}
+    </ScrollView>
+
+
+
+      {/* <ScrollView 
       ref={scrollViewRef}
       onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
       
@@ -94,15 +146,15 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
           messages.map((message, index) => (
             <View key={index} style={[
               styles.messageContainer,
-              { alignSelf: message.sender_id === user._id.$oid ? 'flex-start' : 'flex-end' }
+              { alignSelf: message.sender._id === user._id.$oid ? 'flex-end' : 'flex-start' }
             ]}>
               <Text style={[
                 styles.messageText,
                 { 
-                  backgroundColor: message.sender_id === user._id.$oid ? '#DCF8C6' : '#E5E5EA',
+                  backgroundColor: message.sender._id === user._id.$oid ? '#DCF8C6' : '#E5E5EA',
                   borderRadius: 20,
-                  borderTopLeftRadius: message.sender_id === user._id.$oid ? 0 : 20, // Set to 0 for right-side messages
-                  borderTopRightRadius: message.sender_id === user._id.$oid ? 20 : 0, // Set to 0 for left-side messages
+                  borderTopRightRadius: message.sender._id === user._id.$oid ? 0 : 20, // Set to 0 for right-side messages
+                  borderTopLeftRadius: message.sender._id === user._id.$oid ? 20 : 0, // Set to 0 for left-side messages
                 }
               ]}>
                 {message.message_content}
@@ -111,7 +163,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
             
           ))
         )}
-      </ScrollView>
+      </ScrollView> */}
 {/* send message section */}
       <View style={styles.inputContainer}>
   <View style={styles.inputWrapper}>
@@ -121,9 +173,17 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
       onChangeText={setInputText}
       placeholder="Type your message..."
     />
-    <TouchableOpacity onPress={() => handleSendMessage()}>
-      <Ionicons name="send" size={24} color="#007AFF" style={styles.sendIcon} />
-    </TouchableOpacity>
+   {inputText.trim().length > 0  ? ( // Only render icon button if there's text in the input field
+          <TouchableOpacity onPress={() => handleSendMessage()}>
+            <Ionicons name="send" size={24} color="#007AFF" style={styles.sendIcon} />
+          </TouchableOpacity>
+        ) : (
+<TouchableOpacity >
+            <Ionicons name="send" size={24} color="#ccc" style={styles.sendIcon} />
+          </TouchableOpacity>
+
+
+        ) }
   </View>
 </View>
     </View>

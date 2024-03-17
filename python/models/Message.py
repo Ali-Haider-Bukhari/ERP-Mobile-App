@@ -6,7 +6,7 @@ class Message(Document):
     sender_id = ReferenceField(User, required=True)
     receiver_id = ReferenceField(User, required=True)  # Added receiver_id field
     message_content = StringField(required=True)
-    bot_message_content = StringField(required=True)
+    bot_message_content = StringField(required=False)
     timestamp = DateTimeField(required=True)
     is_bot_message = BooleanField(default=False)
     seen = BooleanField(default=False)

@@ -32,6 +32,7 @@ class User(Document):
     contact = StringField(required=True)
     program = EnumField(UserProgramEnum,required=True)
     gender = EnumField(UserGender,required=True)
+    image = StringField(required=False)
     cnic = StringField(required=False)
     blood_group = StringField(required=False)
     address = StringField(required=False)

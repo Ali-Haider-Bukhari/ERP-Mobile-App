@@ -49,11 +49,15 @@ const ChatScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingBottom: 15,
-    marginTop: 15,
-  
+    padding:15,
+    // paddingHorizontal: 20,
+    // paddingBottom: 15,
+    // marginTop: 15,
+    // elevation: 2,
+    borderBottomWidth: 1, // Add bottom border width
+    borderBottomColor: '#ccc', // Specify border color
   },
+  
   headerText: {
     color: 'black',
     fontSize: 16,
@@ -70,8 +74,8 @@ const ChatScreenStyles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 30,
-    marginRight: 10,
-    // marginLeft: 10,
+  
+  
   },
   iconContainer: {
     flexDirection: 'row',
@@ -82,32 +86,41 @@ const ChatScreenStyles = StyleSheet.create({
     padding: 10,
    
   },
+
+
+
+
   messagesContainer: {
     flex: 1,
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    padding: 10,
   },
   messageContainer: {
-    marginVertical: 5,
-    maxWidth: '80%', // Adjust as needed
+  
+  },
+  messageBubble: {
+    maxWidth: '80%',
+    padding: 10,
+    marginRight: 50
   },
   messageText: {
-    padding: 10,
-    fontSize: 16,
-    color: '#333',
-    maxWidth: '80%', // Adjust as needed
+    fontSize: 13,
+  
   },
-  senderMessageContainer: {
-    alignSelf: 'flex-end', // Align sender messages to the right
-    padding:30,
-    backgroundColor: 'rgba(4,28,92,255)', // Blue color for sender messages
+  senderName: {
+    
+    fontSize : 10,
+    fontWeight: 'bold',
+ 
+    color: '#000',
   },
-  receiverMessageText: {
-    backgroundColor: '#E5E5EA', // White color for receiver messages
-  },
-  senderMessageText: {
-    color: '#fff', // White color for sender message text
-  },
+  senderInfo : {
+    flexDirection : 'column',
+    alignItems: 'flex-end',
+      },
+
+
+
+
 
 
   inputContainer: {
@@ -239,6 +252,16 @@ teacherImage: {
   
   borderWidth: 2, // Add border width
     borderColor: '#4e7fff',
+},
+senderImage : {
+  width: 30,
+  height: 30,
+  borderRadius: 25,
+  marginRight: 10,
+  
+  borderWidth: 2, // Add border width
+    borderColor: '#4e7fff',
+
 },
 chatDetails: {
   flex: 1,

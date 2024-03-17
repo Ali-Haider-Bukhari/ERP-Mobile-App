@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {  useState, useRef } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./Styles";
 import { Python_Url ,   getToken } from "../../utils/constants";
+import { useNavigation } from '@react-navigation/native';
+import { AlertComponent } from '../../components/Alert';
+
+
 
 const ChatBot = ({ selectedChatBot, setSelectedChatBot, user , botMessages ,setBotMessages ,  isBotLoading }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +22,7 @@ const ChatBot = ({ selectedChatBot, setSelectedChatBot, user , botMessages ,setB
   const [botInputText, setBotInputText] = useState("");
   const scrollViewRef = useRef();
 
-
+  const navigation = useNavigation();
 
 
 

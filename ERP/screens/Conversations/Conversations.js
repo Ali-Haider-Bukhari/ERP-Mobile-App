@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import io from "socket.io-client";
-
+import { useNavigation } from '@react-navigation/native';
 import styles from "./Styles";
 import { AuthContext } from "../../contexts/AuthContext";
 import {
@@ -29,7 +29,7 @@ const ConversationsScreen = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [isBotLoading, setIsBotLoading] = useState(true);
   const { user } = useContext(AuthContext);
-
+  const navigation = useNavigation();
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [botmessages, seBottMessages] = useState([]);
@@ -57,7 +57,7 @@ const ConversationsScreen = () => {
     
 
     socket.on('message', (message) => {
-      console.log([...messages, message],"check")
+      // console.log(message,"check")
       setMessages([...messages, message]);
    
     });
@@ -68,6 +68,7 @@ const ConversationsScreen = () => {
   }, [socket, messages]);
 
 
+  // console.log(messages , "Meassages")
 
 
 
@@ -77,8 +78,8 @@ const ConversationsScreen = () => {
     try {
     
     const data = {
-      sender_id: user._id.$oid,
-      receiver_id: selectedChat ? selectedChat._id : '',
+      sender_id: user?._id?.$oid,
+      receiver_id: selectedChat ? selectedChat?._id : '',
       message_content: inputText
     };
 
@@ -257,10 +258,6 @@ const ChatListScreen = ({ handleChatPress, user,handleBotPress }) => {
   
   const [botloading, setBotLoading] = useState(true);
 
-  const [chatsData, setChatsData] = useState([]);
-
-
-
 
 
 
@@ -287,7 +284,7 @@ const ChatListScreen = ({ handleChatPress, user,handleBotPress }) => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log(data, "response");
+        // console.log(data, "response");
         setUsers(data);
         setLoading(false);
       } else {
@@ -446,29 +443,14 @@ const fetchBot = async (token) => {
           </View>
         ) : (
           filteredUsers.map((chat, index) => (
-            user?.role !== chat?.role?.split("UserRoleEnum.")[1] ? (
+            user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
                   <Image source={ChatsImage} style={styles.teacherImage} />
                   <View style={styles.chatDetails}>
                     <Text style={styles.chatName}>{chat.username}</Text>
-                {/* Display Last Message and New Message Count */}
-          <Text style={styles.chatMessage}>
-            {chatsData.find(c => c._id === chat._id)?.lastMessage?.message_content || 'No messages'}
-          </Text>
-                  </View>
-                  <Text style={styles.messageTime}>
-            {/* Display last message time if available */}
-            {chatsData.find(c => c._id === chat._id)?.lastMessage?.timestamp || '2:00 PM'}
-          </Text>
-          {/* Display new message count */}
-          {chatsData.find(c => c._id === chat._id)?.newMessagesCount > 0 && (
-            <View>
-              <Text style={styles.chatMessage}>
-                {chatsData.find(c => c._id === chat._id)?.newMessagesCount || 0}
-              </Text>
-            </View>
-          )}
+           
+                    </View>
                 </View>
               </TouchableOpacity>
             ) : null

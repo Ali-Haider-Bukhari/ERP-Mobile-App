@@ -1,19 +1,28 @@
 import { useState,useContext,useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View,ScrollView, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
+import { View,ScrollView, Text,ProgressBarAndroid, TouchableOpacity , ActivityIndicator } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useGlobalContext } from '../../contexts/GlobalContext';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
+import { courseStyles } from './Styles'; // Import styles
+import { AlertComponent } from '../../components/Alert';
 
 export default function AttandanceScreen() {
 const navigation = useNavigation();
 const {user} = useContext(AuthContext)
 const {courses,setCourses} = useGlobalContext()
+const [loading, setLoading] = useState(true);
 
-    async function getCourses(token){
+
+
+
+// for students
+
+    async function getCoursesstudents(token){
         
     try {
-        const url = `${Python_Url}/courses/${user._id.$oid}`
+        const url = `${Python_Url}/courses_student/${user._id.$oid}`
+        console.log(url , "url")
         const response = await fetch(url, {
           method: 'GET',
           headers: { 
@@ -26,8 +35,9 @@ const {courses,setCourses} = useGlobalContext()
     
         if (response.ok) {
           // Handle successful response
-          console.log('Response data:', data[0].teacher_id);
+          // console.log('Response data:', response);
           setCourses(data)
+          setLoading(false)
         } else {
           // Handle error response
           if(data.message == "Token has expired"){
@@ -43,53 +53,85 @@ const {courses,setCourses} = useGlobalContext()
                 }},)
           }
           console.error('Error:', data);
+          setLoading(false)
         }
       } catch (error) {
         // Handle network or other errors
         console.error('Error:', error);
+        setLoading(false)
       }
 }
+
+
+// for Teacher 
+
+async function getCoursesbyteacher(token){
+        
+  try {
+      const url = `${Python_Url}/courses_teacher/${user._id.$oid}`
+      // console.log(url , "url")
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: token,
+        }
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Handle successful response
+        // console.log('Response data:', response);
+        setCourses(data)
+        setLoading(false)
+      } else {
+        // Handle error response
+        if(data.message == "Token has expired"){
+          AlertComponent({
+              title:'Message',
+              message:'Session Expired!!',
+              turnOnOkay:false,
+              onOkay:()=>{},
+              onCancel:()=>{
+                ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+                removeToken()
+                navigation.navigate("Login")
+              }},)
+        }
+        console.error('Error:', data);
+        setLoading(false)
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error('Error:', error);
+      setLoading(false)
+    }
+}
+
+
+
 useEffect(() => {
-  if(user.role == "STUDENT"){
+  if(user?.role == "STUDENT"){
+    console.log("Students  api call")
     getToken()
-        .then((token) => {getCourses(token)})
+        .then((token) => {getCoursesstudents(token)})
     
+  }else if (user?.role == "TEACHER"){
+    console.log("Teacher  api call")
+    getToken()
+    .then((token) => {getCoursesbyteacher(token)})
+
   }
 }, [user])
 
-  const [subjects , setSubjects] = useState([
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    {
-      subjectName:"Technopreneurship",
-      creditHrs:"3.00",
-      season:"SPRING 2024",
-      attandancePercentage:"92"
-    },
-    
-  ])
+const handleCourseClick = (id) => {
+  console.log(id , "id click")
+  // Navigate to next screen, passing the id
+  navigation.navigate('ViewAttendanceScreen', { courseId: id });
+};
+
+
   return (
     <>
      
@@ -110,37 +152,42 @@ useEffect(() => {
       ,height:'91%'
       ,marginTop:30}}
       >
-      
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      
-      {courses.map((data,index)=>(
-        <View key={index} style={{marginTop:40,display:'flex',alignSelf:'center',width:'88%',height:130,border:1,borderWidth:1,borderColor:'rgba(226,226,226,255)'}}>
 
-            <View style={{height:'50%',backgroundColor:'rgb(0, 174, 255)'}}>
-              <View style={{backgroundColor:'rgba(222,149,0,255)',alignSelf:'flex-end',padding:2,width:80,borderRadius:2,height:21,display:'flex',flexDirection:'row',justifyContent:'center'}}>
-                <Text style={{color:'white',fontWeight:'bold',fontSize:12}}>{"SPRING 2024"}</Text>
+
+{loading ? (<>
+        <ActivityIndicator style={courseStyles.activityIndicator} size="large" color="#0000ff" />
+      
+      </>):(<>
+
+
+
+     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {courses.map((data, index) => (
+          <TouchableOpacity key={index} style={courseStyles.courseItem} onPress={() => handleCourseClick(data.course_id)}>
+            <View style={courseStyles.courseHeader}>
+              <View style={courseStyles.semesterBadge}>
+                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>{"SPRING 2024"}</Text>
               </View>
-              <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:16,position:'relative',bottom:4}}>{data.course_name}</Text>
-            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:11,position:'relative',bottom:4}}>{"Credit Hrs: "+data.credit_hour}</Text>
+              <Text style={courseStyles.courseHeaderText}>{data.course_name}</Text>
+              <Text style={courseStyles.courseInfo}>{"Credit Hrs: " + data.credit_hour}</Text>
             </View>
-            <View style={{height:'50%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-            <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:'85%'}}><Text>{"Attandance: "+"92"+"%"}</Text></View>
-            <ProgressBarAndroid
-              styleAttr="Horizontal"
-              indeterminate={false}
-              color={"rgba(12,184,70,255)"}
-              style={{width:'85%',position:'relative',bottom:5}}
-              progress={0.5}
-            />
+            <View style={courseStyles.attendanceContainer}>
+              <View style={courseStyles.attendanceText}>
+                <Text>{"Attandance: " + "92" + "%"}</Text>
+              </View>
+              <ProgressBarAndroid
+                styleAttr="Horizontal"
+                indeterminate={false}
+                color={"rgba(12,184,70,255)"}
+                style={{ width: '85%', position: 'relative', bottom: 5 }}
+                progress={0.5}
+              />
             </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-        </View>
-      ))}
-
-     
-
-       </ScrollView>
-
+      </>)}
     </View>
 
     
@@ -150,3 +197,39 @@ useEffect(() => {
   )
 }
 
+
+
+
+// const [subjects , setSubjects] = useState([
+//   {
+//     subjectName:"Technopreneurship",
+//     creditHrs:"3.00",
+//     season:"SPRING 2024",
+//     attandancePercentage:"92"
+//   },
+//   {
+//     subjectName:"Technopreneurship",
+//     creditHrs:"3.00",
+//     season:"SPRING 2024",
+//     attandancePercentage:"92"
+//   },
+//   {
+//     subjectName:"Technopreneurship",
+//     creditHrs:"3.00",
+//     season:"SPRING 2024",
+//     attandancePercentage:"92"
+//   },
+//   {
+//     subjectName:"Technopreneurship",
+//     creditHrs:"3.00",
+//     season:"SPRING 2024",
+//     attandancePercentage:"92"
+//   },
+//   {
+//     subjectName:"Technopreneurship",
+//     creditHrs:"3.00",
+//     season:"SPRING 2024",
+//     attandancePercentage:"92"
+//   },
+  
+// ])
