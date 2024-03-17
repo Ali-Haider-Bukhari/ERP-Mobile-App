@@ -19,6 +19,7 @@ const Logo = require("../assets/logo.png");
 import { AuthContext } from '../contexts/AuthContext';
 import BottomSheetModalComponent from './BottomSheetModal';
 import ResultsExamsScreen from '../screens/ResultsExams/ResultsExams';
+import { useGlobalContext } from '../contexts/GlobalContext';
 
 const CustomSidebarMenu = (props) => {
   
@@ -95,6 +96,8 @@ export default function DrawerScreen() {
   const navigation = useNavigation();
   const [bottomSheetModalFlag,setBottomSheetModalFlag] = useState(false)
   const [headerTitle,setHeaderTitle] = useState("Saepn Pvt.Ltd")
+  const {selectedCourse,setSelectedCourse} = useGlobalContext()
+
 
   const CustomHeader = ({ navigation })  => (
     <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
@@ -122,7 +125,7 @@ export default function DrawerScreen() {
         >
         <Drawer.Screen 
         name="Dashboard"
-        listeners={()=>{setHeaderTitle("Saepn Pvt.Ltd")}}
+        listeners={()=>{setHeaderTitle("Saepn Pvt.Ltd"); setSelectedCourse(null)}}
         component={DashboardScreen}  
         options={{
             drawerIcon: ({ focused, color, size }) => (

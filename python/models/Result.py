@@ -1,12 +1,12 @@
 from bson import ObjectId
-from mongoengine import Document, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField,EnumField
+from mongoengine import Document, StringField,EmbeddedDocument,EmbeddedDocumentField, ReferenceField, ListField, FloatField, IntField, DateTimeField,EnumField
 from mongoengine.errors import ValidationError 
 from mongoengine import DoesNotExist
 from models.User import User
 from models.Course import Course
 from enum import Enum
 
-class ObjectofAssessment(Document):
+class ObjectofAssessment(EmbeddedDocument):
     total_marks = FloatField(required=True)
     obtained_marks = FloatField(required=True)
     weightage = FloatField(required=True)
@@ -26,13 +26,12 @@ class GradeEnum(Enum):
 
 class Result(Document):
     student_id = ReferenceField(User, required=True)
-    teacher_id = ReferenceField(User, required=True)
     course_id = ReferenceField(Course, required=True)
-    quiz = ListField(ReferenceField(ObjectofAssessment), default=[])
-    assignment = ListField(ReferenceField(ObjectofAssessment), default=[])
-    mid_term = ReferenceField(ObjectofAssessment,required=True)
-    final_term = ReferenceField(ObjectofAssessment,required=True)
-    totalmarks = ReferenceField(ObjectofAssessment)
+    quiz = ListField(EmbeddedDocumentField(ObjectofAssessment), default=[])
+    assignment = ListField(EmbeddedDocumentField(ObjectofAssessment), default=[])
+    mid_term = EmbeddedDocumentField(ObjectofAssessment, required=True)
+    final_term = EmbeddedDocumentField(ObjectofAssessment, required=True)
+    totalmarks = FloatField()
     grade = EnumField(GradeEnum)
     academic_year = IntField(required=True)
 
@@ -44,9 +43,9 @@ class Result(Document):
         if "STUDENT" not in str(student['role']):
             raise ValidationError("The user associated with student_id must have role 'STUDENT'")
         
-        teacher = User.objects.get(id=ObjectId(self.teacher_id['id']))
-        if "TEACHER" not in str(teacher['role']):
-            raise ValidationError("The user associated with teacher_id must have role 'Teacher'")
+        # teacher = User.objects.get(id=ObjectId(self.teacher_id['id']))
+        # if "TEACHER" not in str(teacher['role']):
+        #     raise ValidationError("The user associated with teacher_id must have role 'Teacher'")
         
         super().clean()
         total_weightage = 0
@@ -73,46 +72,45 @@ class Result(Document):
         for assignment in self.assignment:
             total_marks += (assignment.obtained_marks / assignment.total_marks) * assignment.weightage
         
-        # Adding mid-term marks
-        if self.mid_term:
+        # Adding mid-term marks if available
+        if self.mid_term and self.mid_term.total_marks != 0:
             total_marks += (self.mid_term.obtained_marks / self.mid_term.total_marks) * self.mid_term.weightage
         
-        # Adding final-term marks
-        if self.final_term:
+        # Adding final-term marks if available
+        if self.final_term and self.final_term.total_marks != 0:
             total_marks += (self.final_term.obtained_marks / self.final_term.total_marks) * self.final_term.weightage
         
         # Storing the calculated marks
-        self.marks = total_marks
+        self.totalmarks = total_marks
 
     def determine_grade(self):
-        if self.marks >= 85:
+        if self.totalmarks >= 85:
             self.grade = GradeEnum.APlus
-        elif self.marks >= 80:
+        elif self.totalmarks >= 80:
             self.grade = GradeEnum.A
-        elif self.marks >= 75:
+        elif self.totalmarks >= 75:
             self.grade = GradeEnum.BPlus
-        elif self.marks >= 71:
+        elif self.totalmarks >= 71:
             self.grade = GradeEnum.BMinus
-        elif self.marks >= 68:
+        elif self.totalmarks >= 68:
             self.grade = GradeEnum.B
-        elif self.marks >= 64:
+        elif self.totalmarks >= 64:
             self.grade = GradeEnum.C
-        elif self.marks >= 61:
+        elif self.totalmarks >= 61:
             self.grade = GradeEnum.CMinus
-        elif self.marks >= 58:
+        elif self.totalmarks >= 58:
             self.grade = GradeEnum.D
-        elif self.marks >= 53:
+        elif self.totalmarks >= 53:
             self.grade = GradeEnum.DMinus
-        elif self.marks >= 50:
+        elif self.totalmarks >= 50:
             self.grade = GradeEnum.E
         else:
             self.grade = GradeEnum.F
         
 
-    def create_result(student_id, teacher_id, course_id, quiz, assignment, mid_term, final_term, academic_year):
+    def create_result(student_id, course_id, quiz, assignment, mid_term, final_term, academic_year):
         result = Result(
             student_id=student_id,
-            teacher_id=teacher_id,
             course_id=course_id,
             quiz=quiz,
             assignment=assignment,
@@ -122,13 +120,6 @@ class Result(Document):
         )
         result.save()
         return result
-    
-    def read_result(course_id,student_id):
-        try:
-            result = Result.objects.get(course_id=ObjectId(course_id),student_id=ObjectId(student_id))
-            return result
-        except DoesNotExist:
-            return []
         
     def append_quiz(self, quiz):
         self.quiz.append(quiz)
@@ -145,16 +136,28 @@ class Result(Document):
     def to_json(self):
         return {
             'student_id': str(self.student_id.id),
-            'teacher_id': str(self.teacher_id.id),
             'course_id': str(self.course_id.id),
             'quiz': [assessment.to_json() for assessment in self.quiz],
             'assignment': [assessment.to_json() for assessment in self.assignment],
             'mid_term': self.mid_term.to_json() if self.mid_term else None,
             'final_term': self.final_term.to_json() if self.final_term else None,
-            'totalmarks': self.totalmarks.to_json() if self.totalmarks else None,
+            'totalmarks': self.totalmarks if self.totalmarks else None,
             'grade': self.grade.value,
             'academic_year': self.academic_year
         }
+    
+    @classmethod
+    def fetch_results(cls, student_id_str, course_id_str):
+        try:
+            # Convert string IDs to ObjectId
+            student_id = ObjectId(student_id_str)
+            course_id = ObjectId(course_id_str)
+            
+            # Retrieve the results from the database
+            results = cls.objects(student_id=student_id, course_id=course_id)
+            return [result.to_json() for result in results]
+        except DoesNotExist:
+            return []
     # @classmethod
     # def insert_result(cls, student_id_str, teacher_id_str, course_id_str, marks, grade, semester, academic_year):
     #     try:
