@@ -20,6 +20,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import BottomSheetModalComponent from './BottomSheetModal';
 import ResultsExamsScreen from '../screens/ResultsExams/ResultsExams';
 import { useGlobalContext } from '../contexts/GlobalContext';
+import InvoicePage from '../screens/Invoice/invoice';
+import Courses_Students from '../screens/Courses_Students/courses_students';
 
 const CustomSidebarMenu = (props) => {
   
@@ -97,7 +99,7 @@ export default function DrawerScreen() {
   const [bottomSheetModalFlag,setBottomSheetModalFlag] = useState(false)
   const [headerTitle,setHeaderTitle] = useState("Saepn Pvt.Ltd")
   const {selectedCourse,setSelectedCourse} = useGlobalContext()
-
+  const {user} = React.useContext(AuthContext)
 
   const CustomHeader = ({ navigation })  => (
     <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
@@ -170,7 +172,35 @@ export default function DrawerScreen() {
             <MaterialIcon name={'assessment'} size={size} color={color} />
           )
         }} />
+        {user?.role == "STUDENT" && (<>
         
+       
+          <Drawer.Screen 
+        name="Invoice" 
+        listeners={()=>{setHeaderTitle("Invoice")}}
+        component={InvoicePage}
+        options={{
+          drawerIcon: ({ focused, color, size }) => (
+            <MaterialIcon name={'login'} size={size} color={color} />
+          )
+        }} />
+        </>)} 
+
+        {user?.role == "TEACHER" && (<>
+        
+       
+        <Drawer.Screen 
+      name="Courses & Students" 
+      listeners={()=>{setHeaderTitle("Courses & Students")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'login'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
+
+
         <Drawer.Screen 
         children={()=>{logout();}}
         name="Logout" 

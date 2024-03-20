@@ -20,7 +20,9 @@ import random
 import string
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
 
 app = Flask(__name__)
 
@@ -40,10 +42,10 @@ with open(config_file_path, 'r') as file:
 
 DB_URL = config_data['url']
 
-
+print(DB_URL)
 # Configure the MongoDB connection
 
-connect( host= DB_URL)
+connect(host= DB_URL)
     
 ##########################################################################################
 
@@ -460,7 +462,27 @@ def create_course():
 def get_courses_by_teacher_id(teacher_id):
     try:
         courses = Course.fetch_courses_by_teacher_id(teacher_id)
-        course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour,'teacher_id':str(course.teacher_id.id)} for course in courses]
+        course_list = []
+        for course in courses:
+            course_info = {
+                'course_id': str(course.id),
+                'course_name': course.course_name,
+                'credit_hour': course.credit_hour,
+                'teacher_id': str(course.teacher_id.id),
+                'students': []
+            }
+            # Fetch and include student information
+            for student in course.students:
+                student_info = {
+                    'student_id': str(student.id),
+                    'name': student.username,
+                    'email': student.email,
+                    # Include other student details as needed
+                }
+                course_info['students'].append(student_info)
+            
+            course_list.append(course_info)
+        
         print(course_list)
         return jsonify(course_list)
     except ValidationError as e:
@@ -714,7 +736,7 @@ def set_password():
         if user:
             print(email ,new_password , user.email , "get" )
             # Hash the new password before updating
-            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             print(hashed_password, "hash")
             user.password = str(hashed_password)  # Decode the hashed password
             user.save()
@@ -726,6 +748,62 @@ def set_password():
     except Exception as e:
         # Handle any exceptions and return an error response
         return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/api/invoice', methods=['POST'])
+def generate_invoice():
+    invoice_data = request.json  # Get the invoice data from the request
+    print(invoice_data , "data invoice")
+    # Generate PDF invoice
+    pdf_bytes = generate_pdf(invoice_data)
+  
+    # Save the PDF file to a folder
+    pdf_folder = 'invoices'
+    if not os.path.exists(pdf_folder):
+        os.makedirs(pdf_folder)
+
+    pdf_path = os.path.join(pdf_folder, f"{invoice_data['invoiceNo']}.pdf")
+    with open(pdf_path, 'wb') as pdf_file:
+        pdf_file.write(pdf_bytes)
+    
+    # Return success response
+    return jsonify({'message': 'PDF file generated and saved successfully'})
+
+def generate_pdf(invoice_data):
+    # Calculate the balance
+    balance = invoice_data["totalAmount"] - invoice_data["paid"]
+    
+    # Create a new PDF buffer
+    pdf_buffer = io.BytesIO()
+    
+    # Create a new canvas
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+    
+    # Write the invoice data to the PDF
+    c.drawString(100, 750, "Invoice No: " + invoice_data["invoiceNo"])
+    c.drawString(100, 730, "Invoice Date: " + invoice_data["invoiceDate"])
+    c.drawString(100, 710, "Due Date: " + invoice_data["dueDate"])
+    c.drawString(100, 690, "Term: " + invoice_data["term"])
+    c.drawString(100, 670, "Receipt For: " + invoice_data["receiptFor"])
+    c.drawString(100, 650, "Barcode: " + invoice_data["barcode"])
+    c.drawString(100, 630, "Total Amount: $" + str(invoice_data["totalAmount"]))
+    c.drawString(100, 610, "Paid: $" + str(invoice_data["paid"]))
+    c.drawString(100, 590, "Balance: $" + str(balance))  # Use calculated balance
+    c.drawString(100, 570, "Status: " + invoice_data["status"])
+    
+    # Save the PDF
+    c.save()
+    
+    # Get the PDF bytes from the buffer
+    pdf_bytes = pdf_buffer.getvalue()
+    
+    return pdf_bytes
+
+
+
+
+
 
 @app.route('/fetch-results', methods=['POST'])
 def get_result():
