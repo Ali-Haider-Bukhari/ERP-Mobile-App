@@ -12,7 +12,7 @@ const ChatButton = ({ onPress }) => {
     useEffect(() => {
       const timer = setTimeout(() => {
         setShowPopover(false);
-      }, 10000); // Hide popover after 10 seconds
+      }, 1000000); // Hide popover after 10 seconds
   
       return () => clearTimeout(timer);
     }, []);
@@ -50,12 +50,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 999,
     backgroundColor: 'rgba(0, 0, 0, 0.8)', // Change the background color
-    borderRadius: 20, // Increase the border radius for a more rounded look
+    borderRadius: 20,
+    borderTopRightRadius: 20,
+  
+    borderBottomRightRadius: 0,
+    borderBottomLeftRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginBottom: 50,
-    bottom: 0,
-    right: 25,
+    bottom: 2,
+    right: 35,
     shadowColor: '#000', // Add shadow for depth
     shadowOffset: {
       width: 0,
