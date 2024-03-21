@@ -492,6 +492,7 @@ def get_courses_by_teacher_id(teacher_id):
 @app.route('/courses_student/<student_id>', methods=['GET'])
 def get_courses_by_student_id(student_id):
     try:
+        print(student_id)
         courses = Course.fetch_courses_by_student_id(student_id)
         course_list = [{'course_id': str(course.id), 'course_name': course.course_name,'credit_hour':course.credit_hour,'teacher_id':str(course.teacher_id.id)} for course in courses]
         print(course_list)
@@ -869,6 +870,8 @@ def get_results():
      
         student_id_str = data.get('student_id')
         course_id_str = data.get('course_id')
+
+        print(data)
 
         if not (student_id_str and course_id_str):
             return jsonify({'message': 'Both student_id and course_id are required.'}), 400

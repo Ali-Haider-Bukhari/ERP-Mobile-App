@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import styles from "./Styles";
 const ChatsImage = require("../../assets/chat.jpg");
 import { AlertComponent } from '../../components/Alert';
+import { Python_Url } from '../../utils/constants';
 
 
 
@@ -39,7 +40,33 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     }
   }, [messages]);
 
+  const [imageUri,setImageUri] = useState("")
 
+  useEffect(() => {
+    // Define the URL of your Flask API
+    if(user!=null){
+
+      fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+      .then(response => { 
+        // Check if the response was successful
+        if (!response.ok) {
+          throw new Error('Failed to fetch image');
+        }
+        return response;
+      })
+      .then(response => {
+        // Set the image URI from the response
+        // console.log(response)
+        setImageUri(response.url);
+      }) 
+      .catch(error => {
+        console.error(error);
+      });
+  
+    
+    }
+  }, [user]);
+  
 
   return (
     <View style={styles.container}>
@@ -53,7 +80,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     <Ionicons name="chevron-back-outline" size={30} color="black" />
   </TouchableOpacity>
 
-      <Image source={ChatsImage} style={styles.userImage} />
+      <Image source={{uri:imageUri}} style={styles.userImage} />
    
 
   <View>

@@ -16,7 +16,7 @@ const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
     async function getCourses(token){
         
     try {
-        const url = `${Python_Url}/courses/${user._id.$oid}`
+        const url = `${Python_Url}/courses_student/${user._id.$oid}`
         const response = await fetch(url, {
           method: 'GET',
           headers: { 
@@ -30,6 +30,7 @@ const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
         if (response.ok) {
           // Handle successful response
           console.log('Response data:', data[0].teacher_id);
+          console.log(data,"check data")
           setCourses(data)
         } else {
           // Handle error response

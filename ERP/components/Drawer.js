@@ -1,4 +1,4 @@
-import  React,{useState,useEffect} from 'react';
+import  React,{useState,useEffect,useContext} from 'react';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
 import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList,
@@ -22,9 +22,38 @@ import ResultsExamsScreen from '../screens/ResultsExams/ResultsExams';
 import { useGlobalContext } from '../contexts/GlobalContext';
 import InvoicePage from '../screens/Invoice/invoice';
 import Courses_Students from '../screens/Courses_Students/courses_students';
+import { Python_Url } from '../utils/constants';
 
 const CustomSidebarMenu = (props) => {
+
+  const {user} = useContext(AuthContext)
+  const [imageUri,setImageUri] = useState("")
+
+  useEffect(() => {
+    // Define the URL of your Flask API
+    if(user!=null){
+
+      fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+      .then(response => { 
+        // Check if the response was successful
+        if (!response.ok) {
+          throw new Error('Failed to fetch image');
+        }
+        return response;
+      })
+      .then(response => {
+        // Set the image URI from the response
+        // console.log(response)
+        setImageUri(response.url);
+      }) 
+      .catch(error => {
+        console.error(error);
+      });
   
+    
+    }
+  }, [user]);
+
 const styles = StyleSheet.create({
   sideMenuProfileIcon: {
     // resizeMode: 'center',
@@ -46,17 +75,18 @@ const styles = StyleSheet.create({
   },
 });
 
+
   return ( 
     <SafeAreaView style={{flex: 1}}>
       {/*Top Section*/}
       <View style={{backgroundColor:'rgba(4,28,92,255)',height:'25%'}}>
         <Image
-          source={picture}
+          source={{uri:imageUri}}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{marginTop:10,display:'flex',justifyContent:'center'}}>
           <Text style={{color:'white',fontWeight:'bold',alignSelf:'center'}}>
-            Sir. Talha Amjad
+            {user.username}
           </Text>
         </View>
       </View>
@@ -143,6 +173,19 @@ export default function DrawerScreen() {
             <FontAwesome6Icon name={focused?"user":"user"} size={size} color={color} />
           )
         }} />
+         {user?.role == "STUDENT" && (<>
+        
+       
+        <Drawer.Screen 
+      name="Invoice" 
+      listeners={()=>{setHeaderTitle("Invoice")}}
+      component={InvoicePage}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <FontAwesome6Icon name={'file-invoice'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
         <Drawer.Screen 
         name="Attandance" 
         listeners={()=>{setHeaderTitle("Attandance")}}
@@ -172,19 +215,7 @@ export default function DrawerScreen() {
             <MaterialIcon name={'assessment'} size={size} color={color} />
           )
         }} />
-        {user?.role == "STUDENT" && (<>
-        
        
-          <Drawer.Screen 
-        name="Invoice" 
-        listeners={()=>{setHeaderTitle("Invoice")}}
-        component={InvoicePage}
-        options={{
-          drawerIcon: ({ focused, color, size }) => (
-            <MaterialIcon name={'login'} size={size} color={color} />
-          )
-        }} />
-        </>)} 
 
         {user?.role == "TEACHER" && (<>
         

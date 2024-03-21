@@ -365,7 +365,33 @@ const fetchBot = async (token) => {
     return chat.username.toLowerCase().includes(searchQuery.toLowerCase());
   });
   
+  const [imageUri,setImageUri] = useState("")
+
+    useEffect(() => {
+      // Define the URL of your Flask API
+      if(user!=null){
   
+        fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+        .then(response => { 
+          // Check if the response was successful
+          if (!response.ok) {
+            throw new Error('Failed to fetch image');
+          }
+          return response;
+        })
+        .then(response => {
+          // Set the image URI from the response
+          // console.log(response)
+          setImageUri(response.url);
+        }) 
+        .catch(error => {
+          console.error(error);
+        });
+    
+      
+      }
+    }, [user]);
+    
 
   return (
     <View style={styles.container}>
@@ -446,7 +472,7 @@ const fetchBot = async (token) => {
             user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
-                  <Image source={ChatsImage} style={styles.teacherImage} />
+                  <Image source={{uri:imageUri}} style={styles.teacherImage} />
                   <View style={styles.chatDetails}>
                     <Text style={styles.chatName}>{chat.username}</Text>
            
