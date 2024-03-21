@@ -12,7 +12,7 @@ const ChatButton = ({ onPress }) => {
     useEffect(() => {
       const timer = setTimeout(() => {
         setShowPopover(false);
-      }, 1000000); // Hide popover after 10 seconds
+      }, 10000); // Hide popover after 10 seconds
   
       return () => clearTimeout(timer);
     }, []);
