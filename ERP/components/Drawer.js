@@ -23,6 +23,7 @@ import { useGlobalContext } from '../contexts/GlobalContext';
 import InvoicePage from '../screens/Invoice/invoice';
 import Courses_Students from '../screens/Courses_Students/courses_students';
 import { Python_Url } from '../utils/constants';
+import ChatButton from './ChatButton';
 
 const CustomSidebarMenu = (props) => {
 
@@ -242,6 +243,7 @@ export default function DrawerScreen() {
         }} />
       </Drawer.Navigator>
       {bottomSheetModalFlag?<BottomSheetModalComponent onClose={(value)=>setBottomSheetModalFlag(value)} />:null}
+      {user!=null&&headerTitle!='Conversations'?<ChatButton onPress={()=>{navigation.navigate('Conversations', { key: 'bot' });}}/>:null}
    </> 
   )
 }

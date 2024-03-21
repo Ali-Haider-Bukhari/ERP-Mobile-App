@@ -236,7 +236,7 @@ setIsLoading(false);
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() =>  setSelectedChatBot(null)}
+            onPress={() => { setSelectedChatBot(null); navigation.navigate("Conversations")}}
           >
             <Ionicons name="chevron-back-outline" size={30} color="black" />
           </TouchableOpacity>

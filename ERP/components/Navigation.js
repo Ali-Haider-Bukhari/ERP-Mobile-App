@@ -10,8 +10,8 @@ import ViewAttendanceScreen from '../screens/ViewAttandance/ViewAttandance';
 export default function Navigation(){
     const Stack = createStackNavigator(); 
 
-    return(    
-    // <NavigationContainer>   
+    return(    <>
+   {/* <NavigationContainer>    */}
           <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false}} />
             <Stack.Screen  name="Login" component={Login} options={{ headerShown: true,
@@ -34,7 +34,9 @@ export default function Navigation(){
           <Stack.Screen name="ViewAttendanceScreen" component={ViewAttendanceScreen} options={{ headerShown: true}} />
         
         
-          </Stack.Navigator>      
-        // </NavigationContainer>
+          </Stack.Navigator> 
+               
+        {/* </NavigationContainer> */}
+        </>
     )
 }

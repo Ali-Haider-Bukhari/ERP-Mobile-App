@@ -23,6 +23,7 @@ import {
 import ChatScreen from "./ChatSection"; // Import the ChatScreen component
 import { AlertComponent } from "../../components/Alert";
 import ChatBot from "./Chat_Bot";
+import { useRoute } from '@react-navigation/native';
 const ChatsImage = require("../../assets/chat.jpg");
 
 const ConversationsScreen = () => {
@@ -255,10 +256,17 @@ const ChatListScreen = ({ handleChatPress, user,handleBotPress }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [botData, setBotData] = useState({});
-  
+  const navigation = useNavigation();
   const [botloading, setBotLoading] = useState(true);
+  const route = useRoute();
+  const keyParam = route.params?.key || null;
 
-
+  useEffect(() => {
+    // THIS USE EFFECT IS FOR CHAT BUTTON CHAT BOT WHICH IS GLOBALLY DEFINED
+    if(keyParam!=null && Object.keys(botData).length>0)
+    handleBotPress(botData)
+  }, [keyParam,botData])
+  
 
 
   useEffect(() => {

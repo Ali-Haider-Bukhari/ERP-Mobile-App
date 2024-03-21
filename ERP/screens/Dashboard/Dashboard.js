@@ -3,6 +3,7 @@ import { useContext,useState,useEffect } from 'react';
 import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Python_Url } from '../../utils/constants';
+import ChatButton from '../../components/ChatButton';
 const Logo = require("../../assets/logo.png");
 const picture = require(`../../assets/SirTalha.jpeg`);
 
@@ -52,7 +53,6 @@ export default function DashboardScreen() {
             <Text style={{fontSize:12,alignSelf:'center',marginTop:23}}>Completed Cr./ Total Cr : 68.0 / 135</Text>
             <Text style={{fontSize:12,alignSelf:'center'}}>Inprogress Cr : 36.0</Text>
           </View>
-
      </View>
      </>
     );
