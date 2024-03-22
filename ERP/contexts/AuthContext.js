@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     navigation.navigate("Login")
     removeToken()
-    setUser(null);
+    // setUser(null);
   };
 
   const fetchUser = (userid) => {

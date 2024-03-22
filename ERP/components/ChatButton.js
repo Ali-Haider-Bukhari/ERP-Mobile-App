@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     width: 50,
   },
   popover: {
+    width:180,
     position: 'absolute',
     zIndex: 999,
     backgroundColor: 'rgba(0, 0, 0, 0.8)', // Change the background color
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
   popoverText: {
     color: 'white',
     fontSize: 16,
-    width: 120,
+    width: 165,
   },
 });
 

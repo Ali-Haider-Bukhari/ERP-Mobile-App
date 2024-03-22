@@ -26,7 +26,7 @@ export default function DashboardScreen() {
         })
         .then(response => {
           // Set the image URI from the response
-          // console.log(response)
+          console.log(response)
           setImageUri(response.url);
         }) 
         .catch(error => {
@@ -43,7 +43,7 @@ export default function DashboardScreen() {
           <View style={{backgroundColor:'white',width:'90%',height:'92%',alignSelf:'center',marginTop:28}}>
             <Text style={{fontSize:17,marginLeft:15,marginTop:15}}>Academics</Text>
             <View style={{marginLeft:15,marginTop:5,width:'90%',borderBottomColor: 'rgba(177,177,177,255)',borderBottomWidth: StyleSheet.hairlineWidth}}/>
-            <Image source={{uri:imageUri}} style={{alignSelf:'center',borderColor:'rgb(24,119,218)',borderWidth:3 , width: 100, height: 100, borderRadius: 100,marginTop:35 }}/>
+            <Image source={{uri:imageUri,cache:'reload'}} style={{alignSelf:'center',borderColor:'rgb(24,119,218)',borderWidth:3 , width: 100, height: 100, borderRadius: 100,marginTop:35 }}/>
             <Text style={{fontSize:15,alignSelf:'center',marginTop:23,fontWeight:'200'}}>{user.username}</Text>
             <Text style={{fontSize:11,alignSelf:'center',color:'rgba(177,177,177,255)'}}>{user.roll_number}</Text>
             <Text style={{fontSize:10,alignSelf:'center',color:'rgba(177,177,177,255)'}}>Faculty of Computer Science and Information Technology GCL</Text>

@@ -480,7 +480,7 @@ const fetchBot = async (token) => {
             user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
-                  <Image source={{uri:imageUri}} style={styles.teacherImage} />
+                  <Image source={imageUri?{uri:imageUri}:require("../../assets/icon.png")} style={styles.teacherImage} />
                   <View style={styles.chatDetails}>
                     <Text style={styles.chatName}>{chat.username}</Text>
            

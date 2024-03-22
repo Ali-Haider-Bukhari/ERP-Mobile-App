@@ -927,11 +927,10 @@ def uploadImage():
 @app.route('/fetch_image/<userid>', methods=['GET'])
 def serve_image(userid):
     try:
-        print("works")
         image_filename = f"{userid}.jpg"
         image_path = os.path.join(config_data['IMAGE_FOLDER'], image_filename)
         
-        print(image_filename)
+        print(image_path)
         if os.path.exists(image_path):
             print("YES EXIST")
             return send_file(image_path, mimetype='image/jpeg')

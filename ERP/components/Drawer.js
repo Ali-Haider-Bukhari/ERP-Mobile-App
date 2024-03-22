@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
       {/*Top Section*/}
       <View style={{backgroundColor:'rgba(4,28,92,255)',height:'25%'}}>
         <Image
-          source={{uri:imageUri}}
+          source={imageUri?{uri:imageUri}:require("../assets/icon.png")}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{marginTop:10,display:'flex',justifyContent:'center'}}>

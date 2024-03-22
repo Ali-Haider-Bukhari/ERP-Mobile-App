@@ -80,7 +80,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     <Ionicons name="chevron-back-outline" size={30} color="black" />
   </TouchableOpacity>
 
-      <Image source={{uri:imageUri}} style={styles.userImage} />
+      <Image source={imageUri?{uri:imageUri}:require("../../assets/icon.png")} style={styles.userImage} />
    
 
   <View>

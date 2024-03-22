@@ -9,6 +9,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import { AlertComponent } from '../../components/Alert';
+import picture from '../../assets/logo.png'
 
 export default function ProfileScreen() { 
     const navigation = useNavigation(); 
