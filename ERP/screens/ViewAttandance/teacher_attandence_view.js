@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { Python_Url ,  getToken} from '../../utils/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { AlertComponent } from "../../components/Alert";
 import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons from expo/vector-icons
-
+import { AuthContext } from '../../contexts/AuthContext';
 
 
 
@@ -13,6 +13,7 @@ export default function TeachersAttendanceView({ NewattendanceId , showAttandenc
     const [loading, setLoading] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false)
     const [loadingMap, setLoadingMap] = useState({}); // State to track loading for each item
+    const {logout} = useContext(AuthContext)
 
     const [attendanceData, setAttendanceData] = useState([]);
     useEffect(() => {
@@ -57,9 +58,7 @@ export default function TeachersAttendanceView({ NewattendanceId , showAttandenc
                 turnOnOkay: false,
                 onOkay: () => {},
                 onCancel: () => {
-                    ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                    removeToken();
-                    navigation.navigate("Login");
+                    logout()
                 },
             });
             setLoading(false)
@@ -116,9 +115,7 @@ const UpdateStatus_Attendence = async (_id , status) => {
             turnOnOkay: false,
             onOkay: () => {},
             onCancel: () => {
-                ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                removeToken();
-                navigation.navigate("Login");
+                logout()
             },
         });
       
@@ -169,9 +166,7 @@ const UpdateStatus_Confirm = async ( ) => {
             turnOnOkay: false,
             onOkay: () => {},
             onCancel: () => {
-                ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                removeToken();
-                navigation.navigate("Login");
+                logout()
             },
         });
       

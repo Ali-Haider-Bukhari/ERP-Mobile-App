@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Import your icon li
 
 export default function Courses_Students() {
 const navigation = useNavigation();
-const {user} = useContext(AuthContext)
+const {user,logout} = useContext(AuthContext)
 const {courses,setCourses} = useGlobalContext()
 const [loading, setLoading] = useState(true);
 

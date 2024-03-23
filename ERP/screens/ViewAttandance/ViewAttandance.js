@@ -23,7 +23,7 @@ export default function ViewAttendanceScreen() {
   const [teachersView, setTeachersView] = useState(false);
   const [newAttendanceId, setNewAttendanceId] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState(null);
-  const {user} = useContext(AuthContext)
+  const {user,logout} = useContext(AuthContext)
 
   useEffect(() => {
     fetchAttendance();
@@ -61,9 +61,7 @@ export default function ViewAttendanceScreen() {
             turnOnOkay: false,
             onOkay: () => {},
             onCancel: () => {
-                ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                removeToken();
-                navigation.navigate("Login");
+                logout()
             },
         });
         setLoading(false)
@@ -116,9 +114,7 @@ const handleInsertEmptyAttendance = async () => {
            turnOnOkay: false,
            onOkay: () => {},
            onCancel: () => {
-               ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-               removeToken();
-               navigation.navigate("Login");
+               logout()
            },
        });
     

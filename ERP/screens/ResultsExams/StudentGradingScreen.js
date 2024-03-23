@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function StudentGradingScreen({course_id,setSelected}){
     const navigation = useNavigation();
-    const {user} = useContext(AuthContext)
+    const {user,logout} = useContext(AuthContext)
     const [result,setResult] = useState([])
     const [flag,setFlag] = useState({})
     async function getResults(token){
@@ -41,9 +41,7 @@ export default function StudentGradingScreen({course_id,setSelected}){
                     turnOnOkay:false,
                     onOkay:()=>{},
                     onCancel:()=>{
-                      ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
-                      removeToken()
-                      navigation.navigate("Login")
+                      logout()
                     }},)
               }
               console.error('Error:', data);

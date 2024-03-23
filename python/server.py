@@ -904,29 +904,49 @@ def append_assignment():
     
     return jsonify({'message': 'Assignment appended successfully'}), 200
 
-@app.route('/uploadImage', methods=['POST'])
-def uploadImage():
-    if 'image' not in request.json:
-        return jsonify({'error': 'No image part in the request'}), 400
+@app.route('/uploadImage/<user_id>', methods=['POST'])
+def upload_image(user_id):
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
     
-    image_data = request.json['image']
-    image_file_name = request.json['name']  # Assuming 'name' field contains the file name
-    image_path = os.path.join(config_data['IMAGE_FOLDER'], image_file_name)
+    image = request.files['image']
+    if image.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
 
-    if not os.path.exists(config_data['IMAGE_FOLDER']):
-        os.makedirs(config_data['IMAGE_FOLDER'])
+    print(image,"IMAGE CHECK")
+    objID = str(ObjectId())
+    image_path = os.path.join(config_data['IMAGE_FOLDER'], objID+".jpg")
+
+    update_data = {'image':objID}  # Assuming update data is sent in JSON format in the request body
+    user = User.fetch_by_id(user_id)
     
-    if os.path.exists(image_path):
-        os.remove(image_path)
+    def remove_image(image_path):
+        try:
+            os.remove(image_path)
+            print(f"Image '{image_path}' removed successfully.")
+        except FileNotFoundError:
+            print(f"Image '{image_path}' not found.")
+        except Exception as e:
+            print(f"Error occurred while removing image '{image_path}': {e}")
+
+
+    if user:
+        try:
+            print(user.image,"USER IMAGE")
+            remove_image(os.path.join(config_data['IMAGE_FOLDER'], user.image+".jpg"))
+            User.update_user(user, **update_data)
+            updated_user = User.fetch_by_id(user_id)  # Fetch the updated user
+            image.save(image_path)
+        except ValidationError as e:
+            return jsonify({"message": str(e)}), 400
     
-    with open(image_path, 'wb') as f:
-        f.write(image_data.encode('utf-8'))
-    
-    return jsonify({'message': 'Image uploaded successfully'})
+    return jsonify({'message': 'Image updated successfully', 'image': objID}), 200
+
 
 @app.route('/fetch_image/<userid>', methods=['GET'])
 def serve_image(userid):
     try:
+        print("serve imagee got", userid)
         image_filename = f"{userid}.jpg"
         image_path = os.path.join(config_data['IMAGE_FOLDER'], image_filename)
         

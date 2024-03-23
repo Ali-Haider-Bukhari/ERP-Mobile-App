@@ -34,7 +34,7 @@ const CustomSidebarMenu = (props) => {
     // Define the URL of your Flask API
     if(user!=null){
 
-      fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+      fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
       .then(response => { 
         // Check if the response was successful
         if (!response.ok) {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
       {/*Top Section*/}
       <View style={{backgroundColor:'rgba(4,28,92,255)',height:'25%'}}>
         <Image
-          source={imageUri?{uri:imageUri}:require("../assets/icon.png")}
+          source={imageUri!=""?{uri:imageUri}:require('../assets/logo.png')}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{marginTop:10,display:'flex',justifyContent:'center'}}>

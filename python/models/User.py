@@ -24,7 +24,7 @@ class UserGender(Enum):
     OTHER ="OTHER"
 
 class User(Document):
-    image = StringField(required=False,default="logo.png")
+    image = StringField(required=True,default="logo.png")
     email = EmailField(required=True, unique=True)
     password = StringField(required=True)
     username = StringField(required=True, unique=True)
@@ -80,6 +80,7 @@ class User(Document):
         user = User.objects(email=email).first()
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             token = User.generate_token(user.id)
+            
             return token
         return None
 
@@ -101,21 +102,3 @@ class User(Document):
         user = User(email=email, password=hashed_password, username=username, role=role, roll_number=roll_number)
         user.save()
         return user
-        
-
-
-
-
-
-# jwt_token = User.login_user(email="user@example.com", password="password123")
-# if jwt_token:
-#     print("JWT token:", jwt_token)
-# else:
-#     print("Authentication failed")
-
-# # Verify JWT token
-# user = User.verify_token(jwt_token)
-# if user:
-#     print("Authenticated user:", user.username)
-# else:
-#     print("Invalid token or token expired")
