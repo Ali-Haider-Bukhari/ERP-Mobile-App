@@ -1,22 +1,37 @@
 import React,{useContext, useEffect,useState} from 'react';
-import { View,ScrollView,TouchableOpacity, Text,ProgressBarAndroid, Button ,StyleSheet ,SafeAreaView, Image, ToastAndroid} from 'react-native';
+import { View,ScrollView,TouchableOpacity, Text,ProgressBarAndroid, ActivityIndicator , Button ,StyleSheet ,SafeAreaView, Image, ToastAndroid} from 'react-native';
 import { useGlobalContext } from '../../contexts/GlobalContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import { AlertComponent } from '../../components/Alert';
 import { useNavigation } from '@react-navigation/native';
 import StudentGradingScreen from './StudentGradingScreen';
+import { courseStyles } from './Styles';
+import TeacherMarkingScreen from './Teacher_Marking';
+import Students from '../ViewAttandance/student';
+import CourseStudents from './Students';
+
+
+
 
 export default function ResultsExamsScreen() {
 const navigation = useNavigation();
 const {user,logout} = useContext(AuthContext)
 const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
 
+const [showStudents , setShowStudents] = useState(false)
+const [loading, setLoading] = useState(true)
 
-    async function getCourses(token){
+
+
+
+// for students
+
+    async function getCoursesstudents(token){
         
     try {
         const url = `${Python_Url}/courses_student/${user._id.$oid}`
+        console.log(url , "url")
         const response = await fetch(url, {
           method: 'GET',
           headers: { 
@@ -29,9 +44,9 @@ const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
     
         if (response.ok) {
           // Handle successful response
-          console.log('Response data:', data[0].teacher_id);
-          console.log(data,"check data")
+          // console.log('Response data:', response);
           setCourses(data)
+          setLoading(false)
         } else {
           // Handle error response
           if(data.message == "Token has expired"){
@@ -45,22 +60,89 @@ const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
                 }},)
           }
           console.error('Error:', data);
+          setLoading(false)
         }
       } catch (error) {
         // Handle network or other errors
         console.error('Error:', error);
+        setLoading(false)
       }
 }
+
+
+// for Teacher 
+
+async function getCoursesbyteacher(token){
+        
+  try {
+      const url = `${Python_Url}/courses_teacher/${user._id.$oid}`
+      // console.log(url , "url")
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: token,
+        }
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Handle successful response
+        // console.log('Response data:', response);
+        setCourses(data)
+        setLoading(false)
+      } else {
+        // Handle error response
+        if(data.message == "Token has expired"){
+          AlertComponent({
+              title:'Message',
+              message:'Session Expired!!',
+              turnOnOkay:false,
+              onOkay:()=>{},
+              onCancel:()=>{
+                logout()
+              }},)
+        }
+        console.error('Error:', data);
+        setLoading(false)
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error('Error:', error);
+      setLoading(false)
+    }
+}
+
+
+
 useEffect(() => {
-  if(user.role == "STUDENT"){
-    getToken().then((token) => {getCourses(token)})
+  if(user?.role == "STUDENT"){
+    console.log("Students  api call")
+    getToken()
+    .then((token) => {getCoursesstudents(token)})
+  }else if (user?.role == "TEACHER"){
+    console.log("Teacher  api call")
+    getToken()
+    .then((token) => {getCoursesbyteacher(token)})
   }
 }, [user])
+
+const handleCourseClick = (item) => {
+  setShowStudents(true)
+ setSelectedCourse(item)
+};
+
 
   return (
     <>
      
-     {selectedCourse==null?<View 
+{user.role=="STUDENT" && selectedCourse!=null?<StudentGradingScreen course_id={selectedCourse?.course_id} setSelected={(value)=>{setSelectedCourse(null)}}/>
+:user.role=="TEACHER" && showStudents?<CourseStudents  students={selectedCourse?.students}  setShowStudents={setShowStudents} courseid={selectedCourse?.course_id} user={user} />
+:
+
+
+     <View 
      style={{
                   shadowColor: "#000",
                   shadowOffset: {
@@ -71,53 +153,51 @@ useEffect(() => {
                 shadowRadius: 16.00,
                 elevation: 24,
 
-                overflow:'scroll',
-              
-               
-      
-      
+
       backgroundColor:'white',display:'flex',alignSelf:'center'
       ,width:'85%'
       ,height:'91%'
       ,marginTop:30}}
       >
-      
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      
-      {courses.map((data,index)=>(
-         <TouchableOpacity key={index} onPress={() => {setSelectedCourse(data)}}>
-        <View style={{marginTop:40,display:'flex',alignSelf:'center',width:'88%',height:130,border:1,borderWidth:1,borderColor:'rgba(226,226,226,255)'}}>
 
-            <View style={{height:'50%',backgroundColor:'rgb(0, 174, 255)'}}>
-              <View style={{backgroundColor:'rgba(222,149,0,255)',alignSelf:'flex-end',padding:2,width:80,borderRadius:2,height:21,display:'flex',flexDirection:'row',justifyContent:'center'}}>
-                <Text style={{color:'white',fontWeight:'bold',fontSize:12}}>{"Spring 2024"}</Text>
+
+{loading ? (<>
+        <ActivityIndicator style={courseStyles.activityIndicator} size="large" color="#0000ff" />
+      
+      </>):(<>
+
+
+
+     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {courses.map((data, index) => (
+          <TouchableOpacity key={index} style={courseStyles.courseItem} onPress={() => handleCourseClick(data)}>
+            <View style={courseStyles.courseHeader}>
+              <View style={courseStyles.semesterBadge}>
+                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>{"SPRING 2024"}</Text>
               </View>
-            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:16,position:'relative',bottom:4}}>{data.course_name}</Text>
-            <Text style={{color:'white',fontWeight:'bold',marginLeft:20,fontSize:11,position:'relative',bottom:4}}>{"Credit Hrs: "+data.credit_hour}</Text>
+              <Text style={courseStyles.courseHeaderText}>{data.course_name}</Text>
+              <Text style={courseStyles.courseInfo}>{"Credit Hrs: " + data.credit_hour}</Text>
             </View>
-            <View style={{height:'50%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-            {/* <View style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',width:'85%'}}><Text>{"Attandance: "+data.teacher_id+"%"}</Text></View> */}
-            {/* <ProgressBarAndroid
-              styleAttr="Horizontal"
-              indeterminate={false}
-              color={"rgba(12,184,70,255)"}
-              style={{width:'85%',position:'relative',bottom:5}}
-              progress={0.5}
-            /> */}
+            <View style={courseStyles.attendanceContainer}>
+              <View style={courseStyles.attendanceText}>
+                <Text>{"Attandance: " + "92" + "%"}</Text>
+              </View>
+              <ProgressBarAndroid
+                styleAttr="Horizontal"
+                indeterminate={false}
+                color={"rgba(12,184,70,255)"}
+                style={{ width: '85%', position: 'relative', bottom: 5 }}
+                progress={0.5}
+              />
             </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-        </View>
-        </TouchableOpacity>
-      ))}
+      </>)}
+    </View>
 
-     
-
-       </ScrollView>
-
-    </View>:user.role=="STUDENT"?<StudentGradingScreen course_id={selectedCourse.course_id} setSelected={(value)=>{setSelectedCourse(null)}}/>:user.role=="TEACHER"?null:null}
-
-    
-  
+}
     
     </>
   )
