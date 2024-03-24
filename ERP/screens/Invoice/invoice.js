@@ -6,6 +6,8 @@ import { AlertComponent } from "../../components/Alert";
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../contexts/AuthContext';
 
+
+ 
 // Function to generate random invoice data
 const generateRandomInvoiceData = () => {
     
@@ -16,7 +18,7 @@ const generateRandomInvoiceData = () => {
         for (let i = 0; i < 8; i++) {
             invoiceNo += characters.charAt(Math.floor(Math.random() * characters.length));
         }
-        return invoiceNo;
+        return invoiceNo; 
     };
 
     // Helper function to generate random date within a range
@@ -68,19 +70,7 @@ const InvoicePage = () => {
               // Log the content of the Blob
             console.log('Blob content:', blob);
 
-             
-                // Create a URL object from the blob
-                const url = window.URL.createObjectURL(blob);
-                // Create a link element
-                const link = document.createElement('a');
-                // Set the href attribute of the link to the URL object
-                link.href = url;
-                // Set the download attribute of the link
-                link.setAttribute('download', 'invoice.pdf');
-                // Simulate a click on the link to trigger the download
-                link.click();
-                // Release the URL object
-                window.URL.revokeObjectURL(url);
+            
             } else if (response.status === 401) {
                 // Handle token expiration
                 AlertComponent({

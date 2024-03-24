@@ -769,8 +769,10 @@ def generate_invoice():
     with open(pdf_path, 'wb') as pdf_file:
         pdf_file.write(pdf_bytes)
     
+    return send_file(pdf_path, as_attachment=True)
+
     # Return success response
-    return jsonify({'message': 'PDF file generated and saved successfully'})
+    # return jsonify({'message': 'PDF file generated and saved successfully'})
 
 def generate_pdf(invoice_data):
     # Calculate the balance
@@ -962,7 +964,7 @@ def upload_image(user_id):
         except Exception as e:
             print(f"Error occurred while removing image '{image_path}': {e}")
 
-
+ 
     if user:
         try:
             print(user.image,"USER IMAGE")
