@@ -252,14 +252,7 @@ setIsLoading(false);
           </View>
         </View>
 
-        <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="videocam-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="call-outline" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+    
       </View>
 
       {/* my messages Section */}
@@ -301,11 +294,13 @@ setIsLoading(false);
                                 message.sender_id === user._id.$oid
                                     ? "#DCF8C6"
                                     : "#E5E5EA",
+                                    // padding: message.sender_id === user._id.$oid ? 15 : 15,
                             borderRadius: 20,
-                            borderTopLeftRadius:
-                                message.sender_id === user._id.$oid ? 0 : 20,
-                            borderTopRightRadius:
-                                message.sender_id === user._id.$oid ? 20 : 0,
+                            borderTopRightRadius: message.sender_id === user._id.$oid ? 0 : 20,
+                            borderTopLeftRadius: message.sender_id === user._id.$oid ? 20 : 0,
+                            borderBottomRightRadius: 20,
+                            borderBottomLeftRadius: 20,
+                               
                         },
                     ]}
                 >

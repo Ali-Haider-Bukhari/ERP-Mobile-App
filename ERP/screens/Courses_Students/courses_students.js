@@ -191,10 +191,57 @@ function Course_Student({ students , showStudents }) {
         }
     };
     // Function to handle export action
-    const handleExport = () => {
-        // Add functionality to export data in xlsx format
-        // For example, you can use libraries like 'react-native-share' to share data as a file
+    const handleExport = async () => {
+      try {
+        // Prepare the student data
+        const studentsData = {
+          students: students.map(student => ({
+            name: student.name,
+            email: student.email
+          }))
+        };
+     
+          let token = await getToken();
+    
+        // Send POST request to the Flask API
+        const response = await fetch(`${Python_Url}/export_students`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token, 
+          },
+          body: JSON.stringify(studentsData)
+        });
+    const data = response.json();
+        // Check if the request was successful
+        if (response.ok) {
+          
+          // Handle successful response (e.g., show success message)
+          console.log('Excel file generated successfully');
+        } else {
+          // Handle error response (e.g., show error message)
+           // Handle error response
+        if(data.message == "Token has expired"){
+          AlertComponent({
+              title:'Message',
+              message:'Session Expired!!',
+              turnOnOkay:false,
+              onOkay:()=>{},
+              onCancel:()=>{
+                ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
+                removeToken()
+                navigation.navigate("Login")
+              }},)
+        }
+          const errorData = await response.json();
+          console.error('Export failed:', errorData.error);
+        }
+      } catch (error) {
+        // Handle network errors or other exceptions
+        console.error('Export failed:', error);
+      }
     };
+    
     return (
 
 <>
@@ -202,6 +249,9 @@ function Course_Student({ students , showStudents }) {
     <Ionicons name="chevron-back-outline" size={30} color="black" />
     <Text style={{   fontWeight: "bold", marginLeft : 10 , fontSize : 23}}>Students</Text>
   </TouchableOpacity>
+
+{/* Export Students in Xlxs */}
+
   <TouchableOpacity style={styles.exportButton} onPress={handleExport}>
   <Icon name="download" size={20} color="#fff" />
                 <Text style={{ color: 'white', fontWeight: 'bold', marginLeft: 10 }}>Export</Text>
@@ -242,6 +292,12 @@ function Course_Student({ students , showStudents }) {
 
     );
 }
+
+
+
+
+
+
 
 const styles = StyleSheet.create({
     container: {

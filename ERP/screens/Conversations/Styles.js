@@ -31,9 +31,9 @@ const ChatScreenStyles = StyleSheet.create({
   },
   message: {
     fontSize: 10,
-    marginLeft:10
+    marginLeft:10,
 
-    // marginTop: 5,
+    marginTop: 5,
   },
 
 
@@ -95,7 +95,8 @@ const ChatScreenStyles = StyleSheet.create({
     padding: 10,
   },
   messageContainer: {
-  
+  // padding:20
+  margin:6
   },
   messageBubble: {
     maxWidth: '80%',
@@ -104,6 +105,8 @@ const ChatScreenStyles = StyleSheet.create({
   },
   messageText: {
     fontSize: 13,
+    padding:15,
+    marginBottom: 20
   
   },
   senderName: {

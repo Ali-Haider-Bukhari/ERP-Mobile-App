@@ -23,6 +23,7 @@ from email.mime.multipart import MIMEMultipart
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
+import openpyxl
 
 app = Flask(__name__)
 
@@ -802,7 +803,39 @@ def generate_pdf(invoice_data):
     return pdf_bytes
 
 
+# generate Excel file students 
 
+
+
+# Route to receive student data and generate Excel file
+@app.route('/export_students', methods=['POST'])
+def export_students():
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+
+        # Get list of students
+        students = data.get('students', [])
+
+        # Create a new Excel workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+
+        # Write headers
+        ws.append(['Name', 'Email'])
+
+        # Write student data
+        for student in students:
+            ws.append([student.get('name', ''), student.get('email', '')])
+
+        # Save the workbook
+        wb.save('students.xlsx')
+
+        # Return success response
+        return jsonify({'message': 'Excel file generated successfully'}), 200
+    except Exception as e:
+        # Return error response
+        return jsonify({'error': str(e)}), 500
 
 
 

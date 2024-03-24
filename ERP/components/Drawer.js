@@ -1,5 +1,5 @@
 import  React,{useState,useEffect,useContext} from 'react';
-import { View, Text, Button ,StyleSheet ,SafeAreaView, Image} from 'react-native';
+import { View, Text, Button ,StyleSheet ,SafeAreaView, Image , TouchableOpacity} from 'react-native';
 import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList,
   DrawerItem, } from '@react-navigation/drawer';
@@ -122,6 +122,37 @@ const styles = StyleSheet.create({
   );
 };
  
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 80,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(4,28,92,255)',
+  },
+  menuIcon: {
+    marginRight: 20,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    color: 'white',
+  },
+  notificationsIcon: {
+    marginLeft: 20,
+  },
+});
 export default function DrawerScreen() {
   const {logout} = React.useContext(AuthContext)
   const Drawer = createDrawerNavigator();
@@ -132,20 +163,18 @@ export default function DrawerScreen() {
   const {user} = React.useContext(AuthContext)
 
   const CustomHeader = ({ navigation })  => (
-    <View style={{ height:80,flexDirection: 'row', justifyContent: 'start',alignItems:'center', paddingHorizontal: 16, paddingVertical: 8,backgroundColor:'rgba(4,28,92,255)' }}>
-      {/* <TouchableOpacity onPress={() => navigation.toggleDrawer()}> */}
-        <Ionicons style={{marginTop:15}} name="menu" size={30} color="white" onPress={() => {navigation.toggleDrawer(); setBottomSheetModalFlag(false)}} />
-      {/* </TouchableOpacity> */}
-      <View style={{width:'95%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-        <View style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-          <Image source={Logo} style={{ width: 50, height: 50, borderRadius: 15,marginLeft:40,marginTop:15 }}/>
-          <Text style={{ fontSize: 20,color:'white',marginTop:15 }}>{headerTitle}</Text>
-        </View>
-       
-        <MaterialIcon onPress={()=>{setBottomSheetModalFlag(!bottomSheetModalFlag)}} style={{marginTop:15}} alignSelf="end" name={"notifications"} size={35} color={"#ffd740"} />
-      </View>
-      
+    <View style={styles.headerContainer}>
+    <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.menuIcon}>
+      <Ionicons name="menu" size={30} color="white" />
+    </TouchableOpacity>
+    <View style={styles.logoContainer}>
+      <Image source={Logo} style={styles.logoImage} />
+      <Text style={styles.headerTitle}>{headerTitle}</Text>
     </View>
+    <TouchableOpacity onPress={() => setBottomSheetModalFlag(!bottomSheetModalFlag)} style={styles.notificationsIcon}>
+      <MaterialIcon  name="notifications" size={30} color="#ffd740" />
+    </TouchableOpacity>
+  </View>
   );
   return (
    <>
