@@ -43,7 +43,7 @@ with open(config_file_path, 'r') as file:
 
 DB_URL = config_data['url']
 
-print(DB_URL)
+# print(DB_URL)
 # Configure the MongoDB connection
 
 connect(host= DB_URL)
@@ -836,6 +836,105 @@ def export_students():
     except Exception as e:
         # Return error response
         return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/result', methods=['POST'])
+def add_or_update_result():
+    # Parse request data
+    data = request.get_json()
+    student_id = ObjectId(data.get('student_id'))
+    course_id = ObjectId(data.get('course_id'))
+    quiz = data.get('quiz', [])
+    assignment = data.get('assignment', [])
+    mid_term = data.get('mid_term', {})
+    final_term = data.get('final_term', {})
+    academic_year = data.get('academic_year')
+
+    # Check if document already exists
+    existing_result = Result.objects(student_id=student_id, course_id=course_id).first()
+    if existing_result:
+        print("Exist")
+        # Update existing document
+        existing_result.update(
+            set__quiz=quiz,
+            set__assignment=assignment,
+            set__mid_term=mid_term,
+            set__final_term=final_term,
+            set__academic_year=academic_year
+        )
+        return {'message': 'Result updated successfully'}, 200
+    else:
+        print("new create")
+        # Create new document
+        result = Result(
+            student_id=student_id,
+            course_id=course_id,
+            quiz=quiz,
+            assignment=assignment,
+            mid_term=mid_term,
+            final_term=final_term,
+            academic_year=academic_year
+        )
+        result.save()
+        return {'message': 'Result created successfully'}, 201
+
+   
+# ###############  Fetch Grades by student and course id ########################
+
+@app.route('/Get_result/<student_id>/<course_id>', methods=['GET'])
+def get_result_by_id(student_id, course_id):
+    print(student_id, course_id, "_ids get in backend")
+    
+    # Convert strings to ObjectId
+    student_id = ObjectId(student_id)
+    course_id = ObjectId(course_id)
+    
+    result = Result.objects(student_id=student_id, course_id=course_id).first()
+    
+    serialized_obj = {
+        'course': {
+            'id': str(result.course_id.id),
+            'name': result.course_id.course_name  # Assuming Course has a 'course_name' field
+        },
+        'quiz': [],
+        'assignment': [],
+        'mid_term': {
+            'total_marks': result.mid_term.total_marks,
+            'obtained_marks': result.mid_term.obtained_marks,
+            'weightage': result.mid_term.weightage
+        },
+        'final_term': {
+            'total_marks': result.final_term.total_marks,
+            'obtained_marks': result.final_term.obtained_marks,
+            'weightage': result.final_term.weightage
+        },
+        'totalmarks': result.totalmarks,
+        'grade': result.grade.value if result.grade else None,
+        'academic_year': result.academic_year
+    }
+
+    # Serialize quiz
+    for assessment in result.quiz:
+        serialized_obj['quiz'].append({
+            'total_marks': assessment.total_marks,
+            'obtained_marks': assessment.obtained_marks,
+            'weightage': assessment.weightage
+        })
+
+    # Serialize assignment
+    for assessment in result.assignment:
+        serialized_obj['assignment'].append({
+            'total_marks': assessment.total_marks,
+            'obtained_marks': assessment.obtained_marks,
+            'weightage': assessment.weightage
+        })
+
+    
+        return jsonify(serialized_obj), 200
+    else:
+        return jsonify({'error': 'Result not found'}), 404
+
 
 
 

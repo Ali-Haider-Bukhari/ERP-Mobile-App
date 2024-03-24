@@ -11,6 +11,7 @@ export default function AttandanceScreen() {
 const navigation = useNavigation();
 const {user,logout} = useContext(AuthContext)
 const {courses,setCourses} = useGlobalContext()
+
 const [loading, setLoading] = useState(true)
 
 
