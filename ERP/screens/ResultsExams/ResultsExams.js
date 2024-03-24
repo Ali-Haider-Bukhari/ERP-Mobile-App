@@ -9,7 +9,7 @@ import StudentGradingScreen from './StudentGradingScreen';
 
 export default function ResultsExamsScreen() {
 const navigation = useNavigation();
-const {user} = useContext(AuthContext)
+const {user,logout} = useContext(AuthContext)
 const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
 
 
@@ -41,9 +41,7 @@ const {courses,setCourses,selectedCourse,setSelectedCourse} = useGlobalContext()
                 turnOnOkay:false,
                 onOkay:()=>{},
                 onCancel:()=>{
-                  ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
-                  removeToken()
-                  navigation.navigate("Login")
+                  logout()
                 }},)
           }
           console.error('Error:', data);

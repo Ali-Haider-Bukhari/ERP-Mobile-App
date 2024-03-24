@@ -103,9 +103,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
     navigation.navigate("Login")
     removeToken()
-    setUser(null);
+    // setUser(null);
   };
 
   const fetchUser = (userid) => {
@@ -165,7 +166,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout,fetchUser,updateUser }}>
+    <AuthContext.Provider value={{ user,setUser, login, logout,fetchUser,updateUser }}>
       {children}
     </AuthContext.Provider>
   );

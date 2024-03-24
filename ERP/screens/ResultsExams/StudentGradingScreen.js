@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function StudentGradingScreen({course_id,setSelected}){
     const navigation = useNavigation();
-    const {user} = useContext(AuthContext)
+    const {user,logout} = useContext(AuthContext)
     const [result,setResult] = useState([])
     const [flag,setFlag] = useState({})
     async function getResults(token){
@@ -41,9 +41,7 @@ export default function StudentGradingScreen({course_id,setSelected}){
                     turnOnOkay:false,
                     onOkay:()=>{},
                     onCancel:()=>{
-                      ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
-                      removeToken()
-                      navigation.navigate("Login")
+                      logout()
                     }},)
               }
               console.error('Error:', data);
@@ -96,7 +94,7 @@ export default function StudentGradingScreen({course_id,setSelected}){
         <Text style={{fontWeight:'bold',color:'#3b3b3b',marginLeft:20}}>LECTURE</Text>
      </View>
      <View style={{display:'flex',flexDirection:'row',justifyContent:'start',marginTop:10,marginLeft:55,height:30,width:'80%',borderBottomWidth:1,borderBottomColor:'#e2e2e2'}}>
-        <Text style={{color:'#3b3b3b',marginLeft:20}}>Assessment Type  Obtained Percentage</Text>
+        <Text style={{color:'#3b3b3b',marginLeft:20}}>Assessment  Obtained Percentage</Text>
      </View>
      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
      {result.map((listValue)=>
@@ -125,7 +123,7 @@ export default function StudentGradingScreen({course_id,setSelected}){
             
             {data == "quiz" || data == "assignment"?
             listValue[data].map((value,index)=>(
-                <View index={index} style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:35}}>
+                <View index={index} style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:45}}>
                     <Text>{data+" "+Number(index+1)}</Text>
                     <Text>{JSON.parse(value).total_marks}</Text>
                     <Text>{JSON.parse(value).obtained_marks}</Text>
@@ -133,11 +131,11 @@ export default function StudentGradingScreen({course_id,setSelected}){
                 </View>
             ))
             :data=="totalmarks"?
-            <View style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:35}}>
+            <View style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:45}}>
                 <Text>{"total_marks"}</Text>
                 <Text>{JSON.parse(listValue[data])}</Text>
              </View>
-            :<View style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:35}}>
+            :<View style={{display:'flex',flexDirection:'row',justifyContent:'space-around',width:'80%',marginLeft:45}}>
                 <Text>{data}</Text>
                 <Text>{JSON.parse(listValue[data]).total_marks}</Text>
                 <Text>{JSON.parse(listValue[data])['obtained_marks']}</Text>

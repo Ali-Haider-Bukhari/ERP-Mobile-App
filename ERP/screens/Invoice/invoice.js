@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import your icon library
 import { Python_Url , getToken } from '../../utils/constants';
 import { AlertComponent } from "../../components/Alert";
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../../contexts/AuthContext';
 
 // Function to generate random invoice data
 const generateRandomInvoiceData = () => {
+    
     // Helper function to generate random invoice number
     const generateRandomInvoiceNumber = () => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -46,6 +48,7 @@ const generateRandomInvoiceData = () => {
 const invoiceList = Array.from({ length: 10 }, generateRandomInvoiceData);
 
 const InvoicePage = () => {
+  const {logout} = useContext(AuthContext)
     const navigation = useNavigation();
     const handleDownloadPDF = async (invoiceData) => {
         try {
@@ -86,9 +89,7 @@ const InvoicePage = () => {
                     turnOnOkay: false,
                     onOkay: () => { },
                     onCancel: () => {
-                        ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                        removeToken();
-                        navigation.navigate("Login");
+                        logout()
                     },
                 });
             } else {

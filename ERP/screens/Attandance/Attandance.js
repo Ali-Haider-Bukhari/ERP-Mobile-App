@@ -1,6 +1,6 @@
 import { useState,useContext,useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View,ScrollView, Text,ProgressBarAndroid, TouchableOpacity , ActivityIndicator } from 'react-native';
+import { View,ScrollView, Text,ProgressBarAndroid, TouchableOpacity , ActivityIndicator, ToastAndroid } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useGlobalContext } from '../../contexts/GlobalContext';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
@@ -9,9 +9,9 @@ import { AlertComponent } from '../../components/Alert';
 
 export default function AttandanceScreen() {
 const navigation = useNavigation();
-const {user} = useContext(AuthContext)
+const {user,logout} = useContext(AuthContext)
 const {courses,setCourses} = useGlobalContext()
-const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true)
 
 
 
@@ -47,9 +47,7 @@ const [loading, setLoading] = useState(true);
                 turnOnOkay:false,
                 onOkay:()=>{},
                 onCancel:()=>{
-                  ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
-                  removeToken()
-                  navigation.navigate("Login")
+                  logout()
                 }},)
           }
           console.error('Error:', data);
@@ -94,9 +92,7 @@ async function getCoursesbyteacher(token){
               turnOnOkay:false,
               onOkay:()=>{},
               onCancel:()=>{
-                ToastAndroid.show("Please Login to Continue",ToastAndroid.SHORT);
-                removeToken()
-                navigation.navigate("Login")
+                logout()
               }},)
         }
         console.error('Error:', data);

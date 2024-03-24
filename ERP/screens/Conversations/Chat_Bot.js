@@ -1,4 +1,4 @@
-import React, {  useState, useRef } from "react";
+import React, {  useState, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import styles from "./Styles";
 import { Python_Url ,   getToken } from "../../utils/constants";
 import { useNavigation } from '@react-navigation/native';
 import { AlertComponent } from '../../components/Alert';
-
+import { AuthContext } from "../../contexts/AuthContext";
 
 
 const ChatBot = ({ selectedChatBot, setSelectedChatBot, user , botMessages ,setBotMessages ,  isBotLoading }) => {
@@ -23,6 +23,7 @@ const ChatBot = ({ selectedChatBot, setSelectedChatBot, user , botMessages ,setB
   const scrollViewRef = useRef();
 
   const navigation = useNavigation();
+  const {logout} = useContext(AuthContext)
 
 
 
@@ -84,9 +85,7 @@ const ChatBot = ({ selectedChatBot, setSelectedChatBot, user , botMessages ,setB
                     turnOnOkay: false,
                     onOkay: () => {},
                     onCancel: () => {
-                        ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                        removeToken();
-                        navigation.navigate("Login");
+                        logout()
                     },
                 });
             }
@@ -184,9 +183,7 @@ setIsLoading(false);
             turnOnOkay: false,
             onOkay: () => {},
             onCancel: () => {
-                ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                removeToken();
-                navigation.navigate("Login");
+                logout()
             },
         });
     }
@@ -206,9 +203,7 @@ setIsLoading(false);
             turnOnOkay: false,
             onOkay: () => {},
             onCancel: () => {
-                ToastAndroid.show("Please Login to Continue", ToastAndroid.SHORT);
-                removeToken();
-                navigation.navigate("Login");
+                logout()
             },
         });
     }
@@ -236,7 +231,7 @@ setIsLoading(false);
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() =>  setSelectedChatBot(null)}
+            onPress={() => { setSelectedChatBot(null); navigation.navigate("Conversations")}}
           >
             <Ionicons name="chevron-back-outline" size={30} color="black" />
           </TouchableOpacity>

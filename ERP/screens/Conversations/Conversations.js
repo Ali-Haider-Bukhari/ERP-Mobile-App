@@ -23,12 +23,13 @@ import {
 import ChatScreen from "./ChatSection"; // Import the ChatScreen component
 import { AlertComponent } from "../../components/Alert";
 import ChatBot from "./Chat_Bot";
+import { useRoute } from '@react-navigation/native';
 const ChatsImage = require("../../assets/chat.jpg");
 
 const ConversationsScreen = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [isBotLoading, setIsBotLoading] = useState(true);
-  const { user } = useContext(AuthContext);
+  const { user,logout } = useContext(AuthContext);
   const navigation = useNavigation();
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -255,10 +256,17 @@ const ChatListScreen = ({ handleChatPress, user,handleBotPress }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [botData, setBotData] = useState({});
-  
+  const navigation = useNavigation();
   const [botloading, setBotLoading] = useState(true);
+  const route = useRoute();
+  const keyParam = route.params?.key || null;
 
-
+  useEffect(() => {
+    // THIS USE EFFECT IS FOR CHAT BUTTON CHAT BOT WHICH IS GLOBALLY DEFINED
+    if(keyParam!=null && Object.keys(botData).length>0)
+    handleBotPress(botData)
+  }, [keyParam,botData])
+  
 
 
   useEffect(() => {
@@ -371,7 +379,7 @@ const fetchBot = async (token) => {
       // Define the URL of your Flask API
       if(user!=null){
   
-        fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+        fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
         .then(response => { 
           // Check if the response was successful
           if (!response.ok) {
@@ -472,7 +480,7 @@ const fetchBot = async (token) => {
             user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
-                  <Image source={{uri:imageUri}} style={styles.teacherImage} />
+                  <Image source={imageUri!=""?{uri:imageUri}:require('../../assets/logo.png')} style={styles.teacherImage} />
                   <View style={styles.chatDetails}>
                     <Text style={styles.chatName}>{chat.username}</Text>
            

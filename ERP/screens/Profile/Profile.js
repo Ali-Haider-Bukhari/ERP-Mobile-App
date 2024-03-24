@@ -9,10 +9,11 @@ import { AuthContext } from '../../contexts/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import { AlertComponent } from '../../components/Alert';
+import picture from '../../assets/logo.png'
 
 export default function ProfileScreen() { 
     const navigation = useNavigation(); 
-    const {fetchUser,updateUser,user} = useContext(AuthContext)
+    const {fetchUser,updateUser,user,logout,setUser} = useContext(AuthContext)
     const [editMode,setEditMode] = useState(false) 
     const [EDITOBJECT,SETEDITOBJECT] = useState({})
     const [imageUri,setImageUri] = useState("")
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
       // Define the URL of your Flask API
       if(user!=null){
   
-        fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+        fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
         .then(response => { 
           // Check if the response was successful
           if (!response.ok) {
@@ -35,91 +36,99 @@ export default function ProfileScreen() {
           setImageUri(response.url);
         }) 
         .catch(error => {
-          console.error(error);
+          // console.error(error);
+          // console.log(error)
+          ToastAndroid.show("Internet Issue Detected, Try Again",ToastAndroid.SHORT);
         });
     
       
       }
     }, [user]);
  
-  const uploadImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result,"RESULT");
-    
-    if (!result.canceled) {
-      const imageUri = result.assets[0].uri;
-      const imageName = `${user._id.$oid}.jpg`; // You can use any desired filename here
-  
-      // Convert image to base64
-      let base64Image;
+    const uploadImage = async () => {
       try {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        base64Image = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+    
+        if (result.cancelled) {
+          console.log('Image selection cancelled');
+          return; // Exit if image selection is cancelled
+        }
+    
+        const imageUri = result.assets[0].uri;
+        const mimeType = result.assets[0].mimeType;
+        if(!mimeType.toString().toLowerCase().includes("jpeg")){
+          console.log("File Type Must Be JPG!!")
+          ToastAndroid.show("File Type Must Be JPG!!",ToastAndroid.SHORT);
+          return
+        }
+
+        const formData = new FormData();
+        formData.append('image', {
+          uri: imageUri,
+          type: mimeType, 
+          name: 'photo.jpg',
+        });
+    
+        getToken().then(async (token) => {
+          const response = await fetch(`${Python_Url}/uploadImage/${user._id.$oid}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: token,
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+    
+          const responseData = await response.json();
+          console.log('Image uploaded successfully:', responseData);
+
+          if (response.status === 200) {
+            ToastAndroid.show(responseData.message,ToastAndroid.SHORT);
+            setUser({...user,image:responseData.image})
+            
+          } else if (response.status === 401) {
+            AlertComponent({
+              title:'Message',
+              message:'Session Expired!!',
+              turnOnOkay:false,
+              onOkay:()=>{},
+              onCancel:()=>{
+                logout()
+              }},)
+          } else {
+            ToastAndroid.show("Internet Issue Detected!!",ToastAndroid.SHORT);
+          }
+
         });
       } catch (error) {
-        console.error('Error converting image to base64:', error);
-        return;
+        console.error('Error uploading image:', error);
       }
-  
-      // Send image data to server
-      const requestData = {
-        image: base64Image.replace(/^data:image\/\w+;base64,/, ''), // Remove data URL prefix
-        name: imageName,
-      };
-  
-    getToken().then(async (token)=>{
-      const response = await fetch(`${Python_Url}/uploadImage`, {
-        method: 'POST',
-        body: JSON.stringify(requestData),
-        headers:{
-          'Content-Type': 'application/json',
-          Authorization: token,
-        }
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-  
-      const responseData = await response.json();
-      console.log(responseData);
-    })
-   
-    // Handle success
-  
-    }
+    };
+    
 
    
 
-  }
+  
     
 
     const handleEditProfile=()=>{
       if(editMode==false){
         setEditMode(true)
       }else{
-        // fetchUser(user._id.$oid)     
         updateUser(user._id.$oid,EDITOBJECT)
         setEditMode(false)
         SETEDITOBJECT({})
       }
     }
-
-    useEffect(() => {
-     console.log(EDITOBJECT)
-    }, [EDITOBJECT])
-    
 
     return (
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -128,7 +137,7 @@ export default function ProfileScreen() {
           <View style={{backgroundColor:'#004979',width:'85%',height:550,alignSelf:'center',marginTop:28}}>
             <View style={{display:'flex',flexDirection:'row',justifyContent:'center'}}>
              
-              <Image source={imageUri?{uri:imageUri}:require("../../assets/icon.png")} style={{position:'relative',left:30,alignSelf:'center',borderColor:'rgb(24,119,218)',borderWidth:3 , width:100, height: 100, borderRadius: 100,marginTop:35 }}/>
+              <Image source={imageUri!=""?{uri:imageUri}:require('../../assets/logo.png')} style={{position:'relative',left:30,alignSelf:'center',borderColor:'rgb(24,119,218)',borderWidth:3 , width:100, height: 100, borderRadius: 100,marginTop:35 }}/>
               <View style={{ borderRadius: 100,width:30,height:30,backgroundColor:'#7cb342',display:'flex',justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:30}}><MaterialIcons onPress={uploadImage} name='edit' size={25} color={'white'}/></View>
             </View>  
 

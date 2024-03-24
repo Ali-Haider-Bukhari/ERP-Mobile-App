@@ -1,15 +1,17 @@
-import React, { useEffect, useState , useRef } from 'react';
+import React, { useEffect, useState , useRef, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator , Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from "./Styles";
 const ChatsImage = require("../../assets/chat.jpg");
 import { AlertComponent } from '../../components/Alert';
 import { Python_Url } from '../../utils/constants';
+import { AuthContext} from '../../contexts/AuthContext';
 
 
 
 const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setInputText, messages, setMessages, socket }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const {logout} = useContext(AuthContext)
 
   const scrollViewRef = useRef();
 
@@ -46,7 +48,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     // Define the URL of your Flask API
     if(user!=null){
 
-      fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+      fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
       .then(response => { 
         // Check if the response was successful
         if (!response.ok) {
@@ -80,7 +82,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     <Ionicons name="chevron-back-outline" size={30} color="black" />
   </TouchableOpacity>
 
-      <Image source={{uri:imageUri}} style={styles.userImage} />
+      <Image source={imageUri!=""?{uri:imageUri}:require('../../assets/logo.png')} style={styles.userImage} />
    
 
   <View>

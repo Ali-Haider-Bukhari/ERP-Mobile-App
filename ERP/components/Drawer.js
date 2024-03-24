@@ -23,6 +23,7 @@ import { useGlobalContext } from '../contexts/GlobalContext';
 import InvoicePage from '../screens/Invoice/invoice';
 import Courses_Students from '../screens/Courses_Students/courses_students';
 import { Python_Url } from '../utils/constants';
+import ChatButton from './ChatButton';
 
 const CustomSidebarMenu = (props) => {
 
@@ -33,7 +34,7 @@ const CustomSidebarMenu = (props) => {
     // Define the URL of your Flask API
     if(user!=null){
 
-      fetch(`${Python_Url}/fetch_image/${user._id.$oid}`,{method: 'GET'})
+      fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
       .then(response => { 
         // Check if the response was successful
         if (!response.ok) {
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
       {/*Top Section*/}
       <View style={{backgroundColor:'rgba(4,28,92,255)',height:'25%'}}>
         <Image
-          source={{uri:imageUri}}
+          source={imageUri!=""?{uri:imageUri}:require('../assets/logo.png')}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{marginTop:10,display:'flex',justifyContent:'center'}}>
@@ -271,6 +272,7 @@ export default function DrawerScreen() {
         }} />
       </Drawer.Navigator>
       {bottomSheetModalFlag?<BottomSheetModalComponent onClose={(value)=>setBottomSheetModalFlag(value)} />:null}
+      {user!=null&&headerTitle!='Conversations'?<ChatButton onPress={()=>{navigation.navigate('Conversations', { key: 'bot' });}}/>:null}
    </> 
   )
 }
