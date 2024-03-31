@@ -1,18 +1,22 @@
 import React, { useState , useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet ,  ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
+
 import {
   Python_Url,
   getToken,
 
 } from "../../utils/constants";
+import Toast from 'react-native-toast-message';
 
 import { AlertComponent } from "../../components/Alert";
 
 
 
 const TeacherMarkingScreen = ({courseid , student , setShowMarksSection}) => {
+  const [loading, setLoading] = useState(false);
+
     const [midterm, setMidterm] = useState({ total_marks: null, obtained_marks: null, weightage: null });
     const [finalTerm, setFinalTerm] = useState({ total_marks: null, obtained_marks: null, weightage: null });
   
@@ -82,13 +86,13 @@ setQuizItems(quizData.map(item => ({
 
 // Set assignment data
 const assignmentData = marksData.assignment || [];
-console.log(assignmentData,"assign")
-setAssignmentItems(assignmentData.map(item => {
-  return {total_marks: item.total_marks.toString(), // Convert to string
+
+setAssignmentItems(assignmentData.map(item => ({
+ total_marks: item.total_marks.toString(), // Convert to string
   obtained_marks: item.obtained_marks.toString(), // Convert to string
   weightage: item.weightage.toString() // Convert to string
-}
-})); 
+
+}))); 
       }else{
         if (response.status === 401) {
             // Handle token expiration
@@ -118,7 +122,8 @@ setAssignmentItems(assignmentData.map(item => {
 
 const handleSave = async () => {
     try {
-     
+      setLoading(true);
+
       let token = await getToken();
       // Make API request to insert empty attendance record
       const response = await fetch(`${Python_Url}/result` , {
@@ -147,7 +152,19 @@ const handleSave = async () => {
   
       if (response.ok) {
      console.log(responseData)
-    
+        // Simulate an asynchronous call (e.g., API request)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        setLoading(false);
+  // Show success toast
+  Toast.show({
+    type: 'success',
+    text1: 'Success',
+    text2: 'Result saved successfully',
+    visibilityTime: 2000,
+    autoHide: true,
+  });
+
        } else {
          
        // Check if token has expired
@@ -172,16 +189,31 @@ const handleSave = async () => {
     } catch (error) {
      // Handle error
      console.error('Error inserting  record:', error);
-   
+     setLoading(false);
+
+     // Show error toast
+     Toast.show({
+       type: 'error',
+       text1: 'Error',
+       text2: 'Failed to save result',
+       visibilityTime: 2000,
+       autoHide: true,
+     });
    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity style={styles.iconButton} onPress={() => setShowMarksSection(false)}>
+
+<View  style={styles.container}>
+<TouchableOpacity style={styles.iconButton} onPress={() => setShowMarksSection(false)}>
     <Ionicons name="chevron-back-outline" size={30} color="black" />
     <Text style={{   fontWeight: "bold", marginLeft : 10 , fontSize : 23}}>Teacher Marking:</Text>
   </TouchableOpacity>
+<ScrollView>
+
+
+{/* midterm */}
+
     <Text style={styles.heading}>Midterm:</Text>
         <TextInput
           style={styles.input}
@@ -206,7 +238,7 @@ const handleSave = async () => {
         />
      
 
-   
+   {/* final term */}
         <Text style={styles.heading}>Final Term:</Text>
         <TextInput
           style={styles.input}
@@ -232,6 +264,9 @@ const handleSave = async () => {
    
 
       {/* Quiz Section */}
+
+
+
      <View style={styles.section}>
   <Text style={styles.heading}>Quizzes</Text>
   {quizItems.map((item, index) => (
@@ -334,11 +369,23 @@ const handleSave = async () => {
     <FontAwesome name="plus" size={24} color="white" />
   </TouchableOpacity>
 </View>
+  {/* save */}
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save</Text>
+ {/* Save button */}
+ <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+        {loading ? (
+          <ActivityIndicator size="small" color="white" />
+        ) : (
+          <Text style={styles.saveButtonText}>Save</Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
+
+         {/* Toast component */}
+         <Toast ref={(ref) => Toast.setRef(ref)} />
+</View>
+
+   
   );
 };
 
@@ -397,6 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
+    marginBottom:40
   },
   saveButtonText: {
     color: 'white',

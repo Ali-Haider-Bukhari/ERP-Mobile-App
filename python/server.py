@@ -883,7 +883,6 @@ def add_or_update_result():
 
    
 # ###############  Fetch Grades by student and course id ########################
-
 @app.route('/Get_result/<student_id>/<course_id>', methods=['GET'])
 def get_result_by_id(student_id, course_id):
     print(student_id, course_id, "_ids get in backend")
@@ -932,11 +931,7 @@ def get_result_by_id(student_id, course_id):
             'weightage': assessment.weightage
         })
 
-    
-        return jsonify(serialized_obj), 200
-    else:
-        return jsonify({'error': 'Result not found'}), 404
-
+    return jsonify(serialized_obj), 200  # Return outside the loop
 
 
 
