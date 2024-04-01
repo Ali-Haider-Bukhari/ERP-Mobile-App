@@ -7,11 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import DashboardScreen from '../screens/Dashboard/Dashboard';
 import ProfileScreen from '../screens/Profile/Profile';
 import AttandanceScreen from '../screens/Attandance/Attandance';
 import ConversationsScreen from '../screens/Conversations/Conversations';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 // import Ionicons from 'react-native-vector-icons/Ionicons'
 import Login from '../screens/Login/Login';
 const picture = require(`../assets/SirTalha.jpeg`);
@@ -24,6 +25,7 @@ import InvoicePage from '../screens/Invoice/invoice';
 import Courses_Students from '../screens/Courses_Students/courses_students';
 import { Python_Url } from '../utils/constants';
 import ChatButton from './ChatButton';
+import CampusMap from '../screens/CampusMap/CampusMap';
 
 const CustomSidebarMenu = (props) => {
 
@@ -203,6 +205,15 @@ export default function DrawerScreen() {
             <FontAwesome6Icon name={focused?"user":"user"} size={size} color={color} />
           )
         }} />
+       <Drawer.Screen 
+        name="Campus Map" 
+        listeners={()=>{setHeaderTitle("Campus Map")}}
+        component={CampusMap}
+        options={{
+          drawerIcon: ({ focused, color, size }) => (
+            <FontAwesome5Icon name={'map-marker-alt'} size={size} color={color} />
+          )
+        }} />
          {user?.role == "STUDENT" && (<>
         
        
@@ -260,6 +271,9 @@ export default function DrawerScreen() {
         )
       }} />
       </>)} 
+
+
+    
 
 
         <Drawer.Screen 
