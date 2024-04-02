@@ -205,7 +205,7 @@ export default function DrawerScreen() {
             <FontAwesome6Icon name={focused?"user":"user"} size={size} color={color} />
           )
         }} />:null}
-        {user?.role!="ADMIN"?<Drawer.Screen 
+        <Drawer.Screen 
         name="Campus Map" 
         listeners={()=>{setHeaderTitle("Campus Map")}}
         component={CampusMap}
@@ -213,7 +213,7 @@ export default function DrawerScreen() {
           drawerIcon: ({ focused, color, size }) => (
             <FontAwesome5Icon name={'map-marker-alt'} size={size} color={color} />
           )
-        }} />:null}
+        }} />
     {user?.role == "STUDENT" && (<>
         <Drawer.Screen 
       name="Invoice" 
@@ -234,6 +234,82 @@ export default function DrawerScreen() {
             <MaterialIcon name={focused?"pages":"pages"} size={size} color={color} />
           )
         }} />:null}
+
+        {/* BELOW ADMIN SECTION */}
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Students" 
+      listeners={()=>{setHeaderTitle("Students")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Teachers" 
+      listeners={()=>{setHeaderTitle("Teachers")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Courses" 
+      listeners={()=>{setHeaderTitle("Courses")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Enrollment" 
+      listeners={()=>{setHeaderTitle("Enrollment")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)} 
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Push Notifications" 
+      listeners={()=>{setHeaderTitle("Push Notifications")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)}
+
+{user?.role == "ADMIN" && (<>
+        <Drawer.Screen 
+      name="Push Alerts" 
+      listeners={()=>{setHeaderTitle("Push Alerts")}}
+      component={Courses_Students}
+      options={{
+        drawerIcon: ({ focused, color, size }) => (
+          <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
+        )
+      }} />
+      </>)}
+
+{/* ABOVE ADMIN SECTION */}
 
         <Drawer.Screen 
         name="Conversations" 
@@ -270,9 +346,6 @@ export default function DrawerScreen() {
         )
       }} />
       </>)} 
-
-
-    
 
 
         <Drawer.Screen 

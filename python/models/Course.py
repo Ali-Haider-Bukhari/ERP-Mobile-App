@@ -4,10 +4,10 @@ from models.User import User
 from mongoengine.errors import ValidationError 
 
 class Course(Document):
-    teacher_id = ReferenceField(User, required=True)
+    teacher_id = ReferenceField(User, required=False)
     course_name = StringField(required=True)
     credit_hour = DecimalField(required=True, precision=2)
-    students = ListField(ReferenceField(User))
+    students = ListField(ReferenceField(User), required=False,default=[])
 
     meta = {'collection': 'courses', 'strict': True}
 
