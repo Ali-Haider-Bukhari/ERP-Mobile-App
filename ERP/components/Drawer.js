@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   sideMenuProfileIcon: {
     // resizeMode: 'center',
     marginTop:40,
-    width: '30%',
+    width: '33%',
     height: '50%',
     borderRadius: 100 / 2,
     alignSelf: 'center', 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         />
         <View style={{marginTop:10,display:'flex',justifyContent:'center'}}>
           <Text style={{color:'white',fontWeight:'bold',alignSelf:'center'}}>
-            {user.username}
+            {user?.role!="ADMIN"?user.username:"Admin"}
           </Text>
         </View>
       </View>
@@ -196,7 +196,7 @@ export default function DrawerScreen() {
               <MaterialIcon name={focused?"dashboard":"dashboard"} size={size} color={color} />
             )
           }}/>
-        <Drawer.Screen 
+        {user?.role!="ADMIN"?<Drawer.Screen 
         name="Profile" 
         listeners={()=>{setHeaderTitle("Profile")}}
         component={ProfileScreen}
@@ -204,8 +204,8 @@ export default function DrawerScreen() {
           drawerIcon: ({ focused, color, size }) => (
             <FontAwesome6Icon name={focused?"user":"user"} size={size} color={color} />
           )
-        }} />
-       <Drawer.Screen 
+        }} />:null}
+        {user?.role!="ADMIN"?<Drawer.Screen 
         name="Campus Map" 
         listeners={()=>{setHeaderTitle("Campus Map")}}
         component={CampusMap}
@@ -213,10 +213,8 @@ export default function DrawerScreen() {
           drawerIcon: ({ focused, color, size }) => (
             <FontAwesome5Icon name={'map-marker-alt'} size={size} color={color} />
           )
-        }} />
-         {user?.role == "STUDENT" && (<>
-        
-       
+        }} />:null}
+    {user?.role == "STUDENT" && (<>
         <Drawer.Screen 
       name="Invoice" 
       listeners={()=>{setHeaderTitle("Invoice")}}
@@ -227,7 +225,7 @@ export default function DrawerScreen() {
         )
       }} />
       </>)} 
-        <Drawer.Screen 
+        {user?.role!="ADMIN"?<Drawer.Screen 
         name="Attandance" 
         listeners={()=>{setHeaderTitle("Attandance")}}
         component={AttandanceScreen}
@@ -235,7 +233,7 @@ export default function DrawerScreen() {
           drawerIcon: ({ focused, color, size }) => (
             <MaterialIcon name={focused?"pages":"pages"} size={size} color={color} />
           )
-        }} />
+        }} />:null}
 
         <Drawer.Screen 
         name="Conversations" 
@@ -247,7 +245,7 @@ export default function DrawerScreen() {
           )
         }} />
 
-        <Drawer.Screen 
+        {user?.role!="ADMIN"?<Drawer.Screen 
         name="Results & Exams" 
         listeners={()=>{setHeaderTitle("Results & Exams")}}
         component={ResultsExamsScreen}
@@ -256,6 +254,7 @@ export default function DrawerScreen() {
             <MaterialIcon name={'assessment'} size={size} color={color} />
           )
         }} />
+        :null}
        
 
         {user?.role == "TEACHER" && (<>
