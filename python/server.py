@@ -52,7 +52,7 @@ connect(host= DB_URL)
 
 @app.before_request
 def keep_authenticated():
-    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password' ]
+    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password' , 'delete_user' ]
     token = request.headers.get('Authorization')
     if request.endpoint not in allowed_endpoints:
         if token is not None:
@@ -161,7 +161,21 @@ def get_users():
             'username': user.username,
             'email': user.email,
             'roll_number': user.roll_number,
-            'role': str(user.role),  # Convert UserRoleEnum to string
+            'role': str(user.role).split("UserRoleEnum.")[1], 
+            'contact':user.contact,
+
+           'program': str(user.program).split("UserProgramEnum.")[1] if "UserProgramEnum." in str(user.program) else "",  # Check if "UserProgramEnum." exists before splitting
+
+            'gender':str(user.gender),
+
+            'cnic':user.cnic,
+
+            'blood_group':user.blood_group,
+
+            'address':user.address,
+
+            'semester':user.semester,
+            'date_of_birth':user.date_of_birth
         }
         for user in users
     ]
@@ -933,7 +947,73 @@ def get_result_by_id(student_id, course_id):
 
     return jsonify(serialized_obj), 200  # Return outside the loop
 
+# API route to delete a user by _id
 
+
+
+
+
+@app.route('/del_user_byid/<string:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user.delete()
+        return jsonify({'message': 'User deleted successfully'})
+    except User.DoesNotExist:
+        return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/update_userData', methods=['POST'])
+def update_userData():
+    user_id = request.json.get('_id')
+    email = request.json.get('email')
+
+    username = request.json.get('username')
+    roll_number = request.json.get('roll_number')
+    contact = request.json.get('contact')
+    program = request.json.get('program')
+    gender = request.json.get('gender')
+    cnic = request.json.get('cnic')
+    blood_group = request.json.get('blood_group')
+    address = request.json.get('address')
+    semester = request.json.get('semester')
+    date_of_birth = request.json.get('date_of_birth')
+     
+    # Retrieve the user object
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Update the user fields if they are provided
+    if email:
+        user.email = email
+  
+    if username:
+        user.username = username
+    if roll_number:
+        user.roll_number = roll_number
+    if contact:
+        user.contact = contact
+    if program:
+        user.program = program
+    if gender:
+        user.gender = gender
+    if cnic:
+        user.cnic = cnic
+    if blood_group:
+        user.blood_group = blood_group
+    if address:
+        user.address = address
+    if semester:
+        user.semester = semester
+    if date_of_birth:
+        user.date_of_birth = date_of_birth
+
+    # Save the updated user
+    user.save()
+
+    return jsonify({'message': 'User updated successfully'})
 
 @app.route('/fetch-results', methods=['POST'])
 def get_result():
