@@ -1,3 +1,4 @@
+import json
 from bson import ObjectId
 from mongoengine import Document,DecimalField, StringField, ReferenceField, ListField, FloatField, IntField, DateTimeField
 from models.User import User
@@ -9,7 +10,7 @@ class Notification(Document):
     headline = StringField(required=True)
     date_time = DateTimeField(default=datetime.now)
 
-    meta = {'collection': 'Notification', 'strict': True}
+    meta = {'collection': 'notifications', 'strict': True}
 
     @classmethod
     def create(cls, image, headline):
@@ -21,13 +22,17 @@ class Notification(Document):
         notification.save()
         return notification
     
+
+        
     @classmethod
-    def delete(cls, notification_id):
-        # Find the notification by its ID
-        notification = cls.objects(id=notification_id).first()
-        if notification:
-            # Delete the notification
-            notification.delete()
-            return True
-        else:
-            return False
+    def fetch_all(cls):
+        # Retrieve all notifications from the database
+        notifications = cls.objects().all()
+        print(notifications,"notifications")
+        # Convert QuerySet to a list of dictionaries
+        notification_dicts = [{"id": str(notification.id), "image": notification.image, "headline": notification.headline, "date_time": str(notification.date_time)} for notification in notifications]
+
+        # Serialize list of dictionaries to JSON
+        serialized_notifications = json.dumps(notification_dicts)
+
+        return serialized_notifications

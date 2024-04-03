@@ -13,6 +13,7 @@ from models.Course import Course
 from models.Attandance import Attendance
 from models.Message import Message
 from models.Result import ObjectofAssessment, Result
+from models.Notification import Notification
 import os
 import smtplib
 import ssl
@@ -24,6 +25,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 import openpyxl
+
 
 app = Flask(__name__)
 
@@ -52,7 +54,7 @@ connect(host= DB_URL)
 
 @app.before_request
 def keep_authenticated():
-    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password' ]
+    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password','create_notification' ]
     token = request.headers.get('Authorization')
     if request.endpoint not in allowed_endpoints:
         if token is not None:
@@ -1110,14 +1112,32 @@ def create_result():
 
 
 
+# BELOW NOTIFICATION APIs
 
+@app.route('/notifications', methods=['GET'])
+def get_notifications():
+    notifications = Notification.fetch_all()
+    print(notifications,"before return")
+    return jsonify(notifications), 200
 
+@app.route('/insertNotification/<string:headline>', methods=['POST'])
+def create_notification(headline):
+    data = request.get_json()
+    image = data.get('image')
+    headline = headline
+    if not image or not headline:
+        return jsonify({'error': 'Image and headline are required'}), 400
+    notification = Notification.create(image=image, headline=headline)
+    return jsonify(notification), 201
 
-
-
-
-
-
+@app.route('/notifications/<string:notification_id>', methods=['DELETE'])
+def delete_notification(notification_id):
+    success = Notification.objects(id=notification_id).first()
+    if success:
+        success.delete()
+        return jsonify({'message': 'Notification deleted successfully'}), 200
+    else:
+        return jsonify({'error': 'Notification not found'}), 404
 
 
 

@@ -10,7 +10,7 @@ class Alert(Document):
     headline = StringField(required=True)
     date_time = DateTimeField(default=datetime.now)
 
-    meta = {'collection': 'Alert', 'strict': True}
+    meta = {'collection': 'alerts', 'strict': True}
 
     @classmethod
     def create(cls, user_id, image, headline):
@@ -32,3 +32,9 @@ class Alert(Document):
             return True
         else:
             return False
+        
+    @classmethod
+    def fetch_by_user_id(cls, user_id):
+        # Retrieve all alerts for a given user_id
+        alerts = cls.objects(user_id=user_id).all()
+        return alerts
