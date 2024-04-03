@@ -26,6 +26,7 @@ import Courses_Students from '../screens/Courses_Students/courses_students';
 import { Python_Url } from '../utils/constants';
 import ChatButton from './ChatButton';
 import CampusMap from '../screens/CampusMap/CampusMap';
+import PushNotification from '../screens/PushNotification/PushNotification'
 
 const CustomSidebarMenu = (props) => {
 
@@ -167,7 +168,7 @@ export default function DrawerScreen() {
 
   const CustomHeader = ({ navigation })  => (
     <View style={styles.headerContainer}>
-    <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.menuIcon}>
+    <TouchableOpacity onPress={() => {navigation.toggleDrawer();setBottomSheetModalFlag(false);}} style={styles.menuIcon}>
       <Ionicons name="menu" size={30} color="white" />
     </TouchableOpacity>
     <View style={styles.logoContainer}>
@@ -289,7 +290,7 @@ export default function DrawerScreen() {
         <Drawer.Screen 
       name="Push Notifications" 
       listeners={()=>{setHeaderTitle("Push Notifications")}}
-      component={Courses_Students}
+      component={PushNotification}
       options={{
         drawerIcon: ({ focused, color, size }) => (
           <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />

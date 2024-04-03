@@ -19,6 +19,16 @@ export default function ProfileScreen() {
     const [imageUri,setImageUri] = useState("")
 
     useEffect(() => {
+      (async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission required', 'Please allow access to photo library');
+        }
+      })();
+    }, [])
+    
+
+    useEffect(() => {
       // Define the URL of your Flask API
       if(user!=null){
   
@@ -46,6 +56,7 @@ export default function ProfileScreen() {
     }, [user]);
  
     const uploadImage = async () => {
+
       try {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
