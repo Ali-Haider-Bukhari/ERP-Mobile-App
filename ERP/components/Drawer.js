@@ -26,6 +26,7 @@ import Courses_Students from '../screens/Courses_Students/courses_students';
 import { Python_Url } from '../utils/constants';
 import ChatButton from './ChatButton';
 import CampusMap from '../screens/CampusMap/CampusMap';
+import Crud_Students from '../Admin/Crud_Students/student';
 
 const CustomSidebarMenu = (props) => {
 
@@ -241,7 +242,7 @@ export default function DrawerScreen() {
         <Drawer.Screen 
       name="Students" 
       listeners={()=>{setHeaderTitle("Students")}}
-      component={Courses_Students}
+      component={Crud_Students}
       options={{
         drawerIcon: ({ focused, color, size }) => (
           <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />

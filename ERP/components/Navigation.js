@@ -1,11 +1,12 @@
 import {  Text, View,Image } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+
 import { createStackNavigator } from '@react-navigation/stack';
 import Splash from '../screens/Splash/Splash';
 import Login from '../screens/Login/Login';
 import PasswordReset from "../screens/PasswordReset/forget";
 import DrawerScreen from "../components/Drawer";
 import ViewAttendanceScreen from '../screens/ViewAttandance/ViewAttandance';
+import Crud_Students from '../Admin/Crud_Students/student';
 
 export default function Navigation(){
     const Stack = createStackNavigator(); 
@@ -32,6 +33,7 @@ export default function Navigation(){
           <Stack.Screen name="Drawer" component={DrawerScreen} options={{ headerShown: false}}/>
           <Stack.Screen name="PasswordReset" component={PasswordReset} />
           <Stack.Screen name="ViewAttendanceScreen" component={ViewAttendanceScreen} options={{ headerShown: true}} />
+          <Stack.Screen name="Crud_Students" component={Crud_Students} options={{ headerShown: true}} />
         
         
           </Stack.Navigator> 
