@@ -14,10 +14,8 @@ class Notification(Document):
 
     @classmethod
     def create(cls, image, headline):
-        # Generate a unique image string using ObjectId
-        unique_image_string = str(ObjectId())
         # Create a new Notification document
-        notification = cls(image=unique_image_string, headline=headline)
+        notification = cls(image=image, headline=headline)
         # Save the document
         notification.save()
         return notification

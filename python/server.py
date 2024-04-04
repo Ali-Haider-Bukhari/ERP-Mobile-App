@@ -1238,6 +1238,7 @@ def create_notification(headline):
     image.save(image_path)
 
     notification = Notification.create(image=objID+"."+find_file_format(image.content_type), headline=headline)
+    print(objID,"objid")
     return {"message":'successfully insert'},200
 
 @app.route('/notifications/<string:notification_id>', methods=['DELETE'])

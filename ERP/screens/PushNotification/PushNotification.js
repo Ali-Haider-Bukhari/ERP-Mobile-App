@@ -10,7 +10,7 @@ export default function PushNotification() {
   const [selectedImage, setSelectedImage] = useState(null);
   const {logout} = useContext(AuthContext)
   const [selectedMimeType,setSelectedMimeType] = useState(null)
-  const imageURIs = {}; 
+  const [imageURIs,setimageURIs] = useState({}) 
   useEffect(() => {
    for(var i in notifications){
     
@@ -24,16 +24,20 @@ export default function PushNotification() {
           return response;
         })
         .then(response => {
-          
-          imageURIs[notifications[i].image] = response.url
+          const updatedImageURIs = { ...imageURIs }; 
+          updatedImageURIs[notifications[i].image] = response.url; 
+          setimageURIs(updatedImageURIs);
         }) 
         .catch(error => {
           // console.error(error);
           // console.log(error)
           ToastAndroid.show("Internet Issue Detected, Try Again",ToastAndroid.SHORT);
         });
+        
    }
   }, [notifications])
+
+
   
 
   useEffect(() => {
