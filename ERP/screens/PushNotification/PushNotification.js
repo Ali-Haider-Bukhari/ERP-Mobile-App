@@ -10,6 +10,31 @@ export default function PushNotification() {
   const [selectedImage, setSelectedImage] = useState(null);
   const {logout} = useContext(AuthContext)
   const [selectedMimeType,setSelectedMimeType] = useState(null)
+  const imageURIs = {}; 
+  useEffect(() => {
+   for(var i in notifications){
+    
+
+    fetch(`${Python_Url}/fetch_image/${notifications[i].image}`,{method: 'GET'})
+        .then(response => { 
+          // Check if the response was successful
+          if (!response.ok) {
+            throw new Error('Failed to fetch image');
+          }
+          return response;
+        })
+        .then(response => {
+          
+          imageURIs[notifications[i].image] = response.url
+        }) 
+        .catch(error => {
+          // console.error(error);
+          // console.log(error)
+          ToastAndroid.show("Internet Issue Detected, Try Again",ToastAndroid.SHORT);
+        });
+   }
+  }, [notifications])
+  
 
   useEffect(() => {
     
@@ -135,7 +160,7 @@ export default function PushNotification() {
     <View style={styles.notificationContainer}>
       <View style={styles.notificationContent}>
         <Text style={styles.headline}>{item.headline}</Text>
-        <Image source={ require('../../assets/Notifications/pic1.jpg')} style={styles.image} />
+        <Image source={{uri:imageURIs[item.image]}} style={styles.image} />
         <Text style={styles.dateTime}>{item.date_time}</Text>
       </View>
       <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id)}>

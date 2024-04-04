@@ -54,7 +54,7 @@ connect(host= DB_URL)
 
 @app.before_request
 def keep_authenticated():
-    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password','create_notification' ]
+    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password','create_notification' , 'delete_user']
     token = request.headers.get('Authorization')
     if request.endpoint not in allowed_endpoints:
         if token is not None:
@@ -163,7 +163,21 @@ def get_users():
             'username': user.username,
             'email': user.email,
             'roll_number': user.roll_number,
-            'role': str(user.role),  # Convert UserRoleEnum to string
+            'role': str(user.role).split("UserRoleEnum.")[1], 
+            'contact':user.contact,
+
+           'program': str(user.program).split("UserProgramEnum.")[1] if "UserProgramEnum." in str(user.program) else "",  # Check if "UserProgramEnum." exists before splitting
+
+            'gender':str(user.gender),
+
+            'cnic':user.cnic,
+
+            'blood_group':user.blood_group,
+
+            'address':user.address,
+
+            'semester':user.semester,
+            'date_of_birth':user.date_of_birth
         }
         for user in users
     ]
@@ -935,7 +949,73 @@ def get_result_by_id(student_id, course_id):
 
     return jsonify(serialized_obj), 200  # Return outside the loop
 
+# API route to delete a user by _id
 
+
+
+
+
+@app.route('/del_user_byid/<string:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user.delete()
+        return jsonify({'message': 'User deleted successfully'})
+    except User.DoesNotExist:
+        return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/update_userData', methods=['POST'])
+def update_userData():
+    user_id = request.json.get('_id')
+    email = request.json.get('email')
+
+    username = request.json.get('username')
+    roll_number = request.json.get('roll_number')
+    contact = request.json.get('contact')
+    program = request.json.get('program')
+    gender = request.json.get('gender')
+    cnic = request.json.get('cnic')
+    blood_group = request.json.get('blood_group')
+    address = request.json.get('address')
+    semester = request.json.get('semester')
+    date_of_birth = request.json.get('date_of_birth')
+     
+    # Retrieve the user object
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Update the user fields if they are provided
+    if email:
+        user.email = email
+  
+    if username:
+        user.username = username
+    if roll_number:
+        user.roll_number = roll_number
+    if contact:
+        user.contact = contact
+    if program:
+        user.program = program
+    if gender:
+        user.gender = gender
+    if cnic:
+        user.cnic = cnic
+    if blood_group:
+        user.blood_group = blood_group
+    if address:
+        user.address = address
+    if semester:
+        user.semester = semester
+    if date_of_birth:
+        user.date_of_birth = date_of_birth
+
+    # Save the updated user
+    user.save()
+
+    return jsonify({'message': 'User updated successfully'})
 
 @app.route('/fetch-results', methods=['POST'])
 def get_result():
@@ -1077,18 +1157,24 @@ def upload_image(user_id):
 @app.route('/fetch_image/<userid>', methods=['GET'])
 def serve_image(userid):
     try:
-        print("serve imagee got", userid)
-        image_filename = f"{userid}.jpg"
-        image_path = os.path.join(config_data['IMAGE_FOLDER'], image_filename)
-        
-        print(image_path)
-        if os.path.exists(image_path):
-            print("YES EXIST")
-            return send_file(image_path, mimetype='image/jpeg')
+        if '.' in userid:
+            image_path = os.path.join(config_data['IMAGE_FOLDER'], userid)
+            if os.path.exists(image_path):
+                print("YES EXIST")
+                return send_file(image_path, mimetype='image/jpeg')
         else:
-            print("NOT EXIST")
-            default_image_path = os.path.join(config_data['IMAGE_FOLDER'], 'logo.png')
-            return send_file(default_image_path, mimetype='image/png')
+            print("serve imagee got", userid)
+            image_filename = f"{userid}.jpg"
+            image_path = os.path.join(config_data['IMAGE_FOLDER'], image_filename)
+            
+            print(image_path)
+            if os.path.exists(image_path):
+                print("YES EXIST")
+                return send_file(image_path, mimetype='image/jpeg')
+            else:
+                print("NOT EXIST")
+                default_image_path = os.path.join(config_data['IMAGE_FOLDER'], 'logo.png')
+                return send_file(default_image_path, mimetype='image/png')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 ####################################################################
@@ -1122,13 +1208,37 @@ def get_notifications():
 
 @app.route('/insertNotification/<string:headline>', methods=['POST'])
 def create_notification(headline):
-    data = request.get_json()
-    image = data.get('image')
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+    
+    image = request.files['image']
+    
+    if image.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+    
+    def find_file_format(content_type):
+        format_mapping = {
+            'image/jpeg': 'jpg',
+            'image/png': 'png',
+            'image/gif': 'gif',
+            'video/mp4': 'mp4',
+            'audio/mpeg': 'mp3',
+        }
+        return format_mapping.get(content_type, 'unknown')
+
+
+    print(image,"IMAGE CHECK",find_file_format(image.content_type))
+    
+    objID = str(ObjectId())
+    image_path = os.path.join(config_data['IMAGE_FOLDER'], objID+"."+find_file_format(image.content_type))
+    
     headline = headline
     if not image or not headline:
         return jsonify({'error': 'Image and headline are required'}), 400
-    notification = Notification.create(image=image, headline=headline)
-    return jsonify(notification), 201
+    image.save(image_path)
+
+    notification = Notification.create(image=objID+"."+find_file_format(image.content_type), headline=headline)
+    return {"message":'successfully insert'},200
 
 @app.route('/notifications/<string:notification_id>', methods=['DELETE'])
 def delete_notification(notification_id):
