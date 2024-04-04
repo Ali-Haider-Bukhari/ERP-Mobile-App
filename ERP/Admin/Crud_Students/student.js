@@ -9,6 +9,8 @@ import {
   Image,
   ActivityIndicator,
   ToastAndroid,
+  Tab,
+  Tabs
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -27,14 +29,22 @@ import { AlertComponent } from "../../components/Alert";
 import EditUserForm from "./Edit_Students";
 
 
-export default  function Crud_Students  ()  {
+const Crud_Students = () => {
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [editUser, setEditUser] = useState(null);
-  
+    const [selectedTab, setSelectedTab] = useState('STUDENT'); // Default selected tab
+
     const navigation = useNavigation();
+    const filteredUsers = users.filter((chat) => {
+      return chat.username.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    const students = filteredUsers.filter(user => user.role === 'STUDENT');
+    const teachers = filteredUsers.filter(user => user.role === 'TEACHER');
+console.log(students , teachers , "2 Lists")
+
 
   
     useEffect(() => {
@@ -92,9 +102,7 @@ export default  function Crud_Students  ()  {
       setSearchQuery(text);
     };
   
-    const filteredUsers = users.filter((chat) => {
-      return chat.username.toLowerCase().includes(searchQuery.toLowerCase());
-    });
+ 
     
     const handleChatPress = (user) => {
         // Handle chat press action here
@@ -194,63 +202,9 @@ try{
         setEditMode(true);
         setEditUser(user);
       };
+
+
       
-
-
-      const renderUsers = () => {
-        if (filteredUsers.length === 0) {
-          return (
-            <View style={styles.noChatsContainer}>
-              <Text style={styles.noChatsText}>No Users Found</Text>
-            </View>
-          );
-        } else {
-          return (
-            <ScrollView>
-            {filteredUsers.map((user, index) => (
-              <>
-                {user._id !== Chat_Bot_ID && (
-                  <TouchableOpacity key={index} onPress={() => handleChatPress(user)}>
-                    <View style={styles.chatCard}>
-                      <Image
-                        source={require('../../assets/logo.png')}
-                        style={styles.teacherImage}
-                      />
-                      <View style={styles.chatDetails}>
-                        <View style={{ flexDirection: 'column' }}>
-                          <Text style={styles.chatName}>{user.username}</Text>
-                          <Text style={{ fontSize: 14 }}>{user.email}</Text>
-                        </View>
-                        <View style={styles.iconContainer}>
-                          <TouchableOpacity onPress={() => handleEdit(user)}>
-                            <Ionicons
-                              name="pencil"
-                              size={24}
-                              color="black"
-                              style={styles.icon}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => handleDelete(user)}>
-                            <Ionicons
-                              name="trash"
-                              size={24}
-                              color="black"
-                              style={styles.icon}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              </>
-            ))}
-          </ScrollView>
-          
-          );
-        }
-      };
-    
       return (
         <View style={styles.container}>
                 {editMode ? (
@@ -272,9 +226,125 @@ try{
           {loading ? (
             <ActivityIndicator style={styles.loadingIndicator} size="large" color="#0000ff" />
           ) : (
-            renderUsers()
+            <>
+            {filteredUsers.length === 0 ?
+        
+            <View style={styles.noChatsContainer}>
+              <Text style={styles.noChatsText}>No Users Found</Text>
+            </View>
+        
+        :(<>
+
+
+
+            <View style={styles.tabsContainer}>
+  <TouchableOpacity
+    style={[styles.tab, selectedTab === 'STUDENT' && styles.selectedTab]}
+    onPress={() => setSelectedTab('STUDENT')}
+  >
+    <Text style={styles.tabLabel}>STUDENT</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.tab, selectedTab === 'TEACHER' && styles.selectedTab]}
+    onPress={() => setSelectedTab('TEACHER')}
+  >
+    <Text style={styles.tabLabel}>TEACHER</Text>
+  </TouchableOpacity>
+</View>
+
+{/* Render content based on selected tab */}
+<ScrollView>
+  {selectedTab === 'STUDENT' && (
+    // Render student content
+    students.map((user, index) => (
+   <>
+    <TouchableOpacity key={index} onPress={() => handleChatPress(user)}>
+                        <View style={styles.chatCard}>
+                          <Image
+                            source={require('../../assets/logo.png')}
+                            style={styles.teacherImage}
+                          />
+                          <View style={styles.chatDetails}>
+                            <View style={{ flexDirection: 'column' }}>
+                              <Text style={styles.chatName}>{user.username}</Text>
+                              <Text style={{ fontSize: 14 }}>{user.email}</Text>
+                            </View>
+                            <View style={styles.iconContainer}>
+                              <TouchableOpacity onPress={() => handleEdit(user)}>
+                                <Ionicons
+                                  name="pencil"
+                                  size={24}
+                                  color="black"
+                                  style={styles.icon}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => handleDelete(user)}>
+                                <Ionicons
+                                  name="trash"
+                                  size={24}
+                                  color="black"
+                                  style={styles.icon}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+   </>
+    ))
+  )}
+  {selectedTab === 'TEACHER' && (
+    // Render teacher content
+    teachers.map((user, index) => (
+   <>
+    <TouchableOpacity key={index} onPress={() => handleChatPress(user)}>
+                        <View style={styles.chatCard}>
+                          <Image
+                            source={require('../../assets/logo.png')}
+                            style={styles.teacherImage}
+                          />
+                          <View style={styles.chatDetails}>
+                            <View style={{ flexDirection: 'column' }}>
+                              <Text style={styles.chatName}>{user.username}</Text>
+                              <Text style={{ fontSize: 14 }}>{user.email}</Text>
+                            </View>
+                            <View style={styles.iconContainer}>
+                              <TouchableOpacity onPress={() => handleEdit(user)}>
+                                <Ionicons
+                                  name="pencil"
+                                  size={24}
+                                  color="black"
+                                  style={styles.icon}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => handleDelete(user)}>
+                                <Ionicons
+                                  name="trash"
+                                  size={24}
+                                  color="black"
+                                  style={styles.icon}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+   </>
+    ))
+  )}
+</ScrollView>
+
+
+        </>)}
+        
+     
+            </>
+        
           )}
               </>)}
         </View>
       );
     };
+
+
+export default Crud_Students;    

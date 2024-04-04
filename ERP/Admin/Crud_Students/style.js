@@ -1,6 +1,26 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
+  tabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#eee',
+    borderRadius: 20, // Adjust the border radius as needed
+    overflow: 'hidden',
+    marginVertical: 10,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  selectedTab: {
+    backgroundColor: '#fff', // Change the background color of the selected tab
+  },
+  tabLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
   container: {
     flex: 1,
     padding: 10,
