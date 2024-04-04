@@ -12,30 +12,36 @@ export default function PushNotification() {
   const [selectedMimeType,setSelectedMimeType] = useState(null)
   const [imageURIs,setimageURIs] = useState({}) 
   useEffect(() => {
-   for(var i in notifications){
-    
-
-    fetch(`${Python_Url}/fetch_image/${notifications[i].image}`,{method: 'GET'})
-        .then(response => { 
-          // Check if the response was successful
+    const fetchImagePromises = notifications.map(notification =>
+      fetch(`${Python_Url}/fetch_image/${notification.image}`)
+        .then(response => {
           if (!response.ok) {
             throw new Error('Failed to fetch image');
           }
           return response;
         })
-        .then(response => {
-          const updatedImageURIs = { ...imageURIs }; 
-          updatedImageURIs[notifications[i].image] = response.url; 
-          setimageURIs(updatedImageURIs);
-        }) 
+        .then(response => response.url)
         .catch(error => {
-          // console.error(error);
-          // console.log(error)
-          ToastAndroid.show("Internet Issue Detected, Try Again",ToastAndroid.SHORT);
+          console.error(error);
+          ToastAndroid.show("Internet Issue Detected, Try Again", ToastAndroid.SHORT);
+        })
+    );
+  
+    Promise.all(fetchImagePromises)
+      .then(imageUrls => {
+        const updatedImageURIs = {};
+        notifications.forEach((notification, index) => {
+          updatedImageURIs[notification.image] = imageUrls[index];
         });
-        
-   }
+        setimageURIs(updatedImageURIs);
+      })
+      .catch(error => console.error('Error fetching images:', error));
   }, [notifications])
+
+  // useEffect(() => {
+  //   console.log(imageURIs,"URIs")
+  // }, [imageURIs])
+  
 
 
   
