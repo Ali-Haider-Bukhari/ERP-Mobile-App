@@ -4,22 +4,46 @@ import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider } from '@go
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { Python_Url, getToken } from '../utils/constants';
+import { AlertComponent } from './Alert';
 
 export default function BottomSheetModalComponent({ onClose }) {
   const bottomSheetModalRef = useRef(null);
   const [activeTab, setActiveTab] = useState('NOTIFICATION');
   const [currentPage, setCurrentPage] = useState(1);
-  const notifications = [
-    { image: require('../assets/Notifications/pic1.jpg'), text: 'Semester Exchange Program - Fall 2024' },
-    { image: require('../assets/Notifications/gif1.gif'), text: 'ERP & LMS Guidelines' },
-    { image: require('../assets/Notifications/gif2.gif'), text: 'Rankings' },
-    { image: require('../assets/Notifications/gif3.gif'), text: 'Students Forms' },
-    // Add more notification items as needed
-  ];
+  const [notifications,setNotifications] = useState([])
+  const [imageURIs,setimageURIs] = useState({}) 
+  useEffect(() => {
+    console.log(notifications,"CHECK")
+    const fetchImagePromises = notifications.map(notification =>
+      fetch(`${Python_Url}/fetch_image/${notification.image}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch image');
+          }
+          return response;
+        })
+        .then(response => response.url)
+        .catch(error => {
+          console.error(error);
+          ToastAndroid.show("Internet Issue Detected, Try Again", ToastAndroid.SHORT);
+        })
+    );
+  
+    Promise.all(fetchImagePromises)
+      .then(imageUrls => {
+        const updatedImageURIs = {};
+        notifications.forEach((notification, index) => {
+          updatedImageURIs[notification.image] = imageUrls[index];
+        });
+        setimageURIs(updatedImageURIs);
+      })
+      .catch(error => console.error('Error fetching images:', error));
+  }, [notifications])
 
   const alerts = [
-    { image: require('../assets/Notifications/gif4.gif'), text: 'Superior Gallery' },
-    { image: require('../assets/Notifications/gif5.gif'), text: 'Policies' },
+    { image: require('../assets/Notifications/gif4.gif'), headline: 'Superior Gallery' ,date_time:'2024-04-04 10:54:21'},
+    { image: require('../assets/Notifications/gif5.gif'), headline: 'Policies',date_time:'2024-04-04 10:54:21' },
     // Add more alert items as needed
   ];
 
@@ -27,6 +51,37 @@ export default function BottomSheetModalComponent({ onClose }) {
   const totalPagesAlerts = Math.ceil(alerts.length / 4);
 
   const snapPoints = useMemo(() => [ '50%'], []);
+
+useEffect(() => {
+  fetchNotifications();
+}, []);
+  
+  const fetchNotifications = () => {
+    getToken().then((token)=>{
+        fetch(`${Python_Url}/notifications`,{
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization:token,
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if(data.message == "Token has expired")
+              AlertComponent({
+                title:'Message',
+                message:'Session Expired!!',
+                turnOnOkay:false,
+                onOkay:()=>{},
+                onCancel:()=>{logout()}})
+            else
+              {setNotifications(JSON.parse(data));}})
+          .catch(error => console.error('Error fetching notifications:', error));
+    });
+  };
+
+  
+
 
   useEffect(() => {
     bottomSheetModalRef.current?.present();
@@ -47,10 +102,10 @@ export default function BottomSheetModalComponent({ onClose }) {
       <ScrollView style={{ flex: 1, width: '100%' }}>
         {data.slice(startIndex, endIndex).map((item, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-            <Image source={item.image} style={{ width: 50, height: 50, marginRight: 10 }} />
+            <Image source={{uri:imageURIs[item.image]}} style={{ width: 50, height: 50, marginRight: 10 }} />
             <View>
-              <Text style={{color:"#1e88e5",fontWeight:'bold'}}>{item.text}</Text>
-              <Text style={{color:'#9f9f9f'}}>2024-02-16 05:01:59</Text>
+              <Text style={{color:"#1e88e5",fontWeight:'bold'}}>{item.headline}</Text>
+              <Text style={{color:'#9f9f9f'}}>{item.date_time.split('.')[0]}</Text>
             </View>
           </View>
         ))}
