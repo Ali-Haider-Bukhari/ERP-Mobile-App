@@ -981,7 +981,17 @@ def update_userData():
     address = request.json.get('address')
     semester = request.json.get('semester')
     date_of_birth = request.json.get('date_of_birth')
-     
+    role = request.json.get('role')
+    password = request.json.get('password')
+       # If _id is not provided, create a new document
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')   
+    if not user_id:
+        new_user = User(email=email, username=username, roll_number=roll_number,
+                        contact=contact, program=program, gender=gender,
+                        cnic=cnic, blood_group=blood_group, address=address,
+                        semester=semester, date_of_birth=date_of_birth , role=role , password=hashed_password)
+        new_user.save()
+        return jsonify({'message': 'New user created successfully'}) 
     # Retrieve the user object
     user = User.objects(id=user_id).first()
     if not user:
