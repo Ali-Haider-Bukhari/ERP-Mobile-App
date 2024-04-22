@@ -86,6 +86,12 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     marginTop: 20,
   },
+    // Other styles...
+    plusButton: {
+      position: 'absolute',
+      bottom: 100,
+      right: 20,
+    },
 });
 
 export default styles;

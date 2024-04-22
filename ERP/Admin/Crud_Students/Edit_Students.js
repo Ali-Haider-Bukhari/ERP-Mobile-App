@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 
-const EditUserForm = ({ user, onSave, onCancel }) => {
+const EditUserForm = ({ user, onSave, onCancel, role , isCreate }) => {
   const [formData, setFormData] = useState({
-    _id: user._id || '',
-    email: user.email || '',
-    password: user.password || '',
-    username: user.username || '',
-    roll_number: user.roll_number || '',
-    contact: user.contact || '',
-    program: user.program || '',
-    gender: user.gender.split("UserGender.")[1] || '',
-    cnic: user.cnic || '',
-    blood_group: user.blood_group || '',
-    address: user.address || '',
-    semester: user.semester || '',
-    date_of_birth: user.date_of_birth || '',
+    _id: user?._id || '',
+    email: user?.email || '',
+    password: user?.password || '',
+    username: user?.username || '',
+    roll_number: user?.roll_number || '',
+    contact: user?.contact || '',
+    program: user?.program || '',
+    gender: user?.gender.split("UserGender.")[1] || '',
+    cnic: user?.cnic || '',
+    blood_group: user?.blood_group || '',
+    address: user?.address || '',
+    semester: user?.semester || '',
+    date_of_birth: user?.date_of_birth || '',
+    role: role ,
+    password: ''
   });
 
   const handleChange = (field, value) => {
@@ -29,9 +31,18 @@ const EditUserForm = ({ user, onSave, onCancel }) => {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.title} >
-            Edit User
-        </Text>
+       
+        {isCreate ? (
+ <Text style={styles.title} >
+ Create New User
+</Text>
+
+        ):(
+          <Text style={styles.title} >
+          Edit User
+      </Text>
+
+        )}
       <ScrollView>
         <TextInput
           style={styles.input}
@@ -45,6 +56,12 @@ const EditUserForm = ({ user, onSave, onCancel }) => {
           value={formData.username}
           onChangeText={(value) => handleChange('username', value)}
           placeholder="Username"
+        />
+            <TextInput
+          style={styles.input}
+          value={formData.password}
+          onChangeText={(value) => handleChange('password', value)}
+          placeholder="set Password"
         />
         <TextInput
           style={styles.input}

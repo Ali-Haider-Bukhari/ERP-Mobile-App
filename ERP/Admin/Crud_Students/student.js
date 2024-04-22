@@ -36,6 +36,7 @@ const Crud_Students = () => {
     const [editMode, setEditMode] = useState(false);
     const [editUser, setEditUser] = useState(null);
     const [selectedTab, setSelectedTab] = useState('STUDENT'); // Default selected tab
+    const [pressAdd, setPressAdd] = useState(false); // Default selected tab
 
     const navigation = useNavigation();
     const filteredUsers = users.filter((chat) => {
@@ -43,7 +44,7 @@ const Crud_Students = () => {
     });
     const students = filteredUsers.filter(user => user.role === 'STUDENT');
     const teachers = filteredUsers.filter(user => user.role === 'TEACHER');
-console.log(students , teachers , "2 Lists")
+// console.log(students , teachers , "2 Lists")
 
 
   
@@ -159,6 +160,10 @@ try{
     const data = response.json();
         // Check if the request was successful
         if (response.ok) {
+          getToken().then((token) => {
+            fetchUsers(token);
+           
+          });
               // Handle successful response
       console.log('User updated successfully');
 
@@ -208,7 +213,7 @@ try{
       return (
         <View style={styles.container}>
                 {editMode ? (
-        <EditUserForm user={editUser} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+        <EditUserForm user={editUser} onSave={handleSaveEdit} onCancel={handleCancelEdit} role={selectedTab} isCreate={pressAdd} />
       ) : ( <>
       
   
@@ -341,6 +346,10 @@ try{
             </>
         
           )}
+                  {/* Plus icon button */}
+                  <TouchableOpacity style={styles.plusButton} onPress={() => { setEditMode(true); setPressAdd(true) }}>
+            <Ionicons name="add-circle" size={52} color="green" />
+          </TouchableOpacity>
               </>)}
         </View>
       );
