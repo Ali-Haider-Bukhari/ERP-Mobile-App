@@ -24,6 +24,7 @@ import ChatScreen from "./ChatSection"; // Import the ChatScreen component
 import { AlertComponent } from "../../components/Alert";
 import ChatBot from "./Chat_Bot";
 import { useRoute } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 const ChatsImage = require("../../assets/chat.jpg");
 
 const ConversationsScreen = () => {
@@ -35,7 +36,7 @@ const ConversationsScreen = () => {
   const [messages, setMessages] = useState([]);
   const [botmessages, seBottMessages] = useState([]);
   const [inputText, setInputText] = useState("");
-
+ 
   // chat bot
 
   const [selectedChatBot, setSelectedChatBot] = useState(null);
@@ -60,6 +61,15 @@ const ConversationsScreen = () => {
     socket.on('message', (message) => {
       // console.log(message,"check")
       setMessages([...messages, message]);
+      if(message.hatespeech == true){
+        Toast.show({
+          type: 'error',
+          text1: 'Alert',
+          text2: 'Hate Speach Detected in message!',
+          visibilityTime: 5000,
+          autoHide: true,
+        });
+      }
    
     });
 
@@ -402,11 +412,12 @@ const fetchBot = async (token) => {
     
 
   return (
+    <>
     <View style={styles.container}>
    
      
 
-      {/* Search Bar */}
+      {/* Search Bar */} 
       <View style={styles.searchBarContainer}>
         <Ionicons
           name="search"
@@ -494,6 +505,7 @@ const fetchBot = async (token) => {
       
       )}
     </View>
+    <Toast ref={(ref) => Toast.setRef(ref)} /></>
   );
 };
 

@@ -74,7 +74,7 @@ class User(Document):
             token = jwt.encode(payload, User.JWT_SECRET, algorithm='HS256')
             return token
              # return token.decode('utf-8')
-
+ 
     @staticmethod
     def login_user(email, password):
         user = User.objects(email=email).first()

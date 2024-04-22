@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -6,6 +6,7 @@ import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { Python_Url, getToken } from '../utils/constants';
 import { AlertComponent } from './Alert';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function BottomSheetModalComponent({ onClose }) {
   const bottomSheetModalRef = useRef(null);
@@ -13,6 +14,8 @@ export default function BottomSheetModalComponent({ onClose }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [notifications,setNotifications] = useState([])
   const [imageURIs,setimageURIs] = useState({}) 
+  const {logout} = useContext(AuthContext)
+
   useEffect(() => {
     console.log(notifications,"CHECK")
     const fetchImagePromises = notifications.map(notification =>

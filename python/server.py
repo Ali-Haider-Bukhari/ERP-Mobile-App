@@ -14,6 +14,7 @@ from models.Attandance import Attendance
 from models.Message import Message
 from models.Result import ObjectofAssessment, Result
 from models.Notification import Notification
+from models.Location import Location
 import os
 import smtplib
 import ssl
@@ -26,8 +27,183 @@ from reportlab.pdfgen import canvas
 import io
 import openpyxl
 
+# import tensorflow as tf
+# import numpy as np
+# import random
+# from tensorflow.keras.preprocessing.text import Tokenizer
+# from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-app = Flask(__name__)
+# from dataSet import texts
+# from dataSet import labelsofTexts
+
+
+app = Flask(__name__) 
+
+# BELLOW MODEL CODE
+# Convert labels to NumPy array
+
+# labels = np.array(labelsofTexts)
+
+# # Tokenize the text data
+# max_words = 1000  # Maximum number of words to tokenize
+# tokenizer = Tokenizer(num_words=max_words)
+
+# tokenizer.fit_on_texts(texts)
+# sequences = tokenizer.texts_to_sequences(texts)
+
+# # Pad sequences to ensure uniform length
+# maxlen = 20  # Maximum sequence length
+# padded_sequences = pad_sequences(sequences, maxlen=maxlen)
+
+# # Define the model architecture
+# model = tf.keras.Sequential([
+#     tf.keras.layers.Embedding(max_words, 16, input_length=maxlen),
+#     tf.keras.layers.GlobalAveragePooling1D(),
+#     tf.keras.layers.Dense(16, activation='relu'),
+#     tf.keras.layers.Dense(1, activation='sigmoid')
+# ])
+
+# # Compile the model
+# model.compile(optimizer='adam',
+#                 loss='binary_crossentropy',
+#                 metrics=['accuracy'])
+
+# # Split the data into training and validation sets
+# from sklearn.model_selection import train_test_split
+# X_train, X_val, y_train, y_val = train_test_split(padded_sequences, labels, test_size=0.2, random_state=42)
+
+# # Train the model with validation data
+# model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
+
+import pandas as panda
+# from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import *
+import string
+import nltk
+# from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import confusion_matrix
+# import seaborn
+from textstat.textstat import *
+# from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
+from sklearn.feature_selection import SelectFromModel
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
+# from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+# from sklearn.naive_bayes import GaussianNB
+import numpy as np
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as VS
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+dataset = panda.read_csv("./Dataset/HateSpeech_Dataset/HateSpeechData.csv")
+dataset
+
+# Adding text-length as a field in the dataset
+dataset['text length'] = dataset['tweet'].apply(len)
+print(dataset.head())
+
+# collecting only the tweets from the csv file into a variable name tweet
+tweet=dataset.tweet
+
+## 1. Removal of punctuation and capitlization
+## 2. Tokenizing
+## 3. Removal of stopwords
+## 4. Stemming
+nltk.download('stopwords')
+stopwords = nltk.corpus.stopwords.words("english")
+
+#extending the stopwords to include other words used in twitter such as retweet(rt) etc.
+other_exclusions = ["#ff", "ff", "rt"]
+stopwords.extend(other_exclusions)
+stemmer = PorterStemmer()
+
+def preprocess(tweet):  
+    
+    # removal of extra spaces
+    tweet_space = tweet.str.replace(r'\s+', ' ')
+
+    # removal of @name[mention]
+    tweet_name = tweet_space.str.replace(r'@[\w\-]+', '')
+
+    # removal of links[https://abc.com]
+    # giant_url_regex =  re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    tweets = tweet_name.str.replace(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '')
+    
+    # removal of punctuations and numbers
+    punc_remove = tweets.str.replace("[^a-zA-Z]", " ")
+    # remove whitespace with a single space
+    newtweet = punc_remove.str.replace(r'\s+', ' ')
+    # remove leading and trailing whitespace
+    newtweet = newtweet.str.replace(r'^\s+|\s+?$', '')
+    # replace normal numbers with numbr
+    newtweet = newtweet.str.replace(r'\d+(\.\d+)?', 'numbr')
+    # removal of capitalization
+    tweet_lower = newtweet.str.lower()
+    
+    # tokenizing
+    tokenized_tweet = tweet_lower.apply(lambda x: x.split())
+    
+    # removal of stopwords
+    tokenized_tweet = tokenized_tweet.apply(lambda x: [item for item in x if item not in stopwords])
+    
+    # stemming of the tweets
+    tokenized_tweet = tokenized_tweet.apply(lambda x: [stemmer.stem(i) for i in x]) 
+    
+    for i in range(len(tokenized_tweet)):
+        tokenized_tweet[i] = ' '.join(tokenized_tweet[i])
+    
+    return tokenized_tweet
+
+processed_tweets = preprocess(tweet)   
+
+dataset['processed_tweets'] = processed_tweets
+print(dataset[["tweet","processed_tweets"]].head(10),"preprocessed")
+
+#TF-IDF Features-F1
+# https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
+tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2),max_df=0.75, min_df=5, max_features=10000)
+
+# TF-IDF feature matrix
+tfidf = tfidf_vectorizer.fit_transform(dataset['processed_tweets'] )
+tfidf
+
+X = tfidf
+y = dataset['class'].astype(int)
+X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
+rf=RandomForestClassifier()
+rf.fit(X_train_tfidf,y_train)
+y_preds = rf.predict(X_test_tfidf)
+acc1=accuracy_score(y_test,y_preds)
+report = classification_report( y_test, y_preds )
+print(report)
+print("Random Forest, Accuracy Score:",acc1)
+# ABOVE MODEL CODE
+
+def hateSpeechDetector(message):
+
+    processed_input = preprocess(panda.Series([message]))
+
+    # Transform input text into TF-IDF features
+    input_tfidf = tfidf_vectorizer.transform(processed_input)
+
+    # Make prediction
+    prediction = rf.predict(input_tfidf)
+
+    if prediction[0] == 0:
+        print("Prediction for the input text is hate", prediction)
+        return True
+    elif prediction[0] == 1:
+        print("Prediction for the input text is offensive", prediction)
+        return True
+    else:
+        print("Prediction for the input text is neither", prediction)
+        return False
 
 socketio = SocketIO(app)
 CORS(app)  # Enable CORS for all routes
@@ -54,7 +230,7 @@ connect(host= DB_URL)
 
 @app.before_request
 def keep_authenticated():
-    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password','create_notification' , 'delete_user']
+    allowed_endpoints = ['serve_image','login' ,'forget_verify' ,'set_password' , 'delete_user','create_location']
     token = request.headers.get('Authorization')
     if request.endpoint not in allowed_endpoints:
         if token is not None:
@@ -99,13 +275,12 @@ def handle_message(data):
               "_id" : str(receiver_id),
             } ,
         'message_content' : data['message_content'],
-
+        'hatespeech':hateSpeechDetector(data['message_content'])
     }
     # print(newobj)
     # /Emit the message to all connected clients
    
     socketio.emit('message',newobj )
-
 
 
 @socketio.on('fetch_messages')
@@ -134,12 +309,13 @@ def fetch_messages(data):
                          },
             'message_content': message.message_content,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'is_bot_message': message.is_bot_message
+            'is_bot_message': message.is_bot_message,
+            # 'hatespeech':hateSpeechDetector(message.message_content)
         }
         for message in Data_Messages
     ]
-    for message in Data_Messages:
-       print(message.message_content , "fetch Messages")
+    # for message in Data_Messages:
+    #    print(message.message_content , "fetch Messages")
     sorted_messages = sorted(serialized_messages, key=lambda x: x['timestamp'])
   
     socketio.emit('fetched_messages', sorted_messages )    
@@ -1250,12 +1426,61 @@ def delete_notification(notification_id):
     else:
         return jsonify({'error': 'Notification not found'}), 404
 
+#############################################################################
+@app.route('/locations', methods=['POST'])
+def create_location():
+        data = request.json
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        title = data.get('title')
+        description = data.get('description')
 
+        if latitude is None or longitude is None or title is None or description is None:
+            return jsonify({'error': 'Missing fields'}), 400
+
+        location = Location.create_location(latitude, longitude, title, description)
+        return jsonify({'id': str(location.id)}), 201
+
+@app.route('/getLocations', methods=['GET'])
+def fetch_all_locations():
+    locations = Location.fetch_all_locations()
+    print(locations,"LIST")
+    location_list = []
+    for location in locations:
+        location_dict = {
+            'id': str(location.id),
+            'latitude': location.coordinate.latitude,
+            'longitude': location.coordinate.longitude,
+            'title': location.title,
+            'description': location.description
+        }
+        location_list.append(location_dict)
+    return jsonify(location_list)
+
+@app.route('/locations/<location_id>', methods=['PUT'])
+def update_location(location_id):
+        data = request.json
+        location = Location.get_location()
+        if location:
+            location.update_location(
+                latitude=data.get('latitude'),
+                longitude=data.get('longitude'),
+                title=data.get('title'),
+                description=data.get('description')
+            )
+            return jsonify({'message': 'Location updated successfully'})
+        else:
+            return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/locations/<location_id>', methods=['DELETE'])
+def delete_location(location_id):
+        if Location.delete_location(location_id):
+            return jsonify({'message': 'Location deleted successfully'})
+        else:
+            return jsonify({'error': 'Location not found'}), 404
 
 
 
 
 if __name__ == '__main__':
-    
-   
     socketio.run(app, debug=True, host=config_data['host'], port=5000)

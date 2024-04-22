@@ -6,6 +6,7 @@ const ChatsImage = require("../../assets/chat.jpg");
 import { AlertComponent } from '../../components/Alert';
 import { Python_Url } from '../../utils/constants';
 import { AuthContext} from '../../contexts/AuthContext';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -22,7 +23,24 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     socket.emit('fetch_messages', { chatId });
 
     socket.on('fetched_messages', (fetchedMessages) => {
+      console.log(fetchedMessages,"FETCHED MSGS")
       setMessages(fetchedMessages);
+
+     
+      // if(fetchedMessages[fetchedMessages.length-1].sender._id == user._id.$oid){
+      //   if(fetchedMessages[fetchedMessages.length-1].hatespeech == true){
+      //     console.log("HATE SPEECH WORKED",
+      //     fetchedMessages[fetchedMessages.length-1].hatespeech,
+      //     fetchedMessages[fetchedMessages.length-1].message_content)
+      //     Toast.show({
+      //       type: 'error',
+      //       text1: 'Alert',
+      //       text2: 'Hate Speach Detected!',
+      //       visibilityTime: 5000,
+      //       autoHide: true,
+      //     });
+      //   }
+      // }
     
       setIsLoading(false);
     });
@@ -71,6 +89,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
   
 
   return (
+    <>
     <View style={styles.container}>
 
 {/* chat header */}
@@ -194,7 +213,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
         )}
       </ScrollView> */}
 {/* send message section */}
-      <View style={styles.inputContainer}>
+  <View style={styles.inputContainer}>
   <View style={styles.inputWrapper}>
     <TextInput
       style={styles.input}
@@ -207,15 +226,14 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
             <Ionicons name="send" size={24} color="#007AFF" style={styles.sendIcon} />
           </TouchableOpacity>
         ) : (
-<TouchableOpacity >
+          <TouchableOpacity >
             <Ionicons name="send" size={24} color="#ccc" style={styles.sendIcon} />
           </TouchableOpacity>
-
-
         ) }
   </View>
 </View>
     </View>
+   <Toast ref={(ref) => Toast.setRef(ref)} /></>
   );
 };
 

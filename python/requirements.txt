@@ -9,3 +9,8 @@ flask_socketio
 openai
 reportlab
 openpyxl
+tensorflow
+scikit-learn
+textstat
+pandas
+nltk

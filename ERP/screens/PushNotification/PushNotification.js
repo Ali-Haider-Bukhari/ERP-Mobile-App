@@ -11,6 +11,7 @@ export default function PushNotification() {
   const {logout} = useContext(AuthContext)
   const [selectedMimeType,setSelectedMimeType] = useState(null)
   const [imageURIs,setimageURIs] = useState({}) 
+  
   useEffect(() => {
     const fetchImagePromises = notifications.map(notification =>
       fetch(`${Python_Url}/fetch_image/${notification.image}`)
@@ -37,14 +38,6 @@ export default function PushNotification() {
       })
       .catch(error => console.error('Error fetching images:', error));
   }, [notifications])
-
-  // useEffect(() => {
-  //   console.log(imageURIs,"URIs")
-  // }, [imageURIs])
-  
-
-
-  
 
   useEffect(() => {
     
