@@ -336,6 +336,7 @@ def get_users():
     user_list = [
         {   
             '_id': str(user.id),
+            'image':user.image,
             'username': user.username,
             'email': user.email,
             'roll_number': user.roll_number,

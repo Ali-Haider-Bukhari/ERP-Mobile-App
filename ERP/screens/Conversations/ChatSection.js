@@ -66,7 +66,7 @@ const ChatScreen = ({ teacher, goback, user, handleSendMessage, inputText, setIn
     // Define the URL of your Flask API
     if(user!=null){
 
-      fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
+      fetch(`${Python_Url}/fetch_image/${teacher.image}`,{method: 'GET'})
       .then(response => { 
         // Check if the response was successful
         if (!response.ok) {

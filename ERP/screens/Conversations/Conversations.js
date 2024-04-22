@@ -383,32 +383,35 @@ const fetchBot = async (token) => {
     return chat.username.toLowerCase().includes(searchQuery.toLowerCase());
   });
   
-  const [imageUri,setImageUri] = useState("")
+  const [imageURIs,setimageURIs] = useState({}) 
 
-    useEffect(() => {
-      // Define the URL of your Flask API
-      if(user!=null){
-  
-        fetch(`${Python_Url}/fetch_image/${user.image}`,{method: 'GET'})
-        .then(response => { 
-          // Check if the response was successful
+  useEffect(() => {
+    console.log(users,"CHECK")
+    const fetchImagePromises = users.map(data =>
+      fetch(`${Python_Url}/fetch_image/${data.image}`)
+        .then(response => {
           if (!response.ok) {
             throw new Error('Failed to fetch image');
           }
           return response;
         })
-        .then(response => {
-          // Set the image URI from the response
-          // console.log(response)
-          setImageUri(response.url);
-        }) 
+        .then(response => response.url)
         .catch(error => {
           console.error(error);
+          ToastAndroid.show("Internet Issue Detected, Try Again", ToastAndroid.SHORT);
+        })
+    );
+  
+    Promise.all(fetchImagePromises)
+      .then(imageUrls => {
+        const updatedImageURIs = {};
+        users.forEach((data, index) => {
+          updatedImageURIs[data.image] = imageUrls[index];
         });
-    
-      
-      }
-    }, [user]);
+        setimageURIs(updatedImageURIs);
+      })
+      .catch(error => console.error('Error fetching images:', error));
+  }, [users])
     
 
   return (
@@ -491,7 +494,7 @@ const fetchBot = async (token) => {
             user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
-                  <Image source={imageUri!=""?{uri:imageUri}:require('../../assets/logo.png')} style={styles.teacherImage} />
+                  <Image source={chat.image!=''?{uri:imageURIs[chat.image]}:require('../../assets/logo.png')} style={styles.teacherImage} />
                   <View style={styles.chatDetails}>
                     <Text style={styles.chatName}>{chat.username}</Text>
            
