@@ -6,16 +6,15 @@ import { useGlobalContext } from '../../contexts/GlobalContext';
 import { Python_Url, getToken, removeToken } from '../../utils/constants';
 import { courseStyles } from './Styles'; // Import styles
 import { AlertComponent } from '../../components/Alert';
+import Student_Attandance from "../ViewAttandance/Student_Attandance"
+
 
 export default function AttandanceScreen() {
 const navigation = useNavigation();
 const {user,logout} = useContext(AuthContext)
 const {courses,setCourses} = useGlobalContext()
-
+const [selectedCourse,setSelectedCourse] = useState("")
 const [loading, setLoading] = useState(true)
-
-
-
 
 // for students
 
@@ -123,16 +122,19 @@ useEffect(() => {
 }, [user])
 
 const handleCourseClick = (id) => {
-  console.log(id , "id click")
-  // Navigate to next screen, passing the id
+  console.log(id , "id click",id)
+  if(user.role == "STUDENT")
+  setSelectedCourse(id)
+  else
   navigation.navigate('ViewAttendanceScreen', { courseId: id });
-};
+  // Navigate to next screen, passing the id
+}; 
 
 
   return (
     <>
      
-     <View 
+     {selectedCourse==""?<View 
      style={{
                   shadowColor: "#000",
                   shadowOffset: {
@@ -186,6 +188,9 @@ const handleCourseClick = (id) => {
 
       </>)}
     </View>
+    :
+    <><Student_Attandance /></>
+    }
 
     
   

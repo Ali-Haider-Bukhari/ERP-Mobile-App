@@ -491,7 +491,7 @@ const fetchBot = async (token) => {
           </View>
         ) : (
           filteredUsers.map((chat, index) => (
-            user?.role !== chat?.role?.split("UserRoleEnum.")[1] && chat._id !== Chat_Bot_ID  ? (
+            user?.role !== chat?.role && chat._id !== Chat_Bot_ID  ? (
               <TouchableOpacity key={index} onPress={() => handleChatPress(chat)}>
                 <View style={styles.chatCard}>
                   <Image source={chat.image!=''?{uri:imageURIs[chat.image]}:require('../../assets/logo.png')} style={styles.teacherImage} />
