@@ -863,6 +863,69 @@ def submit_attendance():
         return jsonify({'error': str(e)}), 500
 
 
+# add new course 
+
+@app.route('/add_courses', methods=['POST'])
+def add_course():
+    try:
+        # Parse request data
+        data = request.json
+
+        print("Received data:", data)  # Debug statement
+        
+        # Create new course object
+        course = Course(
+            course_name=data['course_name'],
+            credit_hour=2.0  # Convert credit_hour to float
+        )
+
+        # Save the course to the database
+        course.save()
+
+        return jsonify({'message': 'Course created successfully'}), 200
+
+    except Exception as e:
+        print("Error:", e)  # Debug statement
+        return jsonify({'error': str(e)}), 500
+
+
+
+# delete course
+
+
+@app.route('/delete_course/<course_id>', methods=['DELETE'])
+def delete_course(course_id):
+    try:
+        # Find the course by its ID
+        course = Course.objects.get(id=course_id)
+        # Delete the course
+        course.delete()
+        return jsonify({'message': 'Course deleted successfully'}), 200
+    except Course.DoesNotExist:
+        return jsonify({'error': 'Course not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+#  fetch Courses
+
+@app.route('/fetch_courses', methods=['GET'])
+def get_courses():
+    try:
+        # Fetch all courses from the database
+        courses = Course.objects().all()
+        # Serialize the courses data
+        serialized_courses = [{
+            'id': str(course.id),
+            'course_name': course.course_name,
+            'credit_hour': float(course.credit_hour)  # Convert DecimalField to float
+            # Add more fields if needed
+        } for course in courses]
+        return jsonify(serialized_courses), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 # Forget Password
 @app.route('/forgetverify', methods=['POST'])
 def forget_verify():
