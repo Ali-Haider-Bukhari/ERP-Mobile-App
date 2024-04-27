@@ -739,7 +739,7 @@ def fetch_attendancebyid():
     
     try:
         attendance =  Attendance.objects(id=_id).first()
-        print(attendance)
+        print(attendance,"checkkk")
         if not attendance:
             return jsonify({'error': 'Attendance record not found'}), 404
 
@@ -749,17 +749,8 @@ def fetch_attendancebyid():
             attendance_status = student_info.attendance_status
 
             serialized_students.append({
-                '_id': str(student_id.id) ,
-                'name': student_id.username,
-                'email': student_id.email,
-                'address': student_id.address,
-                'blood_group': student_id.blood_group,
-                'date_of_birth': student_id.date_of_birth,
-                'gender': student_id.gender,
-                'image': student_id.image,
-                'program': student_id.program,
-                'contact': student_id.contact,
-                'attendance_status': attendance_status
+                'student_id': str(student_id.id) ,
+                'attandance_status': attendance_status,
             })
 
         serialized_obj = {
