@@ -79,114 +79,114 @@ app = Flask(__name__)
 # # Train the model with validation data
 # model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
 ##################################################################################################################
-import pandas as panda
-# from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem.porter import *
-import string
-import nltk
-# from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import confusion_matrix
-# import seaborn
-from textstat.textstat import *
-# from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score
-from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score
-# from sklearn.svm import LinearSVC
-from sklearn.ensemble import RandomForestClassifier
-# from sklearn.naive_bayes import GaussianNB
-import numpy as np
-from nltk.sentiment.vader import SentimentIntensityAnalyzer as VS
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+# import pandas as panda
+# # from nltk.tokenize import word_tokenize
+# from nltk.corpus import stopwords
+# from nltk.stem.porter import *
+# import string
+# import nltk
+# # from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.metrics import confusion_matrix
+# # import seaborn
+# from textstat.textstat import *
+# # from sklearn.linear_model import LogisticRegression
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import f1_score
+# from sklearn.feature_selection import SelectFromModel
+# from sklearn.metrics import classification_report
+# from sklearn.metrics import accuracy_score
+# # from sklearn.svm import LinearSVC
+# from sklearn.ensemble import RandomForestClassifier
+# # from sklearn.naive_bayes import GaussianNB
+# import numpy as np
+# from nltk.sentiment.vader import SentimentIntensityAnalyzer as VS
+# import warnings
+# warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-dataset = panda.read_csv("./Dataset/HateSpeech_Dataset/HateSpeechData.csv")
-# dataset
+# dataset = panda.read_csv("./Dataset/HateSpeech_Dataset/HateSpeechData.csv")
+# # dataset
 
-# Adding text-length as a field in the dataset
-dataset['text length'] = dataset['tweet'].apply(len)
-# print(dataset.head())
+# # Adding text-length as a field in the dataset
+# dataset['text length'] = dataset['tweet'].apply(len)
+# # print(dataset.head())
 
-# collecting only the tweets from the csv file into a variable name tweet
-tweet=dataset.tweet
+# # collecting only the tweets from the csv file into a variable name tweet
+# tweet=dataset.tweet
 
-## 1. Removal of punctuation and capitlization
-## 2. Tokenizing
-## 3. Removal of stopwords
-## 4. Stemming
-nltk.download('stopwords')
-stopwords = nltk.corpus.stopwords.words("english")
+# ## 1. Removal of punctuation and capitlization
+# ## 2. Tokenizing
+# ## 3. Removal of stopwords
+# ## 4. Stemming
+# nltk.download('stopwords')
+# stopwords = nltk.corpus.stopwords.words("english")
 
-#extending the stopwords to include other words used in twitter such as retweet(rt) etc.
-other_exclusions = ["#ff", "ff", "rt"]
-stopwords.extend(other_exclusions)
-stemmer = PorterStemmer()
+# #extending the stopwords to include other words used in twitter such as retweet(rt) etc.
+# other_exclusions = ["#ff", "ff", "rt"]
+# stopwords.extend(other_exclusions)
+# stemmer = PorterStemmer()
 
-def preprocess(tweet):  
+# def preprocess(tweet):  
     
-    # removal of extra spaces
-    tweet_space = tweet.str.replace(r'\s+', ' ')
+#     # removal of extra spaces
+#     tweet_space = tweet.str.replace(r'\s+', ' ')
 
-    # removal of @name[mention]
-    tweet_name = tweet_space.str.replace(r'@[\w\-]+', '')
+#     # removal of @name[mention]
+#     tweet_name = tweet_space.str.replace(r'@[\w\-]+', '')
 
-    # removal of links[https://abc.com]
-    # giant_url_regex =  re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-    tweets = tweet_name.str.replace(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '')
+#     # removal of links[https://abc.com]
+#     # giant_url_regex =  re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+#     tweets = tweet_name.str.replace(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '')
     
-    # removal of punctuations and numbers
-    punc_remove = tweets.str.replace("[^a-zA-Z]", " ")
-    # remove whitespace with a single space
-    newtweet = punc_remove.str.replace(r'\s+', ' ')
-    # remove leading and trailing whitespace
-    newtweet = newtweet.str.replace(r'^\s+|\s+?$', '')
-    # replace normal numbers with numbr
-    newtweet = newtweet.str.replace(r'\d+(\.\d+)?', 'numbr')
-    # removal of capitalization
-    tweet_lower = newtweet.str.lower()
+#     # removal of punctuations and numbers
+#     punc_remove = tweets.str.replace("[^a-zA-Z]", " ")
+#     # remove whitespace with a single space
+#     newtweet = punc_remove.str.replace(r'\s+', ' ')
+#     # remove leading and trailing whitespace
+#     newtweet = newtweet.str.replace(r'^\s+|\s+?$', '')
+#     # replace normal numbers with numbr
+#     newtweet = newtweet.str.replace(r'\d+(\.\d+)?', 'numbr')
+#     # removal of capitalization
+#     tweet_lower = newtweet.str.lower()
     
-    # tokenizing
-    tokenized_tweet = tweet_lower.apply(lambda x: x.split())
+#     # tokenizing
+#     tokenized_tweet = tweet_lower.apply(lambda x: x.split())
     
-    # removal of stopwords
-    tokenized_tweet = tokenized_tweet.apply(lambda x: [item for item in x if item not in stopwords])
+#     # removal of stopwords
+#     tokenized_tweet = tokenized_tweet.apply(lambda x: [item for item in x if item not in stopwords])
     
-    # stemming of the tweets
-    tokenized_tweet = tokenized_tweet.apply(lambda x: [stemmer.stem(i) for i in x]) 
+#     # stemming of the tweets
+#     tokenized_tweet = tokenized_tweet.apply(lambda x: [stemmer.stem(i) for i in x]) 
     
-    for i in range(len(tokenized_tweet)):
-        tokenized_tweet[i] = ' '.join(tokenized_tweet[i])
+#     for i in range(len(tokenized_tweet)):
+#         tokenized_tweet[i] = ' '.join(tokenized_tweet[i])
     
-    return tokenized_tweet
+#     return tokenized_tweet
 
-processed_tweets = preprocess(tweet)   
+# processed_tweets = preprocess(tweet)   
 
-dataset['processed_tweets'] = processed_tweets
-# print(dataset[["tweet","processed_tweets"]].head(10),"preprocessed")
+# dataset['processed_tweets'] = processed_tweets
+# # print(dataset[["tweet","processed_tweets"]].head(10),"preprocessed")
 
-#TF-IDF Features-F1
-# https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2),max_df=0.75, min_df=5, max_features=10000)
+# #TF-IDF Features-F1
+# # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
+# tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2),max_df=0.75, min_df=5, max_features=10000)
 
-# TF-IDF feature matrix
-tfidf = tfidf_vectorizer.fit_transform(dataset['processed_tweets'] )
-tfidf
+# # TF-IDF feature matrix
+# tfidf = tfidf_vectorizer.fit_transform(dataset['processed_tweets'] )
+# tfidf
 
-X = tfidf
-y = dataset['class'].astype(int)
-X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
-rf=RandomForestClassifier()
-rf.fit(X_train_tfidf,y_train)
-y_preds = rf.predict(X_test_tfidf)
-acc1=accuracy_score(y_test,y_preds)
-report = classification_report( y_test, y_preds )
-# print(report)
-print("Random Forest, Accuracy Score:",acc1)
+# X = tfidf
+# y = dataset['class'].astype(int)
+# X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
+# rf=RandomForestClassifier()
+# rf.fit(X_train_tfidf,y_train)
+# y_preds = rf.predict(X_test_tfidf)
+# acc1=accuracy_score(y_test,y_preds)
+# report = classification_report( y_test, y_preds )
+# # print(report)
+# print("Random Forest, Accuracy Score:",acc1)
 # ABOVE MODEL CODE
 
 def hateSpeechDetector(message):
@@ -1572,8 +1572,8 @@ def upload_video():
         video_file.save(video_path)
 
     # PERFORM FACE RECOGNITION HERE BELOW
-        create_folder_if_not_exists("./frames")
-        extract_frames(video_path, "./frames")
+        # create_folder_if_not_exists("./frames")
+        # extract_frames(video_path, "./frames")
         match = perform_face_recognition_on_frames("./frames")
         print(match)
 
@@ -1694,6 +1694,34 @@ def insert_attendance(course_id, date, student_attendance):
     except Exception as e:
         print(f"Error inserting attendance record: {e}")
         return False
+    
+@app.route('/add_student_to_latest_unconfirmed_attendance', methods=['POST'])
+def add_student_to_latest_unconfirmed_attendance():
+    data = request.json
 
+    # Extract data from the request
+    course_id = data.get('course_id')
+    student_id = data.get('student_id')
+    attendance_status = data.get('attendance_status')
+
+    # Check if all required data is provided
+    if not course_id or not student_id or not attendance_status:
+        return jsonify({'error': 'Missing required data'}), 400
+
+    # Check if the student is already in the attendance list
+    latest_attendance = Attendance.objects(course_id=course_id, confirm_status=False).order_by('-date').first()
+    if latest_attendance:
+        for student_info in latest_attendance.students:
+            if student_info.student_id == student_id:
+                return jsonify({'error': 'Student is already in the attendance list'}), 400
+
+    # Call the method to append the student to the latest unconfirmed attendance
+    updated_attendance = Attendance.append_student_to_latest_unconfirmed_attendance(course_id, student_id, "PENDING")
+
+    if updated_attendance:
+        return jsonify(updated_attendance), 200
+    else:
+        return jsonify({'error': 'No unconfirmed attendance found for the given course ID'}), 404
+    
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=config_data['host'], port=5000)

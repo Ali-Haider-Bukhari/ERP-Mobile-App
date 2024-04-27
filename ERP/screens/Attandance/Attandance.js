@@ -189,7 +189,7 @@ const handleCourseClick = (id) => {
       </>)}
     </View>
     :
-    <><Student_Attandance /></>
+    <><Student_Attandance courseId={selectedCourse}/></>
     }
 
     

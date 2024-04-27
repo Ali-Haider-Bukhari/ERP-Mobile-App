@@ -7,7 +7,7 @@ import {StyleSheet} from 'react-native';
 import AnimatedLoader from 'react-native-animated-loader';
 import { AuthContext } from '../../contexts/AuthContext';
 
-const StudentAttendance = () => {
+const StudentAttendance = ({courseId}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
   const [ loading,setLoading] = useState(false)
@@ -40,36 +40,37 @@ const StudentAttendance = () => {
     }
   };
 
-  const addAttendance = () => {
-    const data = {
-      course_id: '609f83d09f883126485e0c15',
-      date: '2024-04-27 09:00:00',
-      student_attendance: [
-        {
-          student_id: '609f83d09f883126485e0c16',
-          attendance_status: 'PRESENT'
-        },
-        {
-          student_id: '609f83d09f883126485e0c17',
-          attendance_status: 'ABSENT'
+  const addAttendance = async () => {
+    try {
+        // Make a POST request to the Flask API
+        const response = await fetch(Python_Url+'/add_student_to_latest_unconfirmed_attendance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            course_id: courseId,
+            student_id: user._id.$oid,
+            attendance_status: "PENDING",
+          }),
+        });
+  
+        // Check if the request was successful
+        if (response.ok) {
+          const responseData = await response.json();
+          // Do something with the response data
+          console.log(responseData);
+          Alert.alert('Success', 'Student added successfully');
+        } else {
+          // Handle errors
+          const errorData = await response.json();
+          console.error(errorData);
+          Alert.alert('Error', errorData.error || 'An error occurred');
         }
-      ]
-    };
-
-    fetch(`${Python_Url}/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-      setResponse(data);
-    })
-    .catch(error => {
-      console.error('Error adding attendance:', error);
-    });
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', 'An error occurred while adding the student');
+      }
   };
 
   const sendVideoToBackend = async (videoUri,token) => {
