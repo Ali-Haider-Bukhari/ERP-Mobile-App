@@ -28,6 +28,7 @@ import ChatButton from './ChatButton';
 import CampusMap from '../screens/CampusMap/CampusMap';
 import Crud_Students from '../Admin/Crud_Students/student';
 import PushNotification from '../screens/PushNotification/PushNotification';
+import AddCourseForm from '../Admin/Crud_Courses/add_course';
 
 const CustomSidebarMenu = (props) => {
 
@@ -267,7 +268,7 @@ export default function DrawerScreen() {
         <Drawer.Screen 
       name="Courses" 
       listeners={()=>{setHeaderTitle("Courses")}}
-      component={Courses_Students}
+      component={AddCourseForm}
       options={{
         drawerIcon: ({ focused, color, size }) => (
           <MaterialIcon name={'admin-panel-settings'} size={size} color={color} />
