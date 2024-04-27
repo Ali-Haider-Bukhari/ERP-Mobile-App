@@ -7,6 +7,7 @@ import DrawerScreen from "../components/Drawer";
 import ViewAttendanceScreen from '../screens/ViewAttandance/ViewAttandance';
 import Crud_Students from '../Admin/Crud_Students/student';
 import AddCourseForm from '../Admin/Crud_Courses/add_course';
+import StudentAttendanceStatus from '../screens/ViewAttandance/Student_Attandance_Status';
 
 
 
@@ -38,7 +39,7 @@ export default function Navigation(){
           <Stack.Screen name="ViewAttendanceScreen" component={ViewAttendanceScreen} options={{ headerShown: true}} />
           <Stack.Screen name="Crud_Students" component={Crud_Students} options={{ headerShown: true}} />
           <Stack.Screen name="AddCourseForm" component={AddCourseForm} options={{ headerShown: true}} />
-        
+          <Stack.Screen name="Student_Attandance_Status" component={StudentAttendanceStatus} options={{ headerShown: false}} />
         
           </Stack.Navigator> 
                

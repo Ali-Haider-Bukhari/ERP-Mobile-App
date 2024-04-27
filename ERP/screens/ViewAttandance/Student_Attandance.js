@@ -2,12 +2,14 @@ import React, { useState, useRef,useEffect, useContext } from 'react';
 import { View, Text, Button, FlatList } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Python_Url, getToken } from '../../utils/constants';
+import { useNavigation } from '@react-navigation/native';
 
 const StudentAttendance = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
   const [ loading,setLoading] = useState(false)
   const {user} = useContext(AuthContext)
+  const navigation = useNavigation();
   
   const cameraRef = useRef(null);
   let longPressTimer;
@@ -63,6 +65,9 @@ const StudentAttendance = () => {
         if(data.person!=null && typeof(data.person) == "string"){
           if(data.person.includes(user.roll_number)){
             console.log(user.roll_number)
+            navigation.navigate('Student_Attandance_Status', { text: "Successfully Marked" });
+          }else{
+            navigation.navigate('Student_Attandance_Status', { text: "Failed to Recognise" });
           }
       }
     }
