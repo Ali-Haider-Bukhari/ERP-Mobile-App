@@ -1,11 +1,12 @@
 import React, { useState, useRef,useEffect, useContext } from 'react';
-import { View, Text, Button, FlatList } from 'react-native';
+import { View, Text, Button, FlatList,Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Python_Url, getToken } from '../../utils/constants';
 import { useNavigation } from '@react-navigation/native';
 import {StyleSheet} from 'react-native';
 import AnimatedLoader from 'react-native-animated-loader';
 import { AuthContext } from '../../contexts/AuthContext';
+import { AlertComponent } from "../../components/Alert";
 
 const StudentAttendance = ({courseId}) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -40,13 +41,14 @@ const StudentAttendance = ({courseId}) => {
     }
   };
 
-  const addAttendance = async () => {
+  const addAttendance = async (token) => {
     try {
         // Make a POST request to the Flask API
         const response = await fetch(Python_Url+'/add_student_to_latest_unconfirmed_attendance', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'authorization':token
           },
           body: JSON.stringify({
             course_id: courseId,
@@ -60,7 +62,7 @@ const StudentAttendance = ({courseId}) => {
           const responseData = await response.json();
           // Do something with the response data
           console.log(responseData);
-          Alert.alert('Success', 'Student added successfully');
+          // Alert.alert('Success', 'Marked successfully');
         } else {
           // Handle errors
           const errorData = await response.json();
@@ -101,8 +103,11 @@ const StudentAttendance = ({courseId}) => {
         if(data.person!=null && typeof(data.person) == "string"){
           if(data.person.includes(user.roll_number)){
             console.log(user.roll_number)
-            addAttendance();
-            navigation.navigate('Student_Attandance_Status', { text: "Successfully Marked" });
+            getToken().then((token)=>{
+              addAttendance(token).then(()=>{
+                navigation.navigate('Student_Attandance_Status', { text: "Successfully Marked" });
+              })
+            })
           }else{
             navigation.navigate('Student_Attandance_Status', { text: "Failed to Recognise" });
           }

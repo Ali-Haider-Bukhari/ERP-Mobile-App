@@ -77,43 +77,15 @@ class Attendance(Document):
         latest_attendance = cls.objects(course_id=course_id, confirm_status=False).order_by('-date').first()
 
         if latest_attendance:
+            # Check if the student is already in the attendance list
+            for student_info in latest_attendance.students:
+                if student_info.student_id == student_id:
+                    return False  # Student already exists in the attendance list
+
             # Append the new student to the latest attendance record
             new_student = STUDENT(student_id=student_id, attendance_status=attendance_status)
             latest_attendance.students.append(new_student)
             latest_attendance.save()
-
-            # Serialize the updated attendance object
-            serialized_students = []
-            for student_info in latest_attendance.students:
-                student_id = student_info.student_id
-                attendance_status = student_info.attendance_status
-
-                serialized_students.append({
-                    'name': student_id.username,
-                    'email': student_id.email,
-                    'address': student_id.address,
-                    'blood_group': student_id.blood_group,
-                    'date_of_birth': student_id.date_of_birth,
-                    'gender': student_id.gender,
-                    'image': student_id.image,
-                    'program': student_id.program,
-                    'contact': student_id.contact,
-                    'attendance_status': attendance_status
-                })
-
-            serialized_obj = {
-                '_id': str(latest_attendance.id),
-                'course': {
-                    'id': str(latest_attendance.course_id.id),
-                    'name': latest_attendance.course_id.course_name
-                },
-                'date': str(latest_attendance.date),
-                'students': serialized_students,
-                'confirm_status': latest_attendance.confirm_status
-            }
-            return serialized_obj
+            return True  # Student successfully appended to attendance list
         else:
-            return None
-        
-    
-
+            return False

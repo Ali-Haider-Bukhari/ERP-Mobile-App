@@ -1696,7 +1696,7 @@ def insert_attendance(course_id, date, student_attendance):
         return False
     
 @app.route('/add_student_to_latest_unconfirmed_attendance', methods=['POST'])
-def add_student_to_latest_unconfirmed_attendance():
+def append_student_to_latest_unconfirmed_attendance():
     data = request.json
 
     # Extract data from the request
@@ -1708,20 +1708,14 @@ def add_student_to_latest_unconfirmed_attendance():
     if not course_id or not student_id or not attendance_status:
         return jsonify({'error': 'Missing required data'}), 400
 
-    # Check if the student is already in the attendance list
-    latest_attendance = Attendance.objects(course_id=course_id, confirm_status=False).order_by('-date').first()
-    if latest_attendance:
-        for student_info in latest_attendance.students:
-            if student_info.student_id == student_id:
-                return jsonify({'error': 'Student is already in the attendance list'}), 400
-
     # Call the method to append the student to the latest unconfirmed attendance
-    updated_attendance = Attendance.append_student_to_latest_unconfirmed_attendance(course_id, student_id, "PENDING")
+    success = Attendance.append_student_to_latest_unconfirmed_attendance(course_id, student_id, attendance_status)
 
-    if updated_attendance:
-        return jsonify(updated_attendance), 200
+    if success:
+        return jsonify({'success': True}), 200
     else:
-        return jsonify({'error': 'No unconfirmed attendance found for the given course ID'}), 404
+        return jsonify({'error': 'Failed to append student to attendance'}), 400
+
     
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=config_data['host'], port=5000)
