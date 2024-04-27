@@ -14,3 +14,4 @@ scikit-learn
 textstat
 pandas
 nltk
+opencv-python

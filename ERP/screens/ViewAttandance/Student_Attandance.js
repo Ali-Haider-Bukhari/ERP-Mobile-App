@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect } from 'react';
+import React, { useState, useRef,useEffect, useContext } from 'react';
 import { View, Text, Button, FlatList } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Python_Url, getToken } from '../../utils/constants';
@@ -7,6 +7,7 @@ const StudentAttendance = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
   const [ loading,setLoading] = useState(false)
+  const {user} = useContext(AuthContext)
   
   const cameraRef = useRef(null);
   let longPressTimer;
@@ -15,7 +16,7 @@ const StudentAttendance = () => {
     setIsRecording(true)
     if (cameraRef.current) {
       try {
-        const { uri } = await cameraRef.current.recordAsync({ maxDuration: 5 });
+        const { uri } = await cameraRef.current.recordAsync({ maxDuration: 3 });
         console.log('Video recorded:', uri);
         getToken().then((token)=>{
           sendVideoToBackend(uri,token)
@@ -44,17 +45,27 @@ const StudentAttendance = () => {
 
     try {
       setLoading(true)
-      await fetch(`${Python_Url}`+'/upload-video', {
+      var response = await fetch(`${Python_Url}`+'/upload-video', {
         method: 'POST',
         body: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization':token
         },
-      }).then(()=>{
+      })
+
+    
+      if(response){
         setIsRecording(false);
         setLoading(false)
-      })
+        const data = await response.json()
+        console.log(data)
+        if(data.person!=null && typeof(data.person) == "string"){
+          if(data.person.includes(user.roll_number)){
+            console.log(user.roll_number)
+          }
+      }
+    }
 
       // if (!response.ok) {
       //   setIsRecording(false);
@@ -172,6 +183,7 @@ export default StudentAttendance;
 
 import {StyleSheet} from 'react-native';
 import AnimatedLoader from 'react-native-animated-loader';
+import { AuthContext } from '../../contexts/AuthContext';
 function Loading() {
   const [visible, setVisible] = useState(false);
   useEffect(() => {

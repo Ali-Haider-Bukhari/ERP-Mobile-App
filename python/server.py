@@ -15,6 +15,7 @@ from models.Message import Message
 from models.Result import ObjectofAssessment, Result
 from models.Notification import Notification
 from models.Location import Location
+import cv2
 import os
 import smtplib
 import ssl
@@ -26,6 +27,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 import openpyxl
+from deepface import DeepFace
+
 
 # import tensorflow as tf
 # import numpy as np
@@ -74,7 +77,7 @@ app = Flask(__name__)
 
 # # Train the model with validation data
 # model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
-
+##################################################################################################################
 import pandas as panda
 # from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -102,11 +105,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 dataset = panda.read_csv("./Dataset/HateSpeech_Dataset/HateSpeechData.csv")
-dataset
+# dataset
 
 # Adding text-length as a field in the dataset
 dataset['text length'] = dataset['tweet'].apply(len)
-print(dataset.head())
+# print(dataset.head())
 
 # collecting only the tweets from the csv file into a variable name tweet
 tweet=dataset.tweet
@@ -163,7 +166,7 @@ def preprocess(tweet):
 processed_tweets = preprocess(tweet)   
 
 dataset['processed_tweets'] = processed_tweets
-print(dataset[["tweet","processed_tweets"]].head(10),"preprocessed")
+# print(dataset[["tweet","processed_tweets"]].head(10),"preprocessed")
 
 #TF-IDF Features-F1
 # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
@@ -181,7 +184,7 @@ rf.fit(X_train_tfidf,y_train)
 y_preds = rf.predict(X_test_tfidf)
 acc1=accuracy_score(y_test,y_preds)
 report = classification_report( y_test, y_preds )
-print(report)
+# print(report)
 print("Random Forest, Accuracy Score:",acc1)
 # ABOVE MODEL CODE
 
@@ -1566,13 +1569,83 @@ def upload_video():
     if video_file and allowed_file(video_file.filename):
         video_path = os.path.join('./video', video_file.filename)
         video_file.save(video_path)
-        return jsonify({'message': 'Video uploaded successfully', 'video_path': video_path}), 200
+
+    # PERFORM FACE RECOGNITION HERE BELOW
+        create_folder_if_not_exists("./frames")
+        extract_frames(video_path, "./frames")
+        match = perform_face_recognition_on_frames("./frames")
+        print(match)
+
+        return jsonify({'message': 'Video uploaded successfully', 'video_path': video_path,'person':match})
     else:
         return jsonify({'error': 'Invalid file type, only MP4 videos are allowed'}), 400
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'mp4'}
 
+def extract_frames(video_path, output_folder):
+    # Open the video file
+    vidcap = cv2.VideoCapture(video_path)
+    success, image = vidcap.read()
+    count = 0
+
+    # Create the output folder if it doesn't exist
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # Get the frame rate of the video
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
+
+    # Calculate the frame index for 2 seconds
+    frame_index_2_seconds = int(3 * fps)
+
+    # Loop through the video frames until 2 seconds or maximum 10 frames
+    while count < frame_index_2_seconds and count < 10 and success:
+        frame_path = os.path.join(output_folder, f"frame_{count:05d}.jpg")  # Define the frame filename
+        cv2.imwrite(frame_path, image)  # Save the frame as an image
+        success, image = vidcap.read()  # Read the next frame
+        count += 1
+
+    print(f"{count} frames extracted and saved to {output_folder}")
+
+def create_folder_if_not_exists(folder_path):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        print(f"Folder '{folder_path}' created.")
+    else:
+        print(f"Folder '{folder_path}' already exists.")
+
+def perform_face_recognition_on_frames(frames_folder):
+    best_reference_img = None
+    total_score = 0
+
+    # Iterate through the reference images
+    for reference_img in os.listdir("./deepface/images"):
+        reference_img_path = os.path.join("./deepface/images", reference_img)
+        count = 0
+        
+        # Iterate through the frames in the folder
+        for filename in os.listdir(frames_folder):
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                frame_path = os.path.join(frames_folder, filename)
+                # Perform face recognition on each frame
+                print(reference_img_path)
+                result = DeepFace.verify(img1_path=frame_path, img2_path=reference_img_path)
+                if result["verified"]:
+                    print(f"Face recognized in {filename}: {result['distance']}")
+                    count += 1
+                else:
+                    print(f"Face not recognized in {filename}")
+        # Calculate the average recognition score for the reference image
+        # avg_score = total_score / count if count > 0 else 0
+
+        # Update the best reference image if its score is higher
+        if total_score < count:
+            total_score = count
+            best_reference_img = reference_img
+            print(best_reference_img,total_score)
+
+    return best_reference_img
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=config_data['host'], port=5000)
