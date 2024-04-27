@@ -3,6 +3,9 @@ import { View, Text, Button, FlatList } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Python_Url, getToken } from '../../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import {StyleSheet} from 'react-native';
+import AnimatedLoader from 'react-native-animated-loader';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const StudentAttendance = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -37,6 +40,38 @@ const StudentAttendance = () => {
     }
   };
 
+  const addAttendance = () => {
+    const data = {
+      course_id: '609f83d09f883126485e0c15',
+      date: '2024-04-27 09:00:00',
+      student_attendance: [
+        {
+          student_id: '609f83d09f883126485e0c16',
+          attendance_status: 'PRESENT'
+        },
+        {
+          student_id: '609f83d09f883126485e0c17',
+          attendance_status: 'ABSENT'
+        }
+      ]
+    };
+
+    fetch(`${Python_Url}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+      setResponse(data);
+    })
+    .catch(error => {
+      console.error('Error adding attendance:', error);
+    });
+  };
+
   const sendVideoToBackend = async (videoUri,token) => {
     const formData = new FormData();
     formData.append('video', {
@@ -65,6 +100,7 @@ const StudentAttendance = () => {
         if(data.person!=null && typeof(data.person) == "string"){
           if(data.person.includes(user.roll_number)){
             console.log(user.roll_number)
+            addAttendance();
             navigation.navigate('Student_Attandance_Status', { text: "Successfully Marked" });
           }else{
             navigation.navigate('Student_Attandance_Status', { text: "Failed to Recognise" });
@@ -185,10 +221,6 @@ const StudentAttendance = () => {
 export default StudentAttendance;
 
 
-
-import {StyleSheet} from 'react-native';
-import AnimatedLoader from 'react-native-animated-loader';
-import { AuthContext } from '../../contexts/AuthContext';
 function Loading() {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -198,7 +230,6 @@ function Loading() {
   }, []);
   return (
     <AnimatedLoader
-   
       visible={visible}
       overlayColor="rgba(255,255,255,0.75)"
       animationStyle={styles.lottie}

@@ -28,6 +28,8 @@ from reportlab.pdfgen import canvas
 import io
 import openpyxl
 from deepface import DeepFace
+from models import Attendance, STUDENT
+from datetime import datetime
 
 
 # import tensorflow as tf
@@ -1646,6 +1648,53 @@ def perform_face_recognition_on_frames(frames_folder):
             print(best_reference_img,total_score)
 
     return best_reference_img
+
+@app.route('/add-attendance', methods=['POST'])
+def add_attendance():
+    data = request.json
+    course_id = data.get('course_id')
+    date = datetime.strptime(data.get('date'), '%Y-%m-%d %H:%M:%S')
+    student_attendance = data.get('student_attendance')
+
+    if not course_id or not date or not student_attendance:
+        return jsonify({'error': 'Missing parameters'}), 400
+
+    if insert_attendance(course_id, date, student_attendance):
+        return jsonify({'message': 'Attendance record inserted successfully'}), 201
+    else:
+        return jsonify({'error': 'Failed to insert attendance record'}), 500
+    
+
+
+def insert_attendance(course_id, date, student_attendance):
+    """
+    Insert attendance record into the database.
+
+    Parameters:
+        course_id (ObjectId): ID of the course for which attendance is being recorded.
+        date (datetime): Date of the attendance record.
+        student_attendance (list): List of dictionaries containing student_id and attendance_status.
+
+    Returns:
+        bool: True if insertion is successful, False otherwise.
+    """
+    try:
+        # Create students list
+        students = [
+            STUDENT(student_id=ObjectId(sa['student_id']), attendance_status=sa['attendance_status'])
+            for sa in student_attendance
+        ]
+
+        # Create an instance of Attendance
+        attendance = Attendance(course_id=ObjectId(course_id), date=date, students=students, confirm_status=False)
+
+        # Save the instance to MongoDB
+        attendance.save()
+
+        return True
+    except Exception as e:
+        print(f"Error inserting attendance record: {e}")
+        return False
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=config_data['host'], port=5000)
