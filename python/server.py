@@ -10,7 +10,7 @@ from flask_socketio import SocketIO
 from mongoengine import connect , ValidationError
 from models.User import User, UserRoleEnum
 from models.Course import Course
-from models.Attandance import Attendance
+from models.Attandance import Attendance,STUDENT
 from models.Message import Message
 from models.Result import ObjectofAssessment, Result
 from models.Notification import Notification
@@ -28,7 +28,6 @@ from reportlab.pdfgen import canvas
 import io
 import openpyxl
 from deepface import DeepFace
-from models import Attendance, STUDENT
 from datetime import datetime
 
 

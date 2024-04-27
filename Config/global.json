@@ -7,5 +7,5 @@
     "app_mode":"prelive",
     "IMAGE_FOLDER":"Images",
 
-    "host":"192.168.0.108"
+    "host":"162.12.210.24"
 }
