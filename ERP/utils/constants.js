@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const DB_URL = `mongodb+srv://haidermubeendoctornow:haidermubeendoctornow@doctornow.njbjumi.mongodb.net/UMS`
 
-export const Python_Url = 'http://162.12.210.24:5000'
+export const Python_Url = 'http://192.168.0.108:5000'
 
 
 export const Chat_Bot_ID="65eb07b9fd5eaffecaa37729"

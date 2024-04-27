@@ -1,17 +1,25 @@
 import React, { useState, useRef,useEffect } from 'react';
 import { View, Text, Button, FlatList } from 'react-native';
 import { Camera } from 'expo-camera';
+import { Python_Url, getToken } from '../../utils/constants';
 
 const StudentAttendance = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
+  const [ loading,setLoading] = useState(false)
+  
   const cameraRef = useRef(null);
+  let longPressTimer;
 
   const startRecording = async () => {
+    setIsRecording(true)
     if (cameraRef.current) {
       try {
         const { uri } = await cameraRef.current.recordAsync({ maxDuration: 5 });
         console.log('Video recorded:', uri);
+        getToken().then((token)=>{
+          sendVideoToBackend(uri,token)
+        })
         // You can update attendanceData with the recorded video URI or any other relevant data
       } catch (error) {
         console.error('Failed to start recording', error);
@@ -22,6 +30,70 @@ const StudentAttendance = () => {
   const stopRecording = async () => {
     if (cameraRef.current) {
       cameraRef.current.stopRecording();
+      setIsRecording(false)
+    }
+  };
+
+  const sendVideoToBackend = async (videoUri,token) => {
+    const formData = new FormData();
+    formData.append('video', {
+      uri: videoUri,
+      type: 'video/mp4',
+      name: 'recorded_video.mp4',
+    });
+
+    try {
+      setLoading(true)
+      await fetch(`${Python_Url}`+'/upload-video', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization':token
+        },
+      }).then(()=>{
+        setIsRecording(false);
+        setLoading(false)
+      })
+
+      // if (!response.ok) {
+      //   setIsRecording(false);
+      //   throw new Error('Failed to upload video');
+      // } 
+
+      // Handle backend response if needed
+    } catch (error) {
+      setIsRecording(false);
+      setLoading(false)
+      console.error('Error uploading video to backend:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    // Generate dummy attendance data (replace this with your actual data)
+    const dummyAttendanceData = [];
+    for (let i = 0; i < 15; i++) {
+      dummyAttendanceData.push({
+        id: i.toString(),
+        studentName: `2024-04-04 10:54:21`,
+        isPresent: Math.random() < 0.5, // Randomly generate present or absent
+      });
+    }
+    setAttendanceData(dummyAttendanceData);
+  }, []);
+
+  const handlePressIn = () => {
+    longPressTimer = setTimeout(() => {
+      startRecording();
+      setIsRecording(true);
+    }, 500); // Adjust the delay for your preference
+  };
+
+  const handlePressOut = () => {
+    clearTimeout(longPressTimer);
+    if (isRecording) {
+      stopRecording();
+      setIsRecording(false);
     }
   };
 
@@ -52,26 +124,28 @@ const StudentAttendance = () => {
       })();
   }, [])
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item ,index}) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+      <Text>{index+1}</Text>
       <Text>{item.studentName}</Text>
       <Text>{item.isPresent ? 'Present' : 'Absent'}</Text>
     </View>
   );
 
   return (
-    <View style={{ flex: 1 }}>
+    <>
+    {loading==false?<View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <Camera
+        <Camera 
           style={{ flex: 1 }}
-          type={Camera.Constants.Type.back}
+          type={Camera.Constants.Type.front}
           ref={cameraRef}
         />
         <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
           {isRecording ? (
-            <Button title="Stop Recording" onPress={stopRecording} />
+            <Button color={'red'} title="Recording in progress" onPress={stopRecording} />
           ) : (
-            <Button title="Start Recording" onPress={startRecording} />
+            <Button title={isRecording==true?"...Capturing":"Start Recording"} onPress={startRecording} />
           )}
         </View>
       </View>
@@ -81,11 +155,44 @@ const StudentAttendance = () => {
           data={attendanceData}
           renderItem={renderItem}
           keyExtractor={item => item.id}
+          
         />
-        <Button title="Mark Attendance" onPress={onMarkAttendance} />
+        {/* Button to mark attendance */}
+        <Button title="Mark Attendance" onPress={() => console.log("Attendance marked")} />
       </View>
     </View>
+    :<Loading/>}
+    </>
   );
 };
 
 export default StudentAttendance;
+
+
+
+import {StyleSheet} from 'react-native';
+import AnimatedLoader from 'react-native-animated-loader';
+function Loading() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    setInterval(() => {
+      setVisible(!visible);
+    }, 2000);
+  }, []);
+  return (
+    <AnimatedLoader
+   
+      visible={visible}
+      overlayColor="rgba(255,255,255,0.75)"
+      animationStyle={styles.lottie}
+      speed={1}>
+      <Text>Face Checking...</Text>
+    </AnimatedLoader>
+  );
+}
+const styles = StyleSheet.create({
+  lottie: {
+    width: 100,
+    height: 100,
+  },
+});

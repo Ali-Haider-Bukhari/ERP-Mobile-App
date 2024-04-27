@@ -1490,7 +1490,25 @@ def delete_location(location_id):
         else:
             return jsonify({'error': 'Location not found'}), 404
 
+@app.route('/upload-video', methods=['POST'])
+def upload_video():
+    if 'video' not in request.files:
+        return jsonify({'error': 'No video file provided'}), 400
 
+    video_file = request.files['video']
+
+    if video_file.filename == '':
+        return jsonify({'error': 'No selected video file'}), 400
+
+    if video_file and allowed_file(video_file.filename):
+        video_path = os.path.join('./video', video_file.filename)
+        video_file.save(video_path)
+        return jsonify({'message': 'Video uploaded successfully', 'video_path': video_path}), 200
+    else:
+        return jsonify({'error': 'Invalid file type, only MP4 videos are allowed'}), 400
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'mp4'}
 
 
 if __name__ == '__main__':
